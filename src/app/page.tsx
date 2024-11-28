@@ -34,7 +34,7 @@ export default function Home() {
   ]
 
   return (
-    <main className="min-h-screen bg-[#F5F7FA]">
+    <main className="min-h-screen bg-gray-200">
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <section className="mb-12">

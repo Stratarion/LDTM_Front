@@ -39,9 +39,11 @@ export default function SchoolCard({ school }: SchoolCardProps) {
                 {school.name}
               </h3>
             </Link>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 bg-gray-100 px-2 py-1 rounded-lg">
               <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-              <span className="font-medium">{school.rating?.toFixed(1) || '0.0'}</span>
+              <span className="font-medium text-gray-900">
+                {(school.totalRating / school.reviewCount)?.toFixed(1) || '0.0'}
+              </span>
             </div>
           </div>
 
@@ -58,22 +60,22 @@ export default function SchoolCard({ school }: SchoolCardProps) {
               {school.schoolType === 'state' ? 'Государственная' : 'Частная'}
             </span>
             <span className="px-3 py-1 rounded-full text-sm bg-gray-100 text-gray-600">
-              {school.studentsCount || 0} учеников
+              {school.maxCount || 0} учеников в группе/классе
             </span>
             {school.approach && (
               <span className="px-3 py-1 rounded-full text-sm bg-green-50 text-green-600">
                 {school.approach}
               </span>
             )}
-            {school.schoolType === 'private' && school.averageCost && (
+            {school.schoolType === 'private' && school.costInfo && (
               <span className="px-3 py-1 rounded-full text-sm bg-amber-50 text-amber-600">
-                ~{school.averageCost?.toLocaleString()} ₽/месяц
+                ~{school.costInfo?.toLocaleString()} ₽/месяц
               </span>
             )}
           </div>
 
           <div className="mt-3 text-sm text-gray-500 flex justify-between items-center">
-            <span>{school.reviewsCount || 0} отзывов</span>
+            <span>{school.reviewCount || 0} отзывов</span>
             <span className="text-gray-600">{school.address}</span>
           </div>
         </div>

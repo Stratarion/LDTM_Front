@@ -83,14 +83,41 @@ const SchoolsList = () => {
     initialInView: false
   })
 
+  // Функция для фильтрации школ по рейтингу
+  const filterSchoolsByRating = useCallback((schools: School[]) => {
+    if (!activeFilters.minRating) return schools
+
+    return schools.filter(school => {
+      const averageRating = school.totalRating && school.reviewCount 
+        ? school.totalRating / school.reviewCount 
+        : 0
+      return averageRating >= activeFilters.minRating
+    })
+  }, [activeFilters.minRating])
+
   const loadMoreSchools = useCallback(async () => {
     if (isLoading || !hasMore) return
 
     setIsLoading(true)
     try {
-      const response = await SchoolsService.getSchools(page, 10, activeFilters)
-      setSchools(prev => [...prev, ...response.data])
-      setHasMore(page < response.numberOfPages)
+      // Создаем копию фильтров без рейтинга для API
+      const apiFilters = { 
+        ...activeFilters,
+        minRating: null // Убираем фильтр по рейтингу из API-запроса
+      }
+
+      const response = await SchoolsService.getSchools(page, 10, apiFilters)
+      
+      // Фильтруем школы по рейтингу на фронте
+      const filteredSchools = filterSchoolsByRating(response.data)
+      
+      setSchools(prev => {
+        const newSchools = [...prev, ...filteredSchools]
+        // Проверяем, есть ли еще школы после фильтрации
+        setHasMore(page < response.numberOfPages && filteredSchools.length > 0)
+        return newSchools
+      })
+      
       setPage(prev => prev + 1)
     } catch (error) {
       console.error('Failed to load schools:', error)
@@ -98,7 +125,7 @@ const SchoolsList = () => {
       setIsLoading(false)
       setIsInitialLoad(false)
     }
-  }, [page, isLoading, hasMore, activeFilters])
+  }, [page, isLoading, hasMore, activeFilters, filterSchoolsByRating])
 
   useEffect(() => {
     if (!initialFetchRef.current) {
@@ -174,7 +201,7 @@ export default function SchoolsPage() {
   const pathname = usePathname()
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-gray-200">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 py-8">

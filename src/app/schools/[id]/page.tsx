@@ -47,7 +47,7 @@ export default function SchoolPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA]">
+      <div className="min-h-screen bg-gray-200">
         <Header />
         <div className="flex justify-center items-center py-20">
           <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
@@ -58,7 +58,7 @@ export default function SchoolPage() {
 
   if (!school) {
     return (
-      <div className="min-h-screen bg-[#F5F7FA]">
+      <div className="min-h-screen bg-gray-200">
         <Header />
         <div className="max-w-7xl mx-auto px-4 py-20">
           <h1 className="text-2xl font-bold text-gray-900">Школа не найдена</h1>
@@ -68,7 +68,7 @@ export default function SchoolPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
+    <div className="min-h-screen bg-gray-200">
       <Header />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <button

@@ -5,14 +5,16 @@ export interface School {
   name: string;
   avatar: string;
   description: string;
-  reviewsCount: number;
+  reviewCount: number;
   rating: number;
+  totalRating: number;
   schoolType: 'state' | 'private';
-  studentsCount: number;
+  maxCount: number;
   approach: string;
-  averageCost?: number;
+  costInfo?: number;
   address: string;
   gallery: string[];
+  type: 'school' | 'garden';
   features: {
     id: string;
     name: string;
@@ -33,6 +35,13 @@ export interface SchoolFiltersType {
   priceRange: [number, number] | null;
   name: string;
   minRating: number | null;
+  city: string | null;
+}
+
+export interface SchoolApiFiltersType {
+  type: 'all' | 'state' | 'private';
+  priceRange: [number, number] | null;
+  name: string;
   city: string | null;
 }
 

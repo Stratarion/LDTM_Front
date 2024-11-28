@@ -78,13 +78,19 @@ export default function Header() {
                   onClick={() => setIsProfileModalOpen(true)}
                   className="h-10 w-10 rounded-full overflow-hidden hover:ring-2 hover:ring-[#5CD2C6] transition-all"
                 >
-                  <Image
-                    src="https://picsum.photos/200"
-                    alt="Профиль"
-                    width={40}
-                    height={40}
-                    className="object-cover"
-                  />
+                  {userData.avatar_url ? (
+                    <Image
+                      src={userData.avatar_url}
+                      alt="Профиль"
+                      width={40}
+                      height={40}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-[#5CD2C6] text-white font-medium">
+                      {userData.name?.charAt(0)}
+                    </div>
+                  )}
                 </button>
               </>
             ) : (
@@ -104,7 +110,7 @@ export default function Header() {
         isOpen={isAuthModalOpen} 
         onClose={() => {
           setIsAuthModalOpen(false)
-          checkAuth() // Проверяем авторизацию после закрытия модального окна
+          checkAuth()
         }} 
       />
 
@@ -112,7 +118,7 @@ export default function Header() {
         isOpen={isProfileModalOpen}
         onClose={() => {
           setIsProfileModalOpen(false)
-          checkAuth() // Проверяем авторизацию после закрытия модального окна профиля
+          checkAuth()
         }}
       />
     </>

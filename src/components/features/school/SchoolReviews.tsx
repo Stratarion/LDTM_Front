@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { Star, ThumbsUp, MessageCircle, Loader2 } from 'lucide-react'
 import Image from 'next/image'
-import { ReviewsService, Review } from '@/services/reviews.service'
+import { ReviewsService, Review, ReviewsResponse } from '@/services/reviews.service'
+import { useAuth } from '@/hooks/useAuth'
 import AddReviewForm from './AddReviewForm'
 
 interface SchoolReviewsProps {
@@ -11,13 +12,22 @@ interface SchoolReviewsProps {
 }
 
 export default function SchoolReviews({ schoolId }: SchoolReviewsProps) {
+  const { user } = useAuth()
   const [reviews, setReviews] = useState<Review[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [hasUserReview, setHasUserReview] = useState(false)
 
   const loadReviews = async () => {
     try {
       const response = await ReviewsService.getSchoolReviews(schoolId)
+      console.log(response)
       setReviews(response.data || [])
+      
+      // Проверяем, есть ли отзыв текущего пользователя
+      if (user) {
+        const userReview = response.data.find(review => review.createrId === user.id)
+        setHasUserReview(!!userReview)
+      }
     } catch (error) {
       console.error('Failed to load reviews:', error)
       setReviews([])
@@ -28,7 +38,7 @@ export default function SchoolReviews({ schoolId }: SchoolReviewsProps) {
 
   useEffect(() => {
     loadReviews()
-  }, [schoolId])
+  }, [schoolId, user]) // Добавляем user в зависимости
 
   if (isLoading) {
     return (
@@ -47,17 +57,25 @@ export default function SchoolReviews({ schoolId }: SchoolReviewsProps) {
       
       <div className="space-y-6">
         <div className="border-b border-gray-100 pb-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Оставить отзыв
-          </h3>
-          <AddReviewForm schoolId={schoolId} onReviewAdded={loadReviews} />
+          {!hasUserReview ? (
+            <div className="bg-green-50 p-4 rounded-lg text-green-800">
+              Ваш отзыв уже учтен, спасибо!
+            </div>
+          ) : (
+            <>
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Оставить отзыв
+              </h3>
+              <AddReviewForm schoolId={schoolId} onReviewAdded={loadReviews} />
+            </>
+          )}
         </div>
 
         {reviews && reviews.length > 0 ? (
           reviews.map((review) => (
             <div key={review.id} className="border-b border-gray-100 last:border-0 pb-6 last:pb-0">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden bg-white flex-shrink-0 border-2 border-gray-300 shadow-sm">
                   {review.createrAvatar ? (
                     <Image
                       src={review.createrAvatar}
@@ -68,7 +86,7 @@ export default function SchoolReviews({ schoolId }: SchoolReviewsProps) {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-[#5CD2C6] text-white font-medium">
-                      {review.createrName.charAt(0)}
+                      {review.createrName?.charAt(0)}
                     </div>
                   )}
                 </div>

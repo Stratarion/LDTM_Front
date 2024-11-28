@@ -8,13 +8,21 @@ interface SchoolInfoProps {
 }
 
 export default function SchoolInfo({ school }: SchoolInfoProps) {
+  // Рассчитываем средний рейтинг
+  const averageRating = school.totalRating && school.reviewCount 
+    ? (school.totalRating / school.reviewCount).toFixed(1) 
+    : '0.0'
+
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex items-start justify-between mb-6">
         <h1 className="text-3xl font-bold text-gray-900">{school.name}</h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded-lg">
           <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
-          <span className="text-xl font-bold">{school.rating?.toFixed(1)}</span>
+          <div className="flex flex-col items-end">
+            <span className="text-xl font-bold text-gray-900">{averageRating}</span>
+            <span className="text-sm text-gray-500">{school.reviewCount || 0} отзывов</span>
+          </div>
         </div>
       </div>
 
@@ -33,8 +41,8 @@ export default function SchoolInfo({ school }: SchoolInfoProps) {
           <div className="flex items-start gap-3">
             <Users className="w-5 h-5 text-gray-400 mt-1" />
             <div>
-              <h3 className="font-medium text-gray-900">Количество учеников</h3>
-              <p className="text-gray-600">{school.studentsCount} учеников</p>
+              <h3 className="font-medium text-gray-900">Количество учеников в группе/классе</h3>
+              <p className="text-gray-600">{school.maxCount} учеников</p>
             </div>
           </div>
 
@@ -58,11 +66,11 @@ export default function SchoolInfo({ school }: SchoolInfoProps) {
             </div>
           )}
 
-          {school.schoolType === 'private' && school.averageCost && (
+          {school.schoolType === 'private' && school.costInfo && (
             <div className="mt-4">
               <h3 className="font-medium text-gray-900 mb-2">Стоимость обучения</h3>
               <p className="text-gray-600">
-                ~{school.averageCost?.toLocaleString()} ₽/месяц
+                ~{school.costInfo?.toLocaleString()} ₽/месяц
               </p>
             </div>
           )}

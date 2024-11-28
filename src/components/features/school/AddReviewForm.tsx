@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Star } from 'lucide-react'
 import { ReviewsService } from '@/services/reviews.service'
-import { AuthService } from '@/services/auth.service'
+import { useAuth } from '@/hooks/useAuth'
 
 interface AddReviewFormProps {
   schoolId: string
@@ -11,14 +11,13 @@ interface AddReviewFormProps {
 }
 
 export default function AddReviewForm({ schoolId, onReviewAdded }: AddReviewFormProps) {
+  const { user } = useAuth()
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
   const [content, setContent] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [hasUserReview, setHasUserReview] = useState(false)
-
-  const user = AuthService.getUser()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -41,18 +40,13 @@ export default function AddReviewForm({ schoolId, onReviewAdded }: AddReviewForm
     setError('')
 
     try {
-      // Проверяем, оставлял ли пользователь уже отзыв
-      const hasReview = await ReviewsService.checkUserReview(schoolId, user.id)
-      if (hasReview) {
-        setHasUserReview(true)
-        return
-      }
-
       await ReviewsService.createReview({
-        schoolId,
-        userId: user.id,
+        content,
         rating,
-        content
+        schoolId,
+        createrName: user.name,
+        createrId: user.id,
+        createrAvatar: user.avatar_url,
       })
 
       setContent('')

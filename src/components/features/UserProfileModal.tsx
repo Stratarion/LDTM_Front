@@ -3,18 +3,32 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, User, LogOut } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { AuthService } from '@/services/auth.service'
+import { User as UserType } from '@/types/user'
 
 interface UserProfileModalProps {
   isOpen: boolean
   onClose: () => void
 }
 
+const roleLabels: Record<UserType['userType'], string> = {
+  admin: 'Администратор',
+  user: 'Пользователь',
+  provider: 'Представитель организации'
+}
+
 export default function UserProfileModal({ isOpen, onClose }: UserProfileModalProps) {
+  const router = useRouter()
   const userData = AuthService.getUser()
 
   const handleLogout = () => {
     AuthService.logout()
+    onClose()
+  }
+
+  const handleProfileClick = () => {
+    router.push('/profile')
     onClose()
   }
 
@@ -46,7 +60,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
           <div className="flex flex-col items-center">
             <div className="h-24 w-24 rounded-full overflow-hidden mb-4">
               <Image
-                src="https://picsum.photos/200"
+                src={userData?.avatar_url || "https://picsum.photos/200"}
                 alt="Profile"
                 width={96}
                 height={96}
@@ -55,14 +69,18 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
             </div>
 
             <h2 className="text-2xl font-bold mb-1">{userData?.name || 'Пользователь'}</h2>
-            <p className="text-gray-600 mb-6">{userData?.email}</p>
+            <p className="text-gray-600 mb-2">{userData?.email}</p>
+            <p className="text-sm text-gray-500 mb-6">
+              {userData?.userType ? roleLabels[userData.userType] : ''}
+            </p>
 
             <div className="w-full space-y-3">
               <button
+                onClick={handleProfileClick}
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 transition-colors text-gray-700"
               >
                 <User size={20} />
-                Редактировать профиль
+                Личный кабинет
               </button>
 
               <button
