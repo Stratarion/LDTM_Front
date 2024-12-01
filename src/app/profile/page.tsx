@@ -8,6 +8,8 @@ import PersonalData from '@/components/features/profile/PersonalData'
 import UserLessons from '@/components/features/profile/UserLessons'
 import AdminUsers from '@/components/features/profile/AdminUsers'
 import ProviderOrganizations from '@/components/features/profile/ProviderOrganizations'
+import ProviderServices from '@/components/features/profile/ProviderServices'
+import ProviderSchedule from '@/components/features/profile/ProviderSchedule'
 
 export default function ProfilePage() {
   const { user } = useAuth()
@@ -49,6 +51,10 @@ export default function ProfilePage() {
         return <AdminUsers />
       case 'organizations':
         return <ProviderOrganizations />
+      case 'services':
+        return <ProviderServices />
+      case 'schedule':
+        return <ProviderSchedule />
       default:
         return <div>В разработке...</div>
     }

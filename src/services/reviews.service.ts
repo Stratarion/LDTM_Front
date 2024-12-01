@@ -1,15 +1,16 @@
 import { API } from './api'
+import { User } from '@/types/user'
 
 export interface Review {
   id: string
   content: string
   rating: number
-  createdAt: string
   createrName: string
   createrId: string
   createrAvatar?: string
-  likesCount: number
-  repliesCount: number
+  organizationId: string
+  organizationType: 'school' | 'garden'
+  createdAt: string
 }
 
 export interface ReviewsResponse {
@@ -18,7 +19,7 @@ export interface ReviewsResponse {
   averageRating: number
 }
 
-export interface CreateReviewDto {
+interface CreateReviewDto {
   content: string
   rating: number
   createrName: string
@@ -27,21 +28,21 @@ export interface CreateReviewDto {
   schoolId: string
 }
 
-export class ReviewsService {
-  static async getSchoolReviews(schoolId: string) {
+export const ReviewsService = {
+  async getSchoolReviews(schoolId: string): Promise<ReviewsResponse> {
     const response = await API.get<ReviewsResponse>(`/reviews/list?id=${schoolId}`)
     return response.data
-  }
+  },
 
-  static async createReview(reviewData: CreateReviewDto) {
+  async createReview(reviewData: CreateReviewDto): Promise<Review> {
     const response = await API.post<Review>('/reviews/create', reviewData)
     return response.data
-  }
+  },
 
-  static async checkUserReview(schoolId: string, userId: string) {
-    const response = await API.get<{ hasReview: boolean }>(`/reviews/check`, {
-      params: { schoolId, userId }
-    })
+  async checkUserReview(schoolId: string, userId: string): Promise<boolean> {
+    const response = await API.get<{ hasReview: boolean }>(
+      `/reviews/check?schoolId=${schoolId}&userId=${userId}`
+    )
     return response.data.hasReview
   }
 } 
