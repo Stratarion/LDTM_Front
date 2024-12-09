@@ -19,11 +19,18 @@ import { ru } from 'date-fns/locale'
 interface CalendarViewProps {
   events: ScheduleEvent[]
   onEventClick: (event: ScheduleEvent) => void
+  currentDate: Date
+  onPrevPeriod: () => void
+  onNextPeriod: () => void
 }
 
-export default function CalendarView({ events, onEventClick }: CalendarViewProps) {
-  const [currentDate, setCurrentDate] = useState(new Date())
-
+export default function CalendarView({ 
+  events, 
+  onEventClick, 
+  currentDate,
+  onPrevPeriod,
+  onNextPeriod 
+}: CalendarViewProps) {
   const monthStart = startOfMonth(currentDate)
   const monthEnd = endOfMonth(monthStart)
   const calendarStart = startOfWeek(monthStart, { locale: ru })
@@ -33,11 +40,11 @@ export default function CalendarView({ events, onEventClick }: CalendarViewProps
   const formatTime = (time: string) => time.slice(0, 5)
 
   const handlePrevMonth = () => {
-    setCurrentDate(prev => addMonths(prev, -1))
+    onPrevPeriod()
   }
 
   const handleNextMonth = () => {
-    setCurrentDate(prev => addMonths(prev, 1))
+    onNextPeriod()
   }
 
   return (
@@ -46,7 +53,7 @@ export default function CalendarView({ events, onEventClick }: CalendarViewProps
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={handlePrevMonth}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -55,7 +62,7 @@ export default function CalendarView({ events, onEventClick }: CalendarViewProps
         </h3>
         <button
           onClick={handleNextMonth}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
         >
           <ChevronRight className="w-5 h-5" />
         </button>

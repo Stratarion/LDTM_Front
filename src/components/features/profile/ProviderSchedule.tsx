@@ -9,6 +9,8 @@ import EventDetails from './EventDetails'
 import CalendarView from './schedule/CalendarView'
 import WeekView from './schedule/WeekView'
 import ListView from './schedule/ListView'
+import { startOfMonth, endOfMonth, addMonths, startOfWeek, endOfWeek, addWeeks } from 'date-fns'
+import { ru } from 'date-fns/locale'
 
 type ViewType = 'calendar' | 'week' | 'list'
 
@@ -20,19 +22,17 @@ export default function ProviderSchedule() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<ScheduleEvent | null>(null)
   const [error, setError] = useState('')
+  const [currentDate, setCurrentDate] = useState(new Date())
 
-  const loadEvents = async () => {
+  const loadEvents = async (start: Date, end: Date) => {
     if (!user) return
 
     try {
-      const startDate = new Date()
-      const endDate = new Date()
-      endDate.setMonth(endDate.getMonth() + 1)
-
+      setIsLoading(true)
       const response = await ScheduleService.getEvents(
         user.id,
-        startDate.toISOString(),
-        endDate.toISOString()
+        start.toISOString(),
+        end.toISOString()
       )
       setEvents(response.data)
     } catch (err) {
@@ -44,15 +44,61 @@ export default function ProviderSchedule() {
   }
 
   useEffect(() => {
-    loadEvents()
-  }, [user])
+    let start: Date
+    let end: Date
+
+    switch (viewType) {
+      case 'calendar':
+        start = startOfMonth(currentDate)
+        end = endOfMonth(currentDate)
+        break
+      case 'week':
+        start = startOfWeek(currentDate, { locale: ru })
+        end = endOfWeek(currentDate, { locale: ru })
+        break
+      case 'list':
+        start = startOfWeek(currentDate, { locale: ru })
+        end = endOfWeek(currentDate, { locale: ru })
+        break
+    }
+
+    loadEvents(start, end)
+  }, [user, currentDate, viewType])
+
+  const handlePrevPeriod = () => {
+    switch (viewType) {
+      case 'calendar':
+        setCurrentDate(prev => addMonths(prev, -1))
+        break
+      case 'week':
+        setCurrentDate(prev => addWeeks(prev, -1))
+        break
+      case 'list':
+        setCurrentDate(prev => addWeeks(prev, -1))
+        break
+    }
+  }
+
+  const handleNextPeriod = () => {
+    switch (viewType) {
+      case 'calendar':
+        setCurrentDate(prev => addMonths(prev, 1))
+        break
+      case 'week':
+        setCurrentDate(prev => addWeeks(prev, 1))
+        break
+      case 'list':
+        setCurrentDate(prev => addWeeks(prev, 1))
+        break
+    }
+  }
 
   const handleEventClick = (event: ScheduleEvent) => {
     setSelectedEvent(event)
   }
 
   const handleEventUpdate = async () => {
-    await loadEvents()
+    await loadEvents(currentDate, currentDate)
     setSelectedEvent(null)
   }
 
@@ -122,13 +168,31 @@ export default function ProviderSchedule() {
       {/* Отображение расписания в зависимости от выбранного вида */}
       <div className="bg-white rounded-lg border border-gray-200">
         {viewType === 'calendar' && (
-          <CalendarView events={events} onEventClick={handleEventClick} />
+          <CalendarView 
+            events={events} 
+            onEventClick={handleEventClick}
+            currentDate={currentDate}
+            onPrevPeriod={handlePrevPeriod}
+            onNextPeriod={handleNextPeriod}
+          />
         )}
         {viewType === 'week' && (
-          <WeekView events={events} onEventClick={handleEventClick} />
+          <WeekView 
+            events={events} 
+            onEventClick={handleEventClick}
+            currentDate={currentDate}
+            onPrevPeriod={handlePrevPeriod}
+            onNextPeriod={handleNextPeriod}
+          />
         )}
         {viewType === 'list' && (
-          <ListView events={events} onEventClick={handleEventClick} />
+          <ListView 
+            events={events} 
+            onEventClick={handleEventClick}
+            currentDate={currentDate}
+            onPrevPeriod={handlePrevPeriod}
+            onNextPeriod={handleNextPeriod}
+          />
         )}
       </div>
 
@@ -138,7 +202,7 @@ export default function ProviderSchedule() {
         onClose={() => setIsAddModalOpen(false)}
         onSuccess={() => {
           setIsAddModalOpen(false)
-          loadEvents()
+          loadEvents(currentDate, currentDate)
         }}
       />
 

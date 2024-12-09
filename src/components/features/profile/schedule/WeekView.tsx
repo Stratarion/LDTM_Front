@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { ScheduleEvent } from '@/services/schedule.service'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns'
@@ -9,11 +8,18 @@ import { ru } from 'date-fns/locale'
 interface WeekViewProps {
   events: ScheduleEvent[]
   onEventClick: (event: ScheduleEvent) => void
+  currentDate: Date
+  onPrevPeriod: () => void
+  onNextPeriod: () => void
 }
 
-export default function WeekView({ events, onEventClick }: WeekViewProps) {
-  const [currentDate, setCurrentDate] = useState(new Date())
-  
+export default function WeekView({ 
+  events, 
+  onEventClick,
+  currentDate,
+  onPrevPeriod,
+  onNextPeriod
+}: WeekViewProps) {
   // Получаем начало недели
   const weekStart = startOfWeek(currentDate, { locale: ru })
   
@@ -23,11 +29,11 @@ export default function WeekView({ events, onEventClick }: WeekViewProps) {
   const formatTime = (time: string) => time.slice(0, 5)
 
   const handlePrevWeek = () => {
-    setCurrentDate(prev => addDays(prev, -7))
+    onPrevPeriod()
   }
 
   const handleNextWeek = () => {
-    setCurrentDate(prev => addDays(prev, 7))
+    onNextPeriod()
   }
 
   return (
@@ -36,7 +42,7 @@ export default function WeekView({ events, onEventClick }: WeekViewProps) {
       <div className="flex items-center justify-between mb-6">
         <button
           onClick={handlePrevWeek}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
@@ -45,7 +51,7 @@ export default function WeekView({ events, onEventClick }: WeekViewProps) {
         </h3>
         <button
           onClick={handleNextWeek}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
