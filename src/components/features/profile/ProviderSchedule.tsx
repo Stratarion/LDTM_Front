@@ -16,6 +16,7 @@ type ViewType = 'calendar' | 'week' | 'list'
 
 export default function ProviderSchedule() {
   const { user } = useAuth()
+  const userId = user?.id
   const [viewType, setViewType] = useState<ViewType>('calendar')
   const [events, setEvents] = useState<ScheduleEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -25,12 +26,12 @@ export default function ProviderSchedule() {
   const [currentDate, setCurrentDate] = useState(new Date())
 
   const loadEvents = async (start: Date, end: Date) => {
-    if (!user) return
+    if (!userId) return
 
     try {
       setIsLoading(true)
       const response = await ScheduleService.getEvents(
-        user.id,
+        userId,
         start.toISOString(),
         end.toISOString()
       )
@@ -63,7 +64,7 @@ export default function ProviderSchedule() {
     }
 
     loadEvents(start, end)
-  }, [user, currentDate, viewType])
+  }, [userId, currentDate, viewType])
 
   const handlePrevPeriod = () => {
     switch (viewType) {

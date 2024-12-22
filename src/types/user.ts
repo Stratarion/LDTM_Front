@@ -6,6 +6,7 @@ export interface User {
   email: string
   avatar_url?: string
   userType: UserRole
+  isOrganisation: boolean
   address?: string
   phone?: string
 } 

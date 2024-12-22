@@ -8,6 +8,7 @@ interface UpdateUserDto {
   address?: string
   phone?: string
   userType?: string
+  isOrganisation?: boolean
 }
 
 export const UsersService = {

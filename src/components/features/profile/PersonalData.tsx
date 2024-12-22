@@ -193,7 +193,8 @@ export default function PersonalData({ user }: PersonalDataProps) {
     try {
       await UsersService.updateUser(user.id, {
         ...formData,
-        userType: 'provider'
+        userType: 'provider',
+        isOrganisation: true,
       })
       await refreshUserData(user.id)
       setError('')
