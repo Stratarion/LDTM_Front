@@ -68,11 +68,33 @@ export function useAuth() {
     setIsLoading(false)
   }
 
+  const refreshUserData = async (userId: number) => {
+    try {
+      const userData = await UsersService.getCurrentUser(userId)
+      
+      // Обновляем данные в storage и state
+      const tokenData = storage.getToken()
+      if (tokenData) {
+        storage.setToken({
+          ...tokenData,
+          user: userData
+        })
+      }
+      
+      setUser(userData)
+      return userData
+    } catch (error) {
+      console.error('Error refreshing user data:', error)
+      throw error
+    }
+  }
+
   return {
     user,
     login,
     logout,
     isLoading,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
+    refreshUserData
   }
 } 

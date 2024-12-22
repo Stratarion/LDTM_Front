@@ -61,6 +61,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -191,15 +192,25 @@ export default function PersonalData({ user }: PersonalDataProps) {
   const handleUpgradeToCommercial = async () => {
     setIsLoading(true)
     try {
-      await UsersService.updateUser(user.id, {
+      const updatedUser = await UsersService.updateUser(user.id, {
         ...formData,
         userType: 'provider',
         isOrganisation: true,
       })
-      await refreshUserData(user.id)
-      setError('')
+      
+      if (updatedUser.userType === 'provider' && updatedUser.isOrganisation) {
+        await refreshUserData(user.id) // обновляем данные пользователя
+        setError('')
+        setIsUpgradeModalOpen(false)
+      } else {
+        setError('Не удалось обновить тип аккаунта')
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Ошибка при обновлении типа аккаунта')
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.error || 
+                          'Ошибка при обновлении типа аккаунта'
+      setError(errorMessage)
+      console.error('Error upgrading account:', err)
     } finally {
       setIsLoading(false)
     }
@@ -379,7 +390,15 @@ export default function PersonalData({ user }: PersonalDataProps) {
         }}
         onConfirm={handleConfirmAvatarChange}
         title="Сменить аватар?"
-        message="Вы уверены, что хотите сменить аватар профиля?"
+        message="Вы уверены, что хотите ��менить аватар профиля?"
+      />
+
+      <ConfirmModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        onConfirm={handleUpgradeToCommercial}
+        title="Переход на коммерческий аккаунт"
+        message="Вы уверены, что хотите перейти на коммерческий аккаунт? Это действие нельзя будет отменить."
       />
 
       {user.userType === 'user' && (
@@ -392,7 +411,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
               Получите доступ к расширенным возможностям для организаций и поставщиков услуг
             </p>
             <button
-              onClick={handleUpgradeToCommercial}
+              onClick={() => setIsUpgradeModalOpen(true)}
               disabled={isLoading}
               className="w-full bg-[#5CD2C6] text-white py-2 rounded-lg hover:bg-[#4BC0B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
