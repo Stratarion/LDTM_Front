@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { Loader2, Camera } from 'lucide-react'
 import Image from 'next/image'
 import ConfirmModal from '@/components/shared/ConfirmModal'
+import { AuthService } from '@/services/auth.service'
 
 // Функция для форматирования телефонного номера
 const formatPhoneNumber = (value: string) => {
@@ -43,21 +44,23 @@ interface PersonalDataProps {
 }
 
 export default function PersonalData({ user }: PersonalDataProps) {
-  const { login } = useAuth()
+  const { login, refreshUserData, isLoading: isAuthLoading } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const [error, setError] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    address: user.address || '',
-    phone: formatPhoneNumber(user.phone || '')
+    name: user?.name || '',
+    email: user?.email || '',
+    address: user?.address || '',
+    phone: formatPhoneNumber(user?.phone || '')
   })
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+  const [avatarPreview, setAvatarPreview] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -114,59 +117,100 @@ export default function PersonalData({ user }: PersonalDataProps) {
       return
     }
 
+    // Создаем превью файла
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
     setSelectedFile(file)
     setIsConfirmModalOpen(true)
   }
 
   const handleConfirmAvatarChange = async () => {
     if (!selectedFile) return
-
     setIsUploadingAvatar(true)
     setError('')
 
     try {
-      const formData = new FormData()
-      formData.append('avatar', selectedFile)
-
-      const updatedUser = await UsersService.updateAvatar(user.id, formData)
-      login(updatedUser)
+      await AuthService.uploadAvatar(user.id, selectedFile)
+      await refreshUserData(user.id) // Обновляем данные после загрузки аватара
+      setAvatarPreview('')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Ошибка при загрузке аватара')
     } finally {
       setIsUploadingAvatar(false)
       setSelectedFile(null)
+      setIsConfirmModalOpen(false)
     }
   }
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.email) {
-      setError('Имя и email обязательны для заполнения')
-      return
+      setError('Имя и email ��бязательны для заполнения');
+      return;
     }
 
     if (formData.phone && !isValidPhoneNumber(formData.phone)) {
-      setError('Введите корректный номер телефона')
-      return
+      setError('Введите корректный номер телефона');
+      return;
     }
 
-    setIsLoading(true)
-    setError('')
+    setIsSubmitting(true);
+    setError('');
 
     try {
-      const updatedUser = await UsersService.updateUser(user.id, {
+      await UsersService.updateUser(user.id, {
         name: formData.name,
         email: formData.email,
         address: formData.address || undefined,
-        phone: formData.phone ? formData.phone.replace(/\D/g, '') : undefined // Сохраняем только цифры
-      })
-
-      login(updatedUser)
-      setIsEditing(false)
+        phone: formData.phone ? formData.phone.replace(/\D/g, '') : undefined
+      });
+      
+      await refreshUserData(user.id); // Обновляем данные с сервера
+      setIsEditing(false);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Произошла ошибка при обновлении данных')
+      setError(err.response?.data?.message || 'Произошла ошибка при обновлении данных');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    setFormData({
+      name: user?.name || '',
+      email: user?.email || '',
+      address: user?.address || '',
+      phone: formatPhoneNumber(user?.phone || '')
+    })
+    setError('')
+  }
+
+  const handleUpgradeToCommercial = async () => {
+    setIsLoading(true)
+    try {
+      await UsersService.updateUser(user.id, {
+        ...formData,
+        userType: 'provider'
+      })
+      await refreshUserData(user.id)
+      setError('')
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Ошибка при обновлении типа аккаунта')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  // Показываем индикатор загрузки при инициализации
+  if (isAuthLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-[#5CD2C6]" />
+      </div>
+    )
   }
 
   return (
@@ -180,7 +224,13 @@ export default function PersonalData({ user }: PersonalDataProps) {
       <div className="flex justify-center">
         <div className="relative group">
           <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100">
-            {user.avatar_url ? (
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Avatar preview"
+                className="w-full h-full object-cover"
+              />
+            ) : user.avatar_url ? (
               <Image
                 src={user.avatar_url}
                 alt="Avatar"
@@ -190,15 +240,17 @@ export default function PersonalData({ user }: PersonalDataProps) {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-[#5CD2C6] text-white text-4xl font-medium">
-                {user.name.charAt(0)}
+                {user.name?.charAt(0) || '?'}
               </div>
             )}
           </div>
           
           <button
             onClick={handleAvatarClick}
-            disabled={isUploadingAvatar}
-            className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-full"
+            disabled={isUploadingAvatar || !isEditing}
+            className={`absolute inset-0 flex items-center justify-center bg-black/50 transition-opacity rounded-full ${
+              isEditing ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'
+            }`}
           >
             {isUploadingAvatar ? (
               <Loader2 className="w-6 h-6 text-white animate-spin" />
@@ -212,6 +264,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
             type="file"
             accept="image/*"
             onChange={handleAvatarChange}
+            disabled={!isEditing}
             className="hidden"
           />
         </div>
@@ -225,7 +278,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
           <input
             type="text"
             name="name"
-            disabled={!isEditing || isLoading}
+            disabled={!isEditing || isSubmitting}
             value={formData.name}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 disabled:bg-gray-50 disabled:text-gray-500"
@@ -239,7 +292,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
           <input
             type="email"
             name="email"
-            disabled={!isEditing || isLoading}
+            disabled={!isEditing || isSubmitting}
             value={formData.email}
             onChange={handleChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 disabled:bg-gray-50 disabled:text-gray-500"
@@ -254,7 +307,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
             <input
               type="tel"
               name="phone"
-              disabled={!isEditing || isLoading}
+              disabled={!isEditing || isSubmitting}
               value={formData.phone}
               onChange={handleChange}
               onKeyDown={handlePhoneKeyDown}
@@ -278,7 +331,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
           <input
             type="text"
             name="address"
-            disabled={!isEditing || isLoading}
+            disabled={!isEditing || isSubmitting}
             value={formData.address}
             onChange={handleChange}
             placeholder="Город, улица, дом"
@@ -291,27 +344,18 @@ export default function PersonalData({ user }: PersonalDataProps) {
         {isEditing ? (
           <div className="flex gap-3">
             <button
-              onClick={() => {
-                setIsEditing(false)
-                setFormData({
-                  name: user.name,
-                  email: user.email,
-                  address: user.address || '',
-                  phone: formatPhoneNumber(user.phone || '')
-                })
-                setError('')
-              }}
-              disabled={isLoading}
+              onClick={handleCancel}
+              disabled={isSubmitting}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               Отмена
             </button>
             <button
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="px-4 py-2 bg-[#5CD2C6] text-white rounded-lg hover:bg-[#4BC0B5] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
               Сохранить
             </button>
           </div>
@@ -330,11 +374,39 @@ export default function PersonalData({ user }: PersonalDataProps) {
         onClose={() => {
           setIsConfirmModalOpen(false)
           setSelectedFile(null)
+          setAvatarPreview('')
         }}
         onConfirm={handleConfirmAvatarChange}
         title="Сменить аватар?"
         message="Вы уверены, что хотите сменить аватар профиля?"
       />
+
+      {user.userType === 'user' && (
+        <div className="border-t pt-6">
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <h3 className="font-medium text-gray-900 mb-2">
+              Коммерческий аккаунт
+            </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Получите доступ к расширенным возможностям для организаций и поставщиков услуг
+            </p>
+            <button
+              onClick={handleUpgradeToCommercial}
+              disabled={isLoading}
+              className="w-full bg-[#5CD2C6] text-white py-2 rounded-lg hover:bg-[#4BC0B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Обновление...
+                </>
+              ) : (
+                'Перевести в коммерческий аккаунт'
+              )}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

@@ -7,30 +7,37 @@ interface UpdateUserDto {
   avatar_url?: string
   address?: string
   phone?: string
+  userType?: string
 }
 
-export class UsersService {
-  static async updateUser(userId: string, data: UpdateUserDto) {
+export const UsersService = {
+  updateUser: async (userId: string, data: UpdateUserDto) => {
     const response = await API.put<User>(`/user/update?id=${userId}`, data)
     return response.data
-  }
+  },
 
-  static async getUsers() {
+  getUsers: async () => {
     const response = await API.get<User[]>('/users')
     return response.data
-  }
+  },
 
-  static async getUserById(userId: string) {
+  getUserById: async (userId: string) => {
     const response = await API.get<User>(`/users/${userId}`)
+    debugger;
     return response.data
-  }
+  },
 
-  static async updateAvatar(userId: string, formData: FormData) {
+  updateAvatar: async (userId: string, formData: FormData) => {
     const response = await API.post<User>(`/users/${userId}/avatar`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
     return response.data
+  },
+
+  getCurrentUser: async (userId: string) => {
+    const { data } = await API.get<User>(`/user/${userId}`)
+    return data
   }
 } 

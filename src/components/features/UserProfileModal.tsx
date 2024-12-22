@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { AuthService } from '@/services/auth.service'
 import { User as UserType } from '@/types/user'
+import { useAuth } from '@/hooks/useAuth'
 
 interface UserProfileModalProps {
   isOpen: boolean
@@ -20,10 +21,10 @@ const roleLabels: Record<UserType['userType'], string> = {
 
 export default function UserProfileModal({ isOpen, onClose }: UserProfileModalProps) {
   const router = useRouter()
-  const userData = AuthService.getUser()
+  const { user, isLoading, logout } = useAuth()
 
   const handleLogout = () => {
-    AuthService.logout()
+    logout()
     onClose()
   }
 
@@ -32,7 +33,8 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
     onClose()
   }
 
-  if (!isOpen) return null
+  if (!isOpen || isLoading) return null
+  if (!user) return null
 
   return (
     <AnimatePresence>
@@ -60,7 +62,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
           <div className="flex flex-col items-center">
             <div className="h-24 w-24 rounded-full overflow-hidden mb-4">
               <Image
-                src={userData?.avatar_url || "https://picsum.photos/200"}
+                src={user?.avatar_url || "https://picsum.photos/200"}
                 alt="Profile"
                 width={96}
                 height={96}
@@ -68,10 +70,10 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               />
             </div>
 
-            <h2 className="text-2xl font-bold mb-1">{userData?.name || 'Пользователь'}</h2>
-            <p className="text-gray-600 mb-2">{userData?.email}</p>
+            <h2 className="text-2xl font-bold mb-1">{user?.name || 'Пользователь'}</h2>
+            <p className="text-gray-600 mb-2">{user?.email}</p>
             <p className="text-sm text-gray-500 mb-6">
-              {userData?.userType ? roleLabels[userData.userType] : ''}
+              {user?.userType ? roleLabels[user.userType] : ''}
             </p>
 
             <div className="w-full space-y-3">

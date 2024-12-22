@@ -3,49 +3,23 @@
 import { Bell, Settings, LogIn } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import AuthModal from '../features/AuthModal'
 import UserProfileModal from '../features/UserProfileModal'
 import { usePathname } from 'next/navigation'
-import { storage } from '@/utils/storage'
 import NotificationsPopover from '../features/NotificationsPopover'
+import { useAuth } from '@/hooks/useAuth'
 
 export default function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [userData, setUserData] = useState<any>(null)
-  const pathname = usePathname()
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+  const pathname = usePathname()
+  const { user, isLoading } = useAuth()
 
-  // Функция для проверки авторизации
-  const checkAuth = () => {
-    const tokenData = storage.getToken();
-    if (tokenData?.token && tokenData?.user) {
-      setUserData(tokenData.user);
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-      setUserData(null);
-    }
+  const handleAvatarClick = () => {
+    setIsProfileModalOpen(true)
   }
-
-  // Проверяем авторизацию при монтировании и изменении pathname
-  useEffect(() => {
-    checkAuth()
-  }, [pathname])
-
-  // Добавляем слушатель события storage для синхронизации между вкладками
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'token') {
-        checkAuth()
-      }
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
-  }, [])
 
   return (
     <>
@@ -56,7 +30,7 @@ export default function Header() {
           </Link>
           
           <div className="flex items-center gap-4">
-            {isLoggedIn && userData ? (
+            {!isLoading && user ? (
               <>
                 <div className="relative">
                   <button 
@@ -74,24 +48,26 @@ export default function Header() {
                 <button className="p-2 hover:bg-gray-100 rounded-full">
                   <Settings className="w-5 h-5 text-gray-600" />
                 </button>
-                <button 
-                  onClick={() => setIsProfileModalOpen(true)}
-                  className="h-10 w-10 rounded-full overflow-hidden hover:ring-2 hover:ring-[#5CD2C6] transition-all"
-                >
-                  {userData.avatar_url ? (
-                    <Image
-                      src={userData.avatar_url}
-                      alt="Профиль"
-                      width={40}
-                      height={40}
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-[#5CD2C6] text-white font-medium">
-                      {userData.name?.charAt(0)}
-                    </div>
-                  )}
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={handleAvatarClick}
+                    className="w-10 h-10 rounded-full overflow-hidden hover:ring-2 hover:ring-[#5CD2C6] transition-all"
+                  >
+                    {user.avatar_url ? (
+                      <Image
+                        src={user.avatar_url}
+                        alt="Profile"
+                        width={40}
+                        height={40}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-[#5CD2C6] text-white text-xl">
+                        {user.name?.charAt(0) || '?'}
+                      </div>
+                    )}
+                  </button>
+                </div>
               </>
             ) : (
               <button
@@ -108,18 +84,12 @@ export default function Header() {
 
       <AuthModal 
         isOpen={isAuthModalOpen} 
-        onClose={() => {
-          setIsAuthModalOpen(false)
-          checkAuth()
-        }} 
+        onClose={() => setIsAuthModalOpen(false)} 
       />
 
       <UserProfileModal
         isOpen={isProfileModalOpen}
-        onClose={() => {
-          setIsProfileModalOpen(false)
-          checkAuth()
-        }}
+        onClose={() => setIsProfileModalOpen(false)}
       />
     </>
   )
