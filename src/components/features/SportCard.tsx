@@ -1,85 +1,63 @@
 'use client'
 
-import { Star, Users, Clock } from 'lucide-react'
+import { Building2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Sport } from '@/services/sports.service'
+import { Service } from '@/services/services.service'
 
 interface SportCardProps {
-  sport: Sport
+  sport: Service
 }
 
 export default function SportCard({ sport }: SportCardProps) {
+  
   return (
-    <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
       <Link href={`/sports/${sport.id}`}>
-        <div className="cursor-pointer">
-          <div className="relative h-48 rounded-t-2xl overflow-hidden bg-gray-100">
-            <Image
-              src={sport.avatar || "https://picsum.photos/400/300"}
-              alt={sport.name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
-            />
-          </div>
-
-          <div className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xl font-bold text-gray-900 line-clamp-1">
-                {sport.name}
-              </h3>
-              <span className={`px-3 py-1 rounded-full text-sm ${
-                sport.schoolType === 'state' 
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'bg-purple-50 text-purple-600'
-              }`}>
-                {sport.schoolType === 'state' ? 'Государственная' : 'Частная'}
-              </span>
-            </div>
-
-            <p className="text-gray-600 mb-4 line-clamp-2">
-              {sport.description}
-            </p>
-
-            <div className="flex items-center gap-4 mb-3">
-              {sport.rating > 0 && (
-                <div className="flex items-center gap-1">
-                  <Star className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                  <span className="font-medium">{sport.rating.toFixed(1)}</span>
-                </div>
-              )}
-              <div className="flex items-center gap-1 text-gray-500">
-                <Users className="w-4 h-4" />
-                <span>до {sport.maxStudents} детей</span>
-              </div>
-              {sport.schedule && (
-                <div className="flex items-center gap-1 text-gray-500">
-                  <Clock className="w-4 h-4" />
-                  <span>{sport.schedule.timeStart.slice(0, 5)} - {sport.schedule.timeEnd.slice(0, 5)}</span>
+        <div className="p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+              {sport.image ? (
+                <Image
+                  src={sport.image}
+                  alt={sport.name}
+                  width={96}
+                  height={96}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <Building2 className="w-12 h-12 text-gray-400" />
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-between text-sm">
-              <div className="text-gray-500">
-                {sport.ageFrom}-{sport.ageTo} лет
-              </div>
-              {sport.price && (
+            <div className="flex-grow">
+              <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-gray-500">Стоимость в месяц: </span>
-                  <span className="font-medium text-gray-900">
-                    ~{sport.price.toLocaleString()} ₽
-                  </span>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    {sport.name}
+                  </h3>
+                  <p className="text-gray-600 mt-1">{sport.address}</p>
                 </div>
-              )}
-            </div>
-
-            <div className="mt-3 text-sm text-gray-500 flex flex-col gap-1">
-              <div className="flex justify-between items-center">
-                <span>{sport.reviewCount || 0} отзывов</span>
+                {sport.price && (
+                  <span className="px-3 py-1 rounded-full text-sm bg-amber-50 text-amber-600">
+                    ~{sport.price.toLocaleString()} ₽/месяц
+                  </span>
+                )}
               </div>
-              <div className="text-gray-600">{sport.address}</div>
+
+              {sport.description && (
+                <p className="text-gray-600 mt-2 line-clamp-2">
+                  {sport.description}
+                </p>
+              )}
+
+              <div className="flex items-center gap-4 mt-3">
+                <span className="text-sm text-gray-600">
+                  ⭐ {(sport.reviews_count && sport.rating) ? (sport.rating / sport.reviews_count).toFixed(1) : 0} ({sport.reviews_count})
+                </span>
+              </div>
             </div>
           </div>
         </div>

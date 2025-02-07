@@ -7,8 +7,7 @@ interface UpdateUserDto {
   avatar_url?: string
   address?: string
   phone?: string
-  userType?: string
-  isOrganisation?: boolean
+  role?: string
 }
 
 export const UsersService = {
@@ -29,7 +28,7 @@ export const UsersService = {
   },
 
   updateAvatar: async (userId: string, formData: FormData) => {
-    const response = await API.post<User>(`/users/${userId}/avatar`, formData, {
+    const response = await API.post<User>(`/user/avatar?id=${userId}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

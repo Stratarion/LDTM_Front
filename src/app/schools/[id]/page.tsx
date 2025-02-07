@@ -80,7 +80,7 @@ export default function SchoolPage() {
         </button>
 
         <div className="space-y-8">
-          <SchoolGallery images={school.gallery} />
+          <SchoolGallery school={school} />
           <SchoolInfo school={school} />
           <SchoolFeatures features={school.features} />
           <SchoolReviews schoolId={school.id} />

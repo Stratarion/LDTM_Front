@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, Search, User } from 'lucide-react'
-import { ScheduleService } from '@/services/schedule.service'
+import { CreateEventDto, ScheduleService } from '@/services/schedule.service'
 import { ServicesService } from '@/services/services.service'
 import { useAuth } from '@/hooks/useAuth'
 import { Service } from '@/services/services.service'
@@ -21,7 +21,7 @@ interface FormData {
   startTime: string
   serviceId: string
   teacherId: string
-  maxParticipants: string
+  maxStudents: string
   ownerId: string
 }
 
@@ -40,7 +40,7 @@ export default function AddEventForm({
     startTime: '',
     serviceId: '',
     teacherId: '',
-    maxParticipants: '',
+    maxStudents: '',
     ownerId: ''
   })
   const [isCurrentUser, setIsCurrentUser] = useState(false)
@@ -97,7 +97,7 @@ export default function AddEventForm({
 
   const handleTeacherSelect = (teacher: UserType) => {
     setFormData(prev => ({ ...prev, teacherId: teacher.id }))
-    setSearchQuery(teacher.name)
+    setSearchQuery(teacher.first_name)
     setTeachers([])
   }
 
@@ -105,20 +105,21 @@ export default function AddEventForm({
     setIsCurrentUser(!isCurrentUser)
     if (!isCurrentUser && user) {
       setFormData(prev => ({ ...prev, teacherId: user.id }))
-      setSearchQuery(user.name)
+      setSearchQuery(user.first_name)
     } else {
       setFormData(prev => ({ ...prev, teacherId: '' }))
       setSearchQuery('')
     }
   }
 
-  // Обновление maxParticipants при выборе услуги
+  // Обновление maxStudents при выборе услуги
   const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedService = services.find(service => service.id === e.target.value)
+    debugger;
     setFormData(prev => ({
       ...prev,
       serviceId: e.target.value,
-      maxParticipants: selectedService ? String(selectedService.maxStudents) : ''
+      maxStudents: selectedService ? String(selectedService.max_students) : ''
     }))
   }
 
@@ -141,7 +142,7 @@ export default function AddEventForm({
     try {
       const eventData: CreateEventDto = {
         ...formData,
-        maxParticipants: Number(formData.maxParticipants),
+        maxStudents: Number(formData.maxStudents),
         ownerId: user!.id
       }
       await ScheduleService.createEvent(eventData)
@@ -234,7 +235,7 @@ export default function AddEventForm({
                 <option value="">Выберите услугу</option>
                 {services.map(service => (
                   <option key={service.id} value={service.id}>
-                    {service.name} (макс. {service.maxStudents} участников)
+                    {service.name} (макс. {service.max_students} участников)
                   </option>
                 ))}
               </select>
@@ -280,16 +281,16 @@ export default function AddEventForm({
                             onClick={() => handleTeacherSelect(teacher)}
                             className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-3"
                           >
-                            {teacher.avatar_url ? (
+                            {teacher.avatar ? (
                               <img
-                                src={teacher.avatar_url}
-                                alt={teacher.name}
+                                src={teacher.avatar}
+                                alt={teacher.first_name}
                                 className="w-8 h-8 rounded-full object-cover"
                               />
                             ) : (
                               <User className="w-8 h-8 p-1 rounded-full bg-gray-100 text-gray-600" />
                             )}
-                            <span>{teacher.name}</span>
+                            <span>{teacher.first_name}</span>
                           </button>
                         ))}
                       </div>
@@ -305,8 +306,8 @@ export default function AddEventForm({
               </label>
               <input
                 type="number"
-                name="maxParticipants"
-                value={formData.maxParticipants}
+                name="maxStudents"
+                value={formData.maxStudents}
                 disabled={true}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-900"
                 required

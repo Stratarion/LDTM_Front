@@ -8,6 +8,7 @@ import Header from '@/components/layout/Header'
 import SchoolCard from '@/components/features/SchoolCard'
 import { School, SchoolsService, SchoolFiltersType } from '@/services/schools.service'
 import SchoolFilters from '@/components/features/SchoolFilters'
+import { PhotosService } from '@/services/photos.service'
 
 // Функция для преобразования строки в массив чисел [min, max]
 const parsePriceRange = (range: string | null): [number, number] | null => {
@@ -100,10 +101,9 @@ const SchoolsList = () => {
 
     setIsLoading(true)
     try {
-      // Создаем копию фильтров без рейтинга для API
       const apiFilters = { 
         ...activeFilters,
-        minRating: null // Убираем фильтр по рейтингу из API-запроса
+        minRating: null
       }
 
       const response = await SchoolsService.getSchools(page, 10, apiFilters)
@@ -113,7 +113,6 @@ const SchoolsList = () => {
       
       setSchools(prev => {
         const newSchools = [...prev, ...filteredSchools]
-        // Проверяем, есть ли еще школы после фильтрации
         setHasMore(page < response.numberOfPages && filteredSchools.length > 0)
         return newSchools
       })

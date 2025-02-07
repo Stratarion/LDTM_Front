@@ -41,7 +41,7 @@ export default function ServicesList() {
               <div className="mt-2 text-sm text-gray-500">
                 <div>Цена: {service.price} ₽</div>
                 <div>Возраст: {service.ageFrom}-{service.ageTo} лет</div>
-                <div>Макс. участников: {service.maxParticipants}</div>
+                <div>Макс. участников: {service.maxStudents}</div>
                 <div>Адрес: {service.address}</div>
               </div>
             </div>

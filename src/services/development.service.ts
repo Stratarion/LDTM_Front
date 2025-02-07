@@ -63,7 +63,7 @@ export interface DevelopmentFiltersType {
   priceRange?: [number, number]
   city?: string
   ageRange?: [number, number]
-  maxParticipants?: number
+  maxStudents?: number
 }
 
 interface DevelopmentRequestBody {
@@ -78,7 +78,7 @@ interface DevelopmentRequestBody {
     city?: string
     minAge?: number
     maxAge?: number
-    maxParticipants?: number
+    maxStudents?: number
     developmentType?: DevelopmentTypes
   }
 }
@@ -105,7 +105,7 @@ export const DevelopmentService = {
           minAge: filters.ageRange[0],
           maxAge: filters.ageRange[1]
         }),
-        ...(filters?.maxParticipants && { maxParticipants: filters.maxParticipants }),
+        ...(filters?.maxStudents && { maxStudents: filters.maxStudents }),
         ...(filters?.developmentType && { developmentType: filters.developmentType })
       }
     }

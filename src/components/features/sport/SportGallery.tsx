@@ -3,25 +3,25 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-import { School } from '@/services/schools.service'
+import { Sport } from '@/services/sports.service'
 
-interface SchoolGalleryProps {
-  school?: School
+interface SportGalleryProps {
+  sport?: Sport
 }
 
-export default function SchoolGallery({ school }: SchoolGalleryProps) {
+export default function SportGallery({ sport }: SportGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   // Проверяем наличие школы
-  if (!school) {
+  if (!sport) {
     return null
   }
 
   // Собираем все фото школы в один массив
-  const photos = school.photos || []
-  if (school.mainPhoto && !photos.find(p => p.id === school.mainPhoto?.id)) {
-    photos.unshift(school.mainPhoto)
+  const photos = sport.photos || []
+  if (sport.mainPhoto && !photos.find(p => p.id === sport.mainPhoto?.id)) {
+    photos.unshift(sport.mainPhoto)
   }
   if (photos.length === 0) {
     return null

@@ -2,27 +2,28 @@
 
 import { useState, useEffect } from 'react'
 import { Search, ChevronDown, ChevronUp, X } from 'lucide-react'
-import { SportsFiltersType, SportTypes } from '@/services/sports.service'
+import { ServiceFiltersType } from '@/services/services.service'
+import { SportFiltersType } from '@/services/sports.service'
 
 interface SportFiltersProps {
-  initialFilters: SportsFiltersType
-  onFilterChange: (filters: SportsFiltersType) => void
+  initialFilters: SportFiltersType
+  onFilterChange: (filters: SportFiltersType) => void
 }
 
-const SPORT_TYPES: { value: SportTypes; label: string }[] = [
-  { value: 'gymnastics', label: 'Гимнастика' },
+const SPORT_TYPES = [
   { value: 'football', label: 'Футбол' },
-  { value: 'martial_arts', label: 'Рукопашный бой' },
-  { value: 'karate', label: 'Карате' },
-  { value: 'swimming', label: 'Плавание' },
-  { value: 'tennis', label: 'Теннис' },
   { value: 'basketball', label: 'Баскетбол' },
   { value: 'volleyball', label: 'Волейбол' },
-  { value: 'dance', label: 'Танцы' }
+  { value: 'tennis', label: 'Теннис' },
+  { value: 'swimming', label: 'Плавание' },
+  { value: 'martial_arts', label: 'Единоборства' },
+  { value: 'gymnastics', label: 'Гимнастика' },
+  { value: 'dance', label: 'Танцы' },
+  { value: 'other', label: 'Другое' }
 ]
 
 export default function SportFilters({ initialFilters, onFilterChange }: SportFiltersProps) {
-  const [filters, setFilters] = useState<SportsFiltersType>(initialFilters)
+  const [filters, setFilters] = useState<SportFiltersType>(initialFilters)
   const [priceMin, setPriceMin] = useState(filters.priceRange?.[0]?.toString() || '')
   const [priceMax, setPriceMax] = useState(filters.priceRange?.[1]?.toString() || '')
   const [ageMin, setAgeMin] = useState(filters.ageRange?.[0]?.toString() || '')
@@ -37,7 +38,7 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
     setAgeMax(initialFilters.ageRange?.[1]?.toString() || '')
   }, [initialFilters])
 
-  const handleFilterChange = (key: keyof SportsFiltersType, value: any) => {
+  const handleFilterChange = (key: keyof SportFiltersType, value: any) => {
     const newFilters = { ...filters, [key]: value }
     setFilters(newFilters)
     onFilterChange(newFilters)
@@ -62,7 +63,7 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
   }
 
   const resetFilters = () => {
-    const emptyFilters: SportsFiltersType = {
+    const emptyFilters: SportFiltersType = {
       type: 'all',
       sportType: undefined,
       name: undefined,
@@ -70,7 +71,7 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
       priceRange: undefined,
       city: undefined,
       ageRange: undefined,
-      maxParticipants: undefined
+      maxStudents: undefined
     }
     setFilters(emptyFilters)
     setPriceMin('')
@@ -234,8 +235,8 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
                 Максимальное количество детей в группе
               </label>
               <select
-                value={filters.maxParticipants || ''}
-                onChange={(e) => handleFilterChange('maxParticipants', Number(e.target.value) || undefined)}
+                value={filters.maxStudents || ''}
+                onChange={(e) => handleFilterChange('maxStudents', Number(e.target.value) || undefined)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
               >
                 <option value="">Любое количество</option>

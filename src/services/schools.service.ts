@@ -3,24 +3,28 @@ import { API } from './api';
 export interface School {
   id: string;
   name: string;
-  avatar: string;
-  description: string;
-  reviewCount: number;
-  rating: number;
-  totalRating: number;
-  schoolType: 'state' | 'private';
-  maxCount: number;
-  approach: string;
-  costInfo?: number;
-  address: string;
-  gallery: string[];
+  description?: string;
   type: 'school' | 'garden';
-  features: {
+  schoolType?: 'state' | 'private';
+  address: string;
+  avatar?: string;
+  costInfo?: number;
+  maxCount?: number;
+  approach?: string;
+  status?: string;
+  website?: string;
+  mainPhoto?: {
     id: string;
-    name: string;
-    icon: string;
-    description: string;
+    url: string;
+    description?: string;
+  } | null;
+  photos?: {
+    id: string;
+    url: string;
+    description?: string;
   }[];
+  totalRating?: number;
+  reviewCount?: number;
 }
 
 interface SchoolsResponse {

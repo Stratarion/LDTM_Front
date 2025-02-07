@@ -1,13 +1,14 @@
+import { StaticImport } from 'next/dist/shared/lib/get-img-props'
 import { API } from './api'
 import { User } from '@/types/user'
 
 export interface Review {
+  creater_id: string
+  creater_avatar: string | StaticImport
+  creater_name: string
   id: string
   content: string
   rating: number
-  createrName: string
-  createrId: string
-  createrAvatar?: string
   organizationId: string
   organizationType: 'school' | 'garden'
   createdAt: string
@@ -22,10 +23,11 @@ export interface ReviewsResponse {
 interface CreateReviewDto {
   content: string
   rating: number
+  entityType: 'service' | 'school' | 'garden'
+  serviceId: string
   createrName: string
   createrId: string
   createrAvatar?: string
-  schoolId: string
 }
 
 export const ReviewsService = {

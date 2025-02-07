@@ -1,11 +1,16 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Loader2, Upload, Image as ImageIcon } from 'lucide-react'
+import { X, Loader2, Upload, Image as ImageIcon, Star, Trash } from 'lucide-react'
 import { OrganizationsService } from '@/services/organizations.service'
 import Image from 'next/image'
 import { useAuth } from '@/hooks/useAuth'
+import { PhotosService } from '@/services/photos.service'
+import { validateImage, resizeImage } from '@/utils/image'
+import { OrganizationType, OrganizationStatus } from '@/types/organization'
+import ConfirmModal from '@/components/shared/ConfirmModal'
+import { useNotifications } from '@/hooks/useNotifications'
 
 interface AddOrganizationFormProps {
   isOpen: boolean
@@ -13,7 +18,21 @@ interface AddOrganizationFormProps {
   onSuccess: () => void
 }
 
-type OrganizationType = 'school' | 'garden'
+interface FormData {
+  name: string
+  description: string
+  address: string
+  email: string
+  phone: string
+  website: string
+  director_name: string
+  school_type: 'state' | 'private'
+  max_count: string
+  approach: string
+  cost_info: string
+  type: OrganizationType
+  status: OrganizationStatus
+}
 
 export default function AddOrganizationForm({
   isOpen,
@@ -25,20 +44,27 @@ export default function AddOrganizationForm({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedImages, setSelectedImages] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
     address: '',
     email: '',
     phone: '',
+    website: '',
     director_name: '',
-    schoolType: 'state' as 'state' | 'private',
-    maxCount: '',
+    school_type: 'state',
+    max_count: '',
     approach: '',
-    costInfo: ''
+    cost_info: '',
+    type: 'school',
+    status: 'pending'
   })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [photos, setPhotos] = useState<{ file: File; preview: string; description?: string }[]>([])
+  const [isConfirmPhotoDeleteOpen, setIsConfirmPhotoDeleteOpen] = useState(false)
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null)
+  const { showNotification } = useNotifications()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -48,89 +74,126 @@ export default function AddOrganizationForm({
     }))
   }
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    if (files.length + selectedImages.length > 5) {
-      setError('Максимальное количество фотографий - 5')
+    const totalPhotos = photos.length + files.length
+    
+    if (totalPhotos > 5) {
+      showNotification({
+        title: 'Ошибка',
+        message: 'Максимальное количество фотографий - 5',
+        type: 'error'
+      })
       return
     }
 
-    // Проверяем размер и тип файлов
-    const validFiles = files.filter(file => {
-      if (!file.type.startsWith('image/')) {
-        setError('Пожалуйста, загружайте только изображения')
-        return false
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        setError('Размер каждого файла не должен превышать 5MB')
-        return false
-      }
-      return true
-    })
+    try {
+      const newPhotos = await Promise.all(
+        files.map(async (file) => {
+          validateImage(file)
+          const preview = URL.createObjectURL(file)
+          return {
+            file,
+            preview,
+            description: photos.length === 0 && files[0] === file ? 'main' : undefined
+          }
+        })
+      )
 
-    setSelectedImages(prev => [...prev, ...validFiles])
+      setPhotos(prev => [...prev, ...newPhotos])
+    } catch (err: any) {
+      showNotification({
+        title: 'Ошибка',
+        message: err.message,
+        type: 'error'
+      })
+    }
 
-    // Создаем URL для предпросмотра
-    const newPreviewUrls = validFiles.map(file => URL.createObjectURL(file))
-    setPreviewUrls(prev => [...prev, ...newPreviewUrls])
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
-  const removeImage = (index: number) => {
-    setSelectedImages(prev => prev.filter((_, i) => i !== index))
-    setPreviewUrls(prev => {
-      // Освобождаем URL
-      URL.revokeObjectURL(prev[index])
-      return prev.filter((_, i) => i !== index)
-    })
+  const handlePhotoDelete = (index: number) => {
+    setSelectedPhotoIndex(index)
+    setIsConfirmPhotoDeleteOpen(true)
+  }
+
+  const confirmPhotoDelete = () => {
+    if (selectedPhotoIndex === null) return
+    
+    const newPhotos = [...photos]
+    URL.revokeObjectURL(newPhotos[selectedPhotoIndex].preview)
+    
+    // Если удаляем главное фото, делаем главным следующее
+    if (newPhotos[selectedPhotoIndex].description === 'main' && newPhotos.length > 1) {
+      const nextIndex = selectedPhotoIndex === newPhotos.length - 1 ? 0 : selectedPhotoIndex + 1
+      newPhotos[nextIndex].description = 'main'
+    }
+    
+    newPhotos.splice(selectedPhotoIndex, 1)
+    setPhotos(newPhotos)
+    setSelectedPhotoIndex(null)
+    setIsConfirmPhotoDeleteOpen(false)
+  }
+
+  const handleSetMainPhoto = (index: number) => {
+    setPhotos(photos.map((photo, i) => ({
+      ...photo,
+      description: i === index ? 'main' : undefined
+    })))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!user) return
     
-    if (!formData.name || !formData.address || !formData.email || !formData.phone || !formData.director_name) {
-      setError('Заполните все обязательные поля')
-      return
-    }
-
-    if (!user) {
-      setError('Необходимо авторизоваться')
-      return
-    }
-
     setIsLoading(true)
     setError('')
 
     try {
-      const formDataToSend = new FormData()
-      
-      // Добавляем основные данные
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== '') {
-          formDataToSend.append(key, value)
-        }
-      })
-      
-      // Добавляем тип организации и ID пользователя
-      formDataToSend.append('type', organizationType)
-      formDataToSend.append('owner_id', user.id)
-      formDataToSend.append('creater_id', user.id)
+      // Подготавливаем фотографии
+      const processedPhotos = await Promise.all(
+        photos.map(async (photo) => {
+          const resizedImage = await resizeImage(photo.file)
+          const base64Data = await new Promise<string>((resolve) => {
+            const reader = new FileReader()
+            reader.onloadend = () => resolve(reader.result as string)
+            reader.readAsDataURL(resizedImage)
+          })
+          return {
+            base64Data,
+            description: photo.description
+          }
+        })
+      )
 
-      // Добавляем изображения
-      selectedImages.forEach((file) => {
-        formDataToSend.append(`images`, file)
-      })
+      const data = {
+        ...formData,
+        owner_id: user.id,
+        creater_id: user.id,
+        photos: processedPhotos
+      }
 
-      await OrganizationsService.createOrganization(formDataToSend)
+      await OrganizationsService.createOrganization(data)
       onSuccess()
       
-      // Очищаем предпросмотр
-      previewUrls.forEach(url => URL.revokeObjectURL(url))
+      // Очищаем URL превью
+      photos.forEach(photo => URL.revokeObjectURL(photo.preview))
+      
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Произошла ошибка при создании организации')
+      setError(err.response?.data?.message || 'Ошибка при создании организации')
     } finally {
       setIsLoading(false)
     }
   }
+
+  // Очистка URL при размонтировании
+  useEffect(() => {
+    return () => {
+      photos.forEach(photo => URL.revokeObjectURL(photo.preview))
+    }
+  }, [])
 
   if (!isOpen) return null
 
@@ -198,48 +261,67 @@ export default function AddOrganizationForm({
             {/* Загрузка изображений */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Фотографии (до 5 шт.)
+                Фотографии
               </label>
-              <div className="grid grid-cols-5 gap-4 mb-4">
-                {previewUrls.map((url, index) => (
-                  <div key={url} className="relative group">
-                    <div className="aspect-square rounded-lg overflow-hidden">
+              <div className="grid grid-cols-5 gap-4">
+                {photos.map((photo, index) => (
+                  <div key={index} className="relative group">
+                    <div className="aspect-square relative rounded-lg overflow-hidden">
                       <Image
-                        src={url}
-                        alt={`Preview ${index + 1}`}
-                        width={200}
-                        height={200}
-                        className="object-cover w-full h-full"
+                        src={photo.preview}
+                        alt={`Фото ${index + 1}`}
+                        fill
+                        className="object-cover"
                       />
+                      {photo.description === 'main' && (
+                        <div className="absolute top-2 left-2 bg-yellow-400 text-white p-1 rounded-full">
+                          <Star className="w-4 h-4" />
+                        </div>
+                      )}
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X size={14} />
-                    </button>
+                    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {photo.description !== 'main' && (
+                        <button
+                          type="button"
+                          onClick={() => handleSetMainPhoto(index)}
+                          className="p-1 bg-yellow-400 text-white rounded-full hover:bg-yellow-500"
+                          title="Сделать главным"
+                        >
+                          <Star className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handlePhotoDelete(index)}
+                        className="p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                        title="Удалить"
+                      >
+                        <Trash className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ))}
-                {selectedImages.length < 5 && (
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-2 hover:border-[#5CD2C6] transition-colors"
-                  >
-                    <Upload className="w-6 h-6 text-gray-400" />
-                    <span className="text-sm text-gray-500">Добавить</span>
-                  </button>
+                {photos.length < 5 && (
+                  <div className="aspect-square relative border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex flex-col items-center text-gray-600 hover:text-gray-900"
+                    >
+                      <Upload className="w-8 h-8 mb-2" />
+                      <span className="text-sm">Добавить фото</span>
+                    </button>
+                  </div>
                 )}
               </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageSelect}
-                className="hidden"
-              />
             </div>
 
             <div>
@@ -275,8 +357,8 @@ export default function AddOrganizationForm({
                 Тип организации
               </label>
               <select
-                name="schoolType"
-                value={formData.schoolType}
+                name="school_type"
+                value={formData.school_type}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
               >
@@ -350,22 +432,22 @@ export default function AddOrganizationForm({
                 </label>
                 <input
                   type="number"
-                  name="maxCount"
-                  value={formData.maxCount}
+                  name="max_count"
+                  value={formData.max_count}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
                 />
               </div>
 
-              {formData.schoolType === 'private' && (
+              {formData.school_type === 'private' && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Стоимость (₽/месяц)
                   </label>
                   <input
                     type="number"
-                    name="costInfo"
-                    value={formData.costInfo}
+                    name="cost_info"
+                    value={formData.cost_info}
                     onChange={handleChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
                   />
@@ -382,6 +464,20 @@ export default function AddOrganizationForm({
                 name="approach"
                 value={formData.approach}
                 onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Веб-сайт
+              </label>
+              <input
+                type="url"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                placeholder="https://example.com"
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
               />
             </div>
@@ -404,6 +500,17 @@ export default function AddOrganizationForm({
               </button>
             </div>
           </form>
+
+          <ConfirmModal
+            isOpen={isConfirmPhotoDeleteOpen}
+            onClose={() => {
+              setIsConfirmPhotoDeleteOpen(false)
+              setSelectedPhotoIndex(null)
+            }}
+            onConfirm={confirmPhotoDelete}
+            title="Удаление фото"
+            message="Вы уверены, что хотите удалить это фото?"
+          />
         </motion.div>
       </motion.div>
     </AnimatePresence>

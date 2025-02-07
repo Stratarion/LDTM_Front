@@ -4,8 +4,13 @@ import { useState, useEffect } from 'react'
 import { Plus, Building2, Loader2, GraduationCap, Flower } from 'lucide-react'
 import { School } from '@/services/schools.service'
 import { OrganizationsService } from '@/services/organizations.service'
+import { PhotosService } from '@/services/photos.service'
 import { useAuth } from '@/hooks/useAuth'
 import AddOrganizationForm from './AddOrganizationForm'
+import Image from 'next/image'
+import { Organization } from '@/types/organization'
+import OrganizationDetailsModal from './OrganizationDetailsModal'
+import { useNotifications } from '@/hooks/useNotifications'
 
 type OrganizationType = 'school' | 'garden'
 
@@ -21,19 +26,55 @@ const TypeIcon = ({ type }: { type: OrganizationType }) => {
   return <Flower className="w-5 h-5 text-pink-500" />
 }
 
+interface OrganizationWithPhoto extends Organization {
+  mainPhoto?: {
+    url: string;
+  } | null;
+}
+
 export default function ProviderOrganizations() {
   const { user } = useAuth()
-  const [organizations, setOrganizations] = useState<School[]>([])
+  const [organizations, setOrganizations] = useState<OrganizationWithPhoto[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [error, setError] = useState('')
+  const [selectedOrganization, setSelectedOrganization] = useState<OrganizationWithPhoto | null>(null)
+  const { showNotification } = useNotifications()
 
   const loadOrganizations = async () => {
     if (!user) return
     
     try {
-      const data = await OrganizationsService.getUserOrganizations(user.id)
-      setOrganizations(data)
+      const orgs = await OrganizationsService.getUserOrganizations(user.id)
+      
+      // Загружаем фотографии для каждой организации
+      const orgsWithPhotos = await Promise.all(
+        orgs.map(async (org) => {
+          try {
+            const photos = await PhotosService.getEntityPhotos(org.id, 'organisation')
+            // Сначала ищем фото с description === 'main'
+            let mainPhoto = photos.find(p => p.description === 'main')
+            
+            // Если главного фото нет, берем первое активное по порядку
+            if (!mainPhoto) {
+              mainPhoto = photos
+                .filter(p => p.status === 'active')
+                .sort((a, b) => a.order - b.order)[0]
+            }
+            
+            return { 
+              ...org, 
+              mainPhoto,
+              photos: photos.filter(p => p.status === 'active')
+            }
+          } catch (error) {
+            console.error(`Error loading photo for organization ${org.id}:`, error)
+            return { ...org, mainPhoto: null, photos: [] }
+          }
+        })
+      )
+      
+      setOrganizations(orgsWithPhotos)
     } catch (err) {
       setError('Не удалось загрузить организации')
       console.error(err)
@@ -45,6 +86,33 @@ export default function ProviderOrganizations() {
   useEffect(() => {
     loadOrganizations()
   }, [user])
+
+  const handleDelete = async (id: string) => {
+    try {
+      await OrganizationsService.deleteOrganization(id)
+      setOrganizations(organizations.filter(org => org.id !== id))
+      setSelectedOrganization(null)
+      showNotification({
+        title: 'Успешно',
+        message: 'Организация была удалена',
+        type: 'success'
+      })
+    } catch (err) {
+      showNotification({
+        title: 'Ошибка',
+        message: 'Не удалось удалить организацию',
+        type: 'error'
+      })
+    }
+  }
+
+  const handleEdit = async (id: string) => {
+    await loadOrganizations()
+  }
+
+  const handleOrganizationClick = (org: OrganizationWithPhoto) => {
+    setSelectedOrganization(org)
+  }
 
   if (isLoading) {
     return (
@@ -80,14 +148,19 @@ export default function ProviderOrganizations() {
           organizations.map((org) => (
             <div
               key={org.id}
-              className="bg-white p-6 rounded-lg border border-gray-200 hover:border-[#5CD2C6] transition-colors"
+              onClick={() => handleOrganizationClick(org)}
+              className="bg-white p-6 rounded-lg border border-gray-200 hover:border-[#5CD2C6] transition-colors cursor-pointer"
+              role="button"
+              tabIndex={0}
             >
               <div className="flex items-start gap-4">
                 <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                  {org.avatar ? (
-                    <img
-                      src={org.avatar}
+                  {org.mainPhoto ? (
+                    <Image
+                      src={org.mainPhoto.url}
                       alt={org.name}
+                      width={64}
+                      height={64}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -116,9 +189,9 @@ export default function ProviderOrganizations() {
                         </div>
                       </div>
                     </div>
-                    {org.schoolType === 'private' && (
+                    {org.cost_info && (
                       <span className="px-3 py-1 rounded-full text-sm bg-amber-50 text-amber-600">
-                        ~{org.costInfo?.toLocaleString()} ₽/месяц
+                        ~{org.cost_info?.toLocaleString()} ₽/месяц
                       </span>
                     )}
                   </div>
@@ -127,6 +200,32 @@ export default function ProviderOrganizations() {
                       {org.description}
                     </p>
                   )}
+                  <div className="flex items-center gap-2 mt-2">
+                    {org.rating > 0 && (
+                      <span className="text-sm text-gray-600">
+                        ⭐ {org.rating.toFixed(1)} ({org.reviews_count})
+                      </span>
+                    )}
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${
+                      org.status === 'active' ? 'bg-green-100 text-green-800' :
+                      org.status === 'inactive' ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {org.status === 'active' ? 'Активна' :
+                       org.status === 'inactive' ? 'Неактивна' :
+                       'На модерации'}
+                    </span>
+                    {org.website && (
+                      <a 
+                        href={org.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline text-sm"
+                      >
+                        Веб-сайт
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -149,6 +248,17 @@ export default function ProviderOrganizations() {
           loadOrganizations()
         }}
       />
+
+      {selectedOrganization && (
+        <OrganizationDetailsModal
+          organization={selectedOrganization}
+          photos={selectedOrganization.photos || []}
+          isOpen={!!selectedOrganization}
+          onClose={() => setSelectedOrganization(null)}
+          onDelete={handleDelete}
+          onEdit={handleEdit}
+        />
+      )}
     </div>
   )
 } 

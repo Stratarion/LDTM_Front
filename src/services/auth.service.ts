@@ -1,124 +1,138 @@
-import { API } from './api';
-import { storage } from '@/utils/storage';
+import { API } from './api'
+import { User, UserRegisterData, UserLoginData } from '@/types/user'
+import { storage } from '@/utils/storage'
 
-interface AuthResponse {
-	token: string;
-	refreshToken: string;
-	expiresIn: number;
-	result: {
-		id: string;
-		email: string;
-		name: string;
-    address: string;
-    avatar_url: string;
-	};
+interface TokenData {
+	token: string
+	refreshToken: string
+	expiresIn: number
+	result: User
 }
 
-// Добавляем интерфейс для данных регистрации
-interface RegisterData {
-  email: string;
-  password: string;
-  name: string;
-  title?: string;
-  address?: string;
-  phone?: string;
-  isOrganisation: boolean;
-  avatar_url?: string;
-  userType: string;
-}
+export class AuthService {
+	static async signIn(email: string, password: string): Promise<TokenData> {
+		try {
+			const { data } = await API.post<TokenData>('/user/signin', {
+				email,
+				password
+			})
+			if (!data.token || !data.refreshToken || !data.result) {
+				throw new Error('Invalid server response')
+			}
 
-export const AuthService = {
-  async signIn(email: string, password: string) {
-    const { data } = await API.post<AuthResponse>('/user/signin', { email, password });
-    
-    const expiresIn = Number(data.expiresIn) || 3600;
+			storage.setAuthData({
+				token: data.token,
+				refreshToken: data.refreshToken,
+				expiresIn: data.expiresIn || 3600,
+				user: data.result
+			})
 
-    const tokenData = {
-      token: data.token,
-      refreshToken: data.refreshToken,
-      expiresIn,
-      user: data.result
-    };
+			return data
+		} catch (error: any) {
+			throw error
+		}
+	}
 
-    storage.setToken(tokenData);
-    this.startTokenRefreshTimer(expiresIn);
-    return tokenData;
-  },
+	static async signUp(userData: UserRegisterData): Promise<TokenData> {
+		try {
+			const { data } = await API.post<TokenData>('/user/signup', userData)
 
-  async refreshToken() {
-    try {
-      const currentToken = storage.getToken();
-      if (!currentToken?.refreshToken) throw new Error('No refresh token');
+			if (!data.token || !data.refreshToken || !data.result) {
+				throw new Error('Invalid server response')
+			}
 
-      const { data } = await API.post<AuthResponse>('/user/refresh', {
-        refreshToken: currentToken.refreshToken
-      });
+			storage.setAuthData({
+				token: data.token,
+				refreshToken: data.refreshToken,
+				expiresIn: data.expiresIn || 3600,
+				user: data.result
+			})
 
-      const tokenData = {
-        token: data.token,
-        refreshToken: data.refreshToken,
-        expiresIn: data.expiresIn,
-        user: data.result
-      };
+			return data
+		} catch (error: any) {
+			throw error
+		}
+	}
 
-      storage.setToken(tokenData);
-      this.startTokenRefreshTimer(data.expiresIn);
-      return tokenData;
-    } catch (error) {
-      this.logout();
-      throw error;
-    }
-  },
+	static async uploadAvatar(userId: string, file: File): Promise<string> {
+		try {
+			const formData = new FormData()
+			formData.append('avatar', file)
 
-  startTokenRefreshTimer(expiresIn: number) {
-    const refreshTime = (expiresIn - 60) * 1000;
-    setTimeout(() => this.refreshToken(), refreshTime);
-  },
+			const { data } = await API.post<{ url: string }>(
+				`/user/avatar?id=${userId}`,
+				formData,
+				{
+					headers: {
+						'Content-Type': 'multipart/form-data'
+					}
+				}
+			)
 
-  logout() {
-    storage.removeToken();
-    window.location.href = '/';
-  },
+			return data.url
+		} catch (error: any) {
+			throw error
+		}
+	}
 
-  getUser() {
-    const token = storage.getToken();
-    return token?.user || null;
-  },
+	static async refreshToken(): Promise<TokenData> {
+		try {
+			const { data } = await API.post<TokenData>('/user/refresh')
 
-  isAuthenticated() {
-    const token = storage.getToken();
-    return !!token?.token && !!token?.user;
-  },
+			if (data.token && data.result) {
+				storage.setToken(data)
+			}
 
-  async signUp(data: RegisterData) {
-    const { data: response } = await API.post<AuthResponse>('/user/signup', data);
-    
-    const tokenData = {
-      token: response.token,
-      refreshToken: response.refreshToken,
-      expiresIn: response.expiresIn,
-      user: response.result
-    };
-    
-    storage.setToken(tokenData);
-    this.startTokenRefreshTimer(response.expiresIn);
-    return tokenData;
-  },
+			return data
+		} catch (error: any) {
+			storage.removeToken()
+			throw error
+		}
+	}
 
-  async uploadAvatar(userId: string, file: File) {
-    const formData = new FormData();
-    formData.append('avatar', file);
+	static async logout(): Promise<void> {
+		try {
+			await API.post('/auth/logout')
+		} finally {
+			storage.clearAuth()
+		}
+	}
 
-    const { data } = await API.post<{ avatar_url: string }>(
-      `/user/avatar?id=${userId}`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
-    );
+	static async verifyEmail(token: string): Promise<void> {
+		try {
+			await API.post('/users/verify-email', { token })
+		} catch (error: any) {
+			throw error
+		}
+	}
 
-    return data.avatar_url;
-  },
-}; 
+	static async requestPasswordReset(email: string): Promise<void> {
+		try {
+			await API.post('/users/forgot-password', { email })
+		} catch (error: any) {
+			throw error
+		}
+	}
+
+	static async resetPassword(token: string, newPassword: string): Promise<void> {
+		try {
+			await API.post('/users/reset-password', {
+				token,
+				new_password: newPassword
+			})
+		} catch (error: any) {
+			throw error
+		}
+	}
+
+	static async changePassword(oldPassword: string, newPassword: string): Promise<void> {
+		try {
+			await API.post('/users/change-password', {
+				old_password: oldPassword,
+				new_password: newPassword
+			})
+		} catch (error: any) {
+			throw error
+		}
+	}
+} 

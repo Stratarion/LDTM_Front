@@ -1,59 +1,106 @@
 import axios from 'axios';
-import { AuthService } from './auth.service';
 import { storage } from '@/utils/storage';
 
+const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
+// Переименовываем в API для обратной совместимости
 export const API = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Добавляем токен к каждому запросу
-API.interceptors.request.use((config) => {
-  const tokenData = storage.getToken();
-  if (tokenData?.token) {
-    config.headers.Authorization = `Bearer ${tokenData.token}`;
+// Интерцептор для добавления токена к запросам
+API.interceptors.request.use(
+  (config) => {
+    const tokenData = storage.getTokenData()
+    if (tokenData?.token) {
+      config.headers.Authorization = `Bearer ${tokenData.token}`
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error)
   }
-  return config;
-});
+);
 
-// Обрабатываем ответы и обновляем токен при необходимости
+// Интерцептор для обработки ответов
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
-    console.log('[API] Error interceptor:', {
-      status: error.response?.status,
-      url: error.config?.url,
-      message: error.message,
-      config: error.config
-    });
-
     const originalRequest = error.config;
 
-    // Проверяем, не является ли текущий запрос запросом на обновление токена
-    const isRefreshRequest = originalRequest.url?.includes('/refresh');
-
-    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest) {
-      console.log('[API] Attempting token refresh');
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        await AuthService.refreshToken();
-        const tokenData = storage.getToken();
-        
-        if (tokenData?.token) {
-          console.log('[API] Token refreshed successfully');
-          originalRequest.headers.Authorization = `Bearer ${tokenData.token}`;
-          return API(originalRequest);
-        }
+        const response = await API.post('/auth/refresh');
+        const { token } = response.data;
+
+        localStorage.setItem('token', token);
+        originalRequest.headers.Authorization = `Bearer ${token}`;
+
+        return API(originalRequest);
       } catch (refreshError) {
-        console.log('[API] Refresh token failed:', refreshError);
-        storage.removeToken(); // Просто удаляем токен без перезагрузки
+        localStorage.removeItem('token');
+        window.location.href = '/';
         return Promise.reject(refreshError);
       }
     }
 
-    return Promise.reject(error);
+    if (!error.response) {
+      return Promise.reject({
+        ...error,
+        message: 'Network error. Please check your internet connection.'
+      });
+    }
+
+    const errorMessage = error.response?.data?.message || 'An unexpected error occurred';
+    return Promise.reject({
+      ...error,
+      message: errorMessage
+    });
   }
-); 
+);
+
+// Типы для запросов
+export interface ApiResponse<T = any> {
+  data: T;
+  message?: string;
+  status: number;
+}
+
+// Типизированные методы API
+export const apiService = {
+  get: async <T>(url: string, config = {}) => {
+    const response = await API.get<ApiResponse<T>>(url, config);
+    return response.data;
+  },
+
+  post: async <T>(url: string, data = {}, config = {}) => {
+    const response = await API.post<ApiResponse<T>>(url, data, config);
+    return response.data;
+  },
+
+  put: async <T>(url: string, data = {}, config = {}) => {
+    const response = await API.put<ApiResponse<T>>(url, data, config);
+    return response.data;
+  },
+
+  delete: async <T>(url: string, config = {}) => {
+    const response = await API.delete<ApiResponse<T>>(url, config);
+    return response.data;
+  },
+
+  patch: async <T>(url: string, data = {}, config = {}) => {
+    const response = await API.patch<ApiResponse<T>>(url, data, config);
+    return response.data;
+  }
+};
+
+// Экспортируем все как по умолчанию
+export default {
+  API,
+  apiService
+}; 

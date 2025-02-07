@@ -6,7 +6,8 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Loader2, AlertCircle } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import SportCard from '@/components/features/SportCard'
-import { Sport, SportsService, SportsFiltersType } from '@/services/sports.service'
+import { Service } from '@/services/services.service'
+import { SportsService, SportFiltersType } from '@/services/sports.service'
 import SportFilters from '@/components/features/SportFilters'
 
 // Функция для преобразования строки в массив чисел [min, max]
@@ -25,7 +26,7 @@ const parseAgeRange = (range: string | null): [number, number] | null => {
 const SportsList = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [sports, setSports] = useState<Sport[]>([])
+  const [sports, setSports] = useState<Service[]>([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
@@ -34,8 +35,8 @@ const SportsList = () => {
   const initialFetchRef = useRef(false)
 
   // Получаем фильтры из URL
-  const filters: SportsFiltersType = {
-    type: (searchParams.get('type') as SportsFiltersType['type']) || 'all',
+  const filters: SportFiltersType = {
+    type: (searchParams.get('type') as SportFiltersType['type']) || 'all',
     name: searchParams.get('name') || undefined,
     minRating: searchParams.get('rating') ? Number(searchParams.get('rating')) : undefined,
     priceRange: parsePriceRange(searchParams.get('price')),
@@ -94,7 +95,7 @@ const SportsList = () => {
   }, [inView, isLoading, hasMore, loadSports, page, isInitialLoad])
 
   // Обработчик изменения фильтров
-  const handleFilterChange = (newFilters: SportsFiltersType) => {
+  const handleFilterChange = (newFilters: SportFiltersType) => {
     const params = new URLSearchParams()
     
     if (newFilters.type && newFilters.type !== 'all') params.set('type', newFilters.type)
@@ -163,7 +164,7 @@ const SportsList = () => {
         <EmptyState />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-4">
         {sports.map(sport => (
           <SportCard key={sport.id} sport={sport} />
         ))}

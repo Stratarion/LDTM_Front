@@ -93,7 +93,7 @@ export default function ListView({
                       <div className="flex items-center gap-4 mt-1">
                         <div className="flex items-center gap-1 text-sm text-gray-500">
                           <Users className="w-4 h-4" />
-                          <span>{event.currentParticipants}/{event.maxParticipants}</span>
+                          <span>{event.currentParticipants}/{event.maxStudents}</span>
                         </div>
                         <div className="text-sm text-gray-500">
                           {event.teacher?.name}

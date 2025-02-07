@@ -1,53 +1,29 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Star, ThumbsUp, MessageCircle, Loader2 } from 'lucide-react'
+import { Star, ThumbsUp, MessageCircle } from 'lucide-react'
 import Image from 'next/image'
-import { ReviewsService, Review, ReviewsResponse } from '@/services/reviews.service'
+import { Review } from '@/services/reviews.service'
 import { useAuth } from '@/hooks/useAuth'
 import AddReviewForm from './AddReviewForm'
 
-interface SchoolReviewsProps {
-  schoolId: string
-}
 
-export default function SchoolReviews({ schoolId }: SchoolReviewsProps) {
+
+export default function SportReviews({ reviews, sportId }: { reviews: Review[], sportId: string }) {
   const { user } = useAuth()
-  const [reviews, setReviews] = useState<Review[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [hasUserReview, setHasUserReview] = useState(false)
 
   const loadReviews = async () => {
-    try {
-      const response = await ReviewsService.getSchoolReviews(schoolId)
-      setReviews(response.data || [])
-      // Проверяем, есть ли отзыв текущего пользователя
-      if (user) {
-        const userReview = response.data.find(review => review.creater_id === user.id)
-        setHasUserReview(!!userReview)
-      }
-    } catch (error) {
-      console.error('Failed to load reviews:', error)
-      setReviews([])
-    } finally {
-      setIsLoading(false)
+    // Проверяем, есть ли отзыв текущего пользователя
+    if (user) {
+      const userReview = reviews.find(review => review.creater_id === user.id)
+      setHasUserReview(!!userReview)
     }
   }
 
   useEffect(() => {
     loadReviews()
-  }, [schoolId, user?.id]) // Добавляем user в зависимости
-
-  if (isLoading) {
-    return (
-      <div className="bg-white rounded-2xl p-6 shadow-sm">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Отзывы</h2>
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
-        </div>
-      </div>
-    )
-  }
+  }, [user?.id]) // Добавляем user в зависимости
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
@@ -64,7 +40,7 @@ export default function SchoolReviews({ schoolId }: SchoolReviewsProps) {
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 Оставить отзыв
               </h3>
-              <AddReviewForm schoolId={schoolId} onReviewAdded={loadReviews} />
+              <AddReviewForm sportId={sportId} onReviewAdded={loadReviews} />
             </>
           )}
         </div>

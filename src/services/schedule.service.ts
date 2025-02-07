@@ -13,7 +13,7 @@ export interface ScheduleEvent {
   teacher: User
   ownerId: string
   owner: User
-  maxParticipants: number
+  maxStudents: number
   currentParticipants: number
   participants: User[]
   status: 'active' | 'cancelled'
@@ -30,8 +30,30 @@ export interface CreateEventDto {
   startTime: string
   serviceId: string
   teacherId: string
-  maxParticipants: number
+  maxStudents: number
   ownerId: string
+}
+
+export interface Schedule {
+  id: string
+  serviceId: string
+  date: string
+  startTime: string
+  endTime: string
+  status: 'active' | 'inactive'
+  createdAt: string
+  teacher: {
+    id: string
+    first_name: string
+    last_name: string
+    avatar?: string
+  }
+  currentParticipants: number
+}
+
+interface ScheduleResponse {
+  data: Schedule[]
+  count: number
 }
 
 export class ScheduleService {
@@ -60,5 +82,10 @@ export class ScheduleService {
   static async getTeachers(query: string) {
     const response = await API.get<User[]>(`/users/teachers?query=${query}`)
     return response.data
+  }
+
+  static async getScheduleByServiceId(serviceId: string): Promise<Schedule[]> {
+    const response = await API.get<ScheduleResponse>(`/schedule/service?serviceId=${serviceId}`)
+    return response.data.data
   }
 } 

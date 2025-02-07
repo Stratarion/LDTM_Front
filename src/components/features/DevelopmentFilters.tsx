@@ -71,7 +71,7 @@ export default function DevelopmentFilters({ initialFilters, onFilterChange }: D
       priceRange: undefined,
       city: undefined,
       ageRange: undefined,
-      maxParticipants: undefined
+      maxStudents: undefined
     }
     setFilters(emptyFilters)
     setPriceMin('')
@@ -235,8 +235,8 @@ export default function DevelopmentFilters({ initialFilters, onFilterChange }: D
                 Максимальное количество детей в группе
               </label>
               <select
-                value={filters.maxParticipants || ''}
-                onChange={(e) => handleFilterChange('maxParticipants', Number(e.target.value) || undefined)}
+                value={filters.maxStudents || ''}
+                onChange={(e) => handleFilterChange('maxStudents', Number(e.target.value) || undefined)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
               >
                 <option value="">Любое количество</option>

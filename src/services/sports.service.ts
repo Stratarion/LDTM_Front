@@ -1,4 +1,5 @@
 import { API } from './api'
+import { Review } from './reviews.service'
 
 export interface Sport {
   id: string
@@ -6,12 +7,14 @@ export interface Sport {
   avatar: string
   description: string
   reviewCount: number
+  total_rating: number
+  reviews_count: number
   rating: number
+  subcategory: string
   totalRating: number
   type: 'sport'
   schoolType: 'state' | 'private'
-  maxStudents: number
-  approach: string
+  max_students: number
   price: number
   address: string
   gallery: string[]
@@ -21,17 +24,23 @@ export interface Sport {
     icon: string
     description: string
   }[]
+  photo: {
+    id: string
+    url: string
+  }[]
+  reviews: Review[]
   schedule: {
     days: string[]
     timeStart: string
     timeEnd: string
   }
-  ageFrom: number
-  ageTo: number
+  age_from: number
+  category: string
+  age_to: number
   duration: number
   createdAt: string
   ownerId: string
-  createrId: string
+  org_id: string
   director_name: string
   email: string
   phone: string
@@ -119,7 +128,7 @@ export const SportsService = {
   },
 
   async getSportById(id: string): Promise<Sport> {
-    const { data } = await API.get<Sport>(`/organisations/getOrganisationById?id=${id}`)
+    const { data } = await API.get<Sport>(`/services/${id}`)
     return data
   }
 } 

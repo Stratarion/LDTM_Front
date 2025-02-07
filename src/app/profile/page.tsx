@@ -16,7 +16,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('personal')
 
   const getMenuItems = () => {
-    switch (user?.userType) {
+    switch (user?.role) {
       case 'admin':
         return [
           { id: 'personal', label: 'Личные данные', icon: User },
@@ -70,13 +70,13 @@ export default function ProfilePage() {
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100">
               <img
-                src={user?.avatar_url || "https://picsum.photos/200"}
+                src={user?.avatar || "https://picsum.photos/200"}
                 alt="Profile"
                 className="w-full h-full object-cover"
               />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{user?.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{user?.first_name}</h1>
               <p className="text-gray-600">{user?.email}</p>
             </div>
           </div>

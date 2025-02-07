@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { AuthService } from '@/services/auth.service'
 import RegisterModal from './RegisterModal'
 import { useAuth } from '@/hooks/useAuth'
+import { storage } from '@/utils/storage'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -27,8 +28,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setIsLoading(true)
     
     try {
-      const tokenData = await AuthService.signIn(email, password)
-      login(tokenData.user)
+      const data = await AuthService.signIn(email, password)
+      
+      // AuthService уже сохранил данные в storage
+      login(data.result)
       onClose()
     } catch (err: any) {
       setError(err.response?.data?.message || 'Произошла ошибка при входе')
@@ -89,14 +92,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Пароль"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
+                  className="w-full pl-10 pr-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6]"
                   required
                 />
               </div>
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[#5CD2C6] text-white py-2 rounded-lg hover:bg-[#4BC0B5] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#5CD2C6] text-white py-2 rounded-lg hover:bg-[#4BC0B5] transition-colors disabled:opacity-50"
               >
                 {isLoading ? 'Загрузка...' : 'Продолжить'}
               </button>
@@ -157,7 +160,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </button>
             </div>
 
-            {/* Кнопка реги��трации */}
+            {/* Кнопка регистрации */}
             <div className="text-center">
               <p className="text-gray-600 mb-2">Ещё нет аккаунта?</p>
               <button

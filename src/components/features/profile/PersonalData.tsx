@@ -52,7 +52,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
   const [error, setError] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [formData, setFormData] = useState({
-    name: user?.name || '',
+    name: user?.first_name || '',
     email: user?.email || '',
     address: user?.address || '',
     phone: formatPhoneNumber(user?.phone || '')
@@ -136,7 +136,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
 
     try {
       await AuthService.uploadAvatar(user.id, selectedFile)
-      await refreshUserData(user.id) // Обновляем данные после загрузки аватара
+      await refreshUserData() // Обновляем данные после загрузки аватара
       setAvatarPreview('')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Ошибка при загрузке аватара')
@@ -149,7 +149,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.email) {
-      setError('Имя и email ��бязательны для заполнения');
+      setError('Имя и email обязательны для заполнения');
       return;
     }
 
@@ -169,7 +169,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
         phone: formData.phone ? formData.phone.replace(/\D/g, '') : undefined
       });
       
-      await refreshUserData(user.id); // Обновляем данные с сервера
+      await refreshUserData(); // Обновляем данные с сервера
       setIsEditing(false);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Произошла ошибка при обновлении данных');
@@ -181,7 +181,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
   const handleCancel = () => {
     setIsEditing(false)
     setFormData({
-      name: user?.name || '',
+      name: user?.first_name || '',
       email: user?.email || '',
       address: user?.address || '',
       phone: formatPhoneNumber(user?.phone || '')
@@ -194,12 +194,12 @@ export default function PersonalData({ user }: PersonalDataProps) {
     try {
       const updatedUser = await UsersService.updateUser(user.id, {
         ...formData,
-        userType: 'provider',
-        isOrganisation: true,
+        phone: formData.phone.replace(/\D/g, ''),
+        role: 'provider',
       })
       
-      if (updatedUser.userType === 'provider' && updatedUser.isOrganisation) {
-        await refreshUserData(user.id) // обновляем данные пользователя
+      if (updatedUser.role === 'provider') {
+        await refreshUserData() // обновляем данные пользователя
         setError('')
         setIsUpgradeModalOpen(false)
       } else {
@@ -242,9 +242,9 @@ export default function PersonalData({ user }: PersonalDataProps) {
                 alt="Avatar preview"
                 className="w-full h-full object-cover"
               />
-            ) : user.avatar_url ? (
+            ) : user.avatar ? (
               <Image
-                src={user.avatar_url}
+                src={user.avatar}
                 alt="Avatar"
                 width={128}
                 height={128}
@@ -252,7 +252,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-[#5CD2C6] text-white text-4xl font-medium">
-                {user.name?.charAt(0) || '?'}
+                {user.first_name?.charAt(0) || '?'}
               </div>
             )}
           </div>
@@ -390,7 +390,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
         }}
         onConfirm={handleConfirmAvatarChange}
         title="Сменить аватар?"
-        message="Вы уверены, что хотите ��менить аватар профиля?"
+        message="Вы уверены, что хотите изменить аватар профиля?"
       />
 
       <ConfirmModal
@@ -401,7 +401,7 @@ export default function PersonalData({ user }: PersonalDataProps) {
         message="Вы уверены, что хотите перейти на коммерческий аккаунт? Это действие нельзя будет отменить."
       />
 
-      {user.userType === 'user' && (
+      {user.role === 'user' && (
         <div className="border-t pt-6">
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-medium text-gray-900 mb-2">

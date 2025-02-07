@@ -6,11 +6,11 @@ import { ReviewsService } from '@/services/reviews.service'
 import { useAuth } from '@/hooks/useAuth'
 
 interface AddReviewFormProps {
-  schoolId: string
+  sportId: string
   onReviewAdded: () => void
 }
 
-export default function AddReviewForm({ schoolId, onReviewAdded }: AddReviewFormProps) {
+export default function AddReviewForm({ sportId, onReviewAdded }: AddReviewFormProps) {
   const { user } = useAuth()
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
@@ -43,10 +43,11 @@ export default function AddReviewForm({ schoolId, onReviewAdded }: AddReviewForm
       await ReviewsService.createReview({
         content,
         rating,
-        schoolId,
+        serviceId: sportId,
         createrName: user.first_name,
         createrId: user.id,
-        createrAvatar: user.avatar,
+        createrAvatar: user.avatar || undefined,
+        entityType: 'service'
       })
 
       setContent('')

@@ -44,7 +44,7 @@ const DevelopmentList = () => {
     city: searchParams.get('city') || undefined,
     ageRange: parseAgeRange(searchParams.get('age')),
     developmentType: (searchParams.get('developmentType') as DevelopmentFiltersType['developmentType']) || undefined,
-    maxParticipants: searchParams.get('maxParticipants') ? Number(searchParams.get('maxParticipants')) : undefined
+    maxStudents: searchParams.get('maxStudents') ? Number(searchParams.get('maxStudents')) : undefined
   }
 
   // Загрузка данных
@@ -104,7 +104,7 @@ const DevelopmentList = () => {
     if (newFilters.city) params.set('city', newFilters.city)
     if (newFilters.ageRange) params.set('age', `${newFilters.ageRange[0]}-${newFilters.ageRange[1]}`)
     if (newFilters.developmentType) params.set('developmentType', newFilters.developmentType)
-    if (newFilters.maxParticipants) params.set('maxParticipants', String(newFilters.maxParticipants))
+    if (newFilters.maxStudents) params.set('maxStudents', String(newFilters.maxStudents))
 
     router.push(`/development${params.toString() ? '?' + params.toString() : ''}`)
   }

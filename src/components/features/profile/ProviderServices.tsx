@@ -6,7 +6,7 @@ import { Service, ServiceType, ServicesService } from '@/services/services.servi
 import { useAuth } from '@/hooks/useAuth'
 import { useNotifications } from '@/hooks/useNotifications'
 import AddServiceForm from './AddServiceForm'
-import OrganizationDetailsModal from '@/components/features/OrganizationDetailsModal'
+import ServiceDetailsModal from './ServiceDetailsModal'
 import { mockGalleryImages } from '@/mock/galleryImages'
 
 export default function ProviderServices() {
@@ -44,7 +44,7 @@ export default function ProviderServices() {
       setSelectedService(null)
       showNotification({
         title: 'Успешно',
-        message: 'Услуга была удалена',
+        message: 'Услуга была уд��лена',
         type: 'success'
       })
     } catch (err) {
@@ -56,9 +56,8 @@ export default function ProviderServices() {
     }
   }
 
-  const handleEdit = (id: string) => {
-    // Здесь будет редирект на страницу редактирования
-    console.log('Edit service:', id)
+  const handleEdit = async (id: string) => {
+    await loadServices()
   }
 
   // Преобразование Service в Sport для совместимости с OrganizationDetailsModal
@@ -66,18 +65,18 @@ export default function ProviderServices() {
     id: service.id,
     name: service.name,
     description: service.description,
-    type: service.type,
+    type: service.category,
     images: mockGalleryImages,
     rating: service.rating || 0,
     address: service.address,
     duration: service.duration,
-    maxStudents: service.maxStudents,
-    ageRange: [service.ageFrom, service.ageTo] as [number, number],
+    maxStudents: service.max_students,
+    ageRange: [service.age_from, service.age_to] as [number, number],
     price: service.price,
     reviews: service.reviews || []
   })
 
-  const filteredServices = services.filter(service => service.type === activeType)
+  const filteredServices = services.filter(service => service.category === activeType)
 
   if (isLoading) {
     return (
@@ -157,10 +156,10 @@ export default function ProviderServices() {
                       {service.duration} мин
                     </span>
                     <span className="text-sm text-gray-500">
-                      до {service.maxStudents} учеников
+                      до {service.max_students} учеников
                     </span>
                     <span className="text-sm text-gray-500">
-                      {service.ageFrom}-{service.ageTo} лет
+                      {service.age_from}-{service.age_to} лет
                     </span>
                   </div>
                 </div>
@@ -191,8 +190,8 @@ export default function ProviderServices() {
       />
 
       {selectedService && (
-        <OrganizationDetailsModal
-          sport={serviceToSport(selectedService)}
+        <ServiceDetailsModal
+          serviceId={selectedService.id}
           isOpen={!!selectedService}
           onClose={() => setSelectedService(null)}
           onDelete={handleDelete}

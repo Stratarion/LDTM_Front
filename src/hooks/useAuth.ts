@@ -7,15 +7,48 @@ import { UsersService } from '@/services/users.service'
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      const tokenData = storage.getToken()
-      if (tokenData?.user) {
-        setUser(tokenData.user)
-      } else {
+    const initAuth = () => {
+      const { user } = storage.getAuthData()
+      setUser(user)
+      setIsInitialized(true)
+      setIsLoading(false)
+    }
+
+    initAuth()
+  }, [])
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (!isInitialized) return
+
+      try {
+        const { user } = storage.getAuthData()
+        if (user?.id) {
+          const userData = await UsersService.getCurrentUser(user.id)
+          setUser(userData)
+          storage.setUserData(userData)
+        }
+      } catch (error) {
+        console.error('Auth check error:', error)
+        storage.clearAuth()
         setUser(null)
+      } finally {
+        setIsLoading(false)
       }
+    }
+
+    checkAuth()
+  }, [isInitialized])
+
+  useEffect(() => {
+    if (!isInitialized) return
+
+    const handleStorageChange = () => {
+      const { user } = storage.getAuthData()
+      setUser(user)
     }
 
     window.addEventListener('storage', handleStorageChange)
@@ -25,68 +58,46 @@ export function useAuth() {
       window.removeEventListener('storage', handleStorageChange)
       window.removeEventListener('localStorageChange', handleStorageChange)
     }
-  }, [])
-
-  useEffect(() => {
-    const initAuth = async () => {
-      setIsLoading(true)
-      const tokenData = storage.getToken()
-
-      if (tokenData?.user?.id) {
-        try {
-          // Сначала устанавливаем данные из storage для быстрого отображения
-          setUser(tokenData.user)
-          
-          // Затем запрашиваем актуальные данные с сервера
-          const userData = await UsersService.getCurrentUser(tokenData.user.id)
-          
-          // Обновляем данные пользователя в storage и state
-          storage.setToken({
-            ...tokenData,
-            user: userData
-          })
-          setUser(userData)
-        } catch (error) {
-          setUser(null)
-          storage.removeToken()
-        }
-      }
-      setIsLoading(false)
-    }
-
-    initAuth()
-  }, [])
+  }, [isInitialized])
 
   const login = (userData: User) => {
     setUser(userData)
+    storage.setUserData(userData)
     setIsLoading(false)
   }
 
-  const logout = () => {
-    setUser(null)
-    AuthService.logout()
-    setIsLoading(false)
-  }
-
-  const refreshUserData = async (userId: number) => {
+  const logout = async () => {
     try {
-      const userData = await UsersService.getCurrentUser(userId)
-      
-      // Обновляем данные в storage и state
-      const tokenData = storage.getToken()
-      if (tokenData) {
-        storage.setToken({
-          ...tokenData,
-          user: userData
-        })
-      }
-      
+      await AuthService.logout()
+      setUser(null)
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      storage.clearAuth()
+      setIsLoading(false)
+    }
+  }
+
+  const refreshUserData = async () => {
+    if (!user?.id) return null
+    
+    try {
+      const userData = await UsersService.getCurrentUser(user.id)
       setUser(userData)
+      storage.setUserData(userData)
       return userData
     } catch (error) {
       console.error('Error refreshing user data:', error)
-      throw error
+      return null
     }
+  }
+
+  const updateUser = (userData: Partial<User>) => {
+    if (!user) return
+
+    const updatedUser = { ...user, ...userData }
+    setUser(updatedUser)
+    storage.setUserData(updatedUser)
   }
 
   return {
@@ -94,7 +105,8 @@ export function useAuth() {
     login,
     logout,
     isLoading,
-    isAuthenticated: !!user,
-    refreshUserData
+    isAuthenticated: !!user && isInitialized,
+    refreshUserData,
+    updateUser
   }
 } 
