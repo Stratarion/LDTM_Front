@@ -114,10 +114,10 @@ export default function EventDetails({
                 Преподаватель
               </h3>
               <div className="flex items-center gap-3">
-                {event.teacher.avatar_url ? (
+                {event.teacher.avatar ? (
                   <Image
-                    src={event.teacher.avatar_url}
-                    alt={event.teacher.name}
+                    src={event.teacher.avatar}
+                    alt={event.teacher.first_name}
                     width={40}
                     height={40}
                     className="rounded-full object-cover"
@@ -125,12 +125,12 @@ export default function EventDetails({
                 ) : (
                   <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
                     <span className="text-gray-600 font-medium">
-                      {event.teacher.name.charAt(0)}
+                      {event.teacher.first_name.charAt(0)}
                     </span>
                   </div>
                 )}
                 <div>
-                  <p className="font-medium text-gray-900">{event.teacher.name}</p>
+                  <p className="font-medium text-gray-900">{event.teacher.first_name}</p>
                   <p className="text-sm text-gray-500">{event.teacher.email}</p>
                 </div>
               </div>
@@ -144,10 +144,10 @@ export default function EventDetails({
               <div className="space-y-3 max-h-48 overflow-y-auto">
                 {event.participants.map(participant => (
                   <div key={participant.id} className="flex items-center gap-3">
-                    {participant.avatar_url ? (
+                    {participant.avatar ? (
                       <Image
-                        src={participant.avatar_url}
-                        alt={participant.name}
+                        src={participant.avatar}
+                        alt={participant.first_name}
                         width={32}
                         height={32}
                         className="rounded-full object-cover"
@@ -155,12 +155,12 @@ export default function EventDetails({
                     ) : (
                       <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
                         <span className="text-sm text-gray-600 font-medium">
-                          {participant.name?.charAt(0)}
+                          {participant.first_name?.charAt(0)}
                         </span>
                       </div>
                     )}
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{participant.name}</p>
+                      <p className="text-sm font-medium text-gray-900">{participant.first_name}</p>
                       <p className="text-xs text-gray-500">{participant.email}</p>
                     </div>
                   </div>
