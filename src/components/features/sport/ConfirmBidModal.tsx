@@ -38,6 +38,7 @@ export default function ConfirmBidModal({
   const [isLoading, setIsLoading] = useState(false)
   const [existingBids, setExistingBids] = useState<Bid[]>([])
   const [isCheckingBids, setIsCheckingBids] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
 
   useEffect(() => {
     const loadBids = async () => {
@@ -60,6 +61,12 @@ export default function ConfirmBidModal({
   if (!isOpen || !schedule || !service) return null
 
   const hasExistingBid = user && checkExistingBid(existingBids, user.id)
+
+  // Находим существующую заявку пользователя
+  const userBid = user && existingBids.find(bid => 
+    (bid.userId === user.id || bid.user_id === user.id) && 
+    bid.status === 'active'
+  )
 
   const handleConfirm = async () => {
     if (!user || !schedule) return
@@ -85,6 +92,36 @@ export default function ConfirmBidModal({
       })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleCancel = async () => {
+    if (!user || !userBid) return
+
+    try {
+      setIsCancelling(true)
+      await BidsService.cancelBid({
+        id: userBid.id,
+        userId: user.id
+      })
+
+      showNotification({
+        title: 'Успешно',
+        message: 'Запись отменена',
+        type: 'success'
+      })
+      
+      // Обновляем список заявок
+      const updatedBids = await BidsService.getScheduleBids(schedule.id)
+      setExistingBids(updatedBids)
+    } catch (err: any) {
+      showNotification({
+        title: 'Ошибка',
+        message: err.response?.data?.message || 'Не удалось отменить запись',
+        type: 'error'
+      })
+    } finally {
+      setIsCancelling(false)
     }
   }
 
@@ -172,24 +209,34 @@ export default function ConfirmBidModal({
             onClick={onClose}
             className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
           >
-            Отмена
+            Закрыть
           </button>
-          <button
-            onClick={handleConfirm}
-            disabled={
-              isLoading || 
-              isCheckingBids || 
-              schedule.currentParticipants >= service.max_students ||
-              hasExistingBid
-            }
-            className="px-4 py-2 bg-[#5CD2C6] text-white rounded-lg hover:bg-[#4BC0B5] disabled:opacity-50 flex items-center gap-2"
-          >
-            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isCheckingBids ? 'Проверка...' :
-             hasExistingBid ? 'Вы уже записаны' :
-             schedule.currentParticipants >= service.max_students ? 'Мест нет' : 
-             'Записаться'}
-          </button>
+
+          {hasExistingBid ? (
+            <button
+              onClick={handleCancel}
+              disabled={isCancelling}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 flex items-center gap-2"
+            >
+              {isCancelling && <Loader2 className="w-4 h-4 animate-spin" />}
+              Отменить запись
+            </button>
+          ) : (
+            <button
+              onClick={handleConfirm}
+              disabled={
+                isLoading || 
+                isCheckingBids || 
+                schedule.currentParticipants >= service.max_students
+              }
+              className="px-4 py-2 bg-[#5CD2C6] text-white rounded-lg hover:bg-[#4BC0B5] disabled:opacity-50 flex items-center gap-2"
+            >
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              {isCheckingBids ? 'Проверка...' :
+               schedule.currentParticipants >= service.max_students ? 'Мест нет' : 
+               'Записаться'}
+            </button>
+          )}
         </div>
       </motion.div>
     </motion.div>
