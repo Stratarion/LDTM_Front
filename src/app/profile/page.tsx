@@ -3,13 +3,15 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import Header from '@/components/layout/Header'
-import { User, Settings, Calendar, Building2, Users, BookOpen } from 'lucide-react'
+import { User, Settings, Calendar, Building2, Users, BookOpen, Book } from 'lucide-react'
 import PersonalData from '@/components/features/profile/PersonalData'
 import UserLessons from '@/components/features/profile/UserLessons'
 import AdminUsers from '@/components/features/profile/AdminUsers'
+
 import ProviderOrganizations from '@/components/features/profile/ProviderOrganizations'
 import ProviderServices from '@/components/features/profile/ProviderServices'
 import ProviderSchedule from '@/components/features/profile/ProviderSchedule'
+import UserSchedule from '@/components/features/profile/UserSchedule'
 
 export default function ProfilePage() {
   const { user } = useAuth()
@@ -30,11 +32,13 @@ export default function ProfilePage() {
           { id: 'services', label: 'Услуги', icon: BookOpen },
           { id: 'organizations', label: 'Организации', icon: Building2 },
           { id: 'schedule', label: 'Расписание', icon: Calendar },
+          { id: 'myTrainings', label: 'Мои тренировки', icon: Book }
         ]
       default: // user
         return [
           { id: 'personal', label: 'Личные данные', icon: User },
           { id: 'lessons', label: 'Мои занятия', icon: BookOpen },
+          { id: 'myTrainings', label: 'Мои тренировки', icon: Book }
         ]
     }
   }
@@ -55,8 +59,11 @@ export default function ProfilePage() {
         return <ProviderServices />
       case 'schedule':
         return <ProviderSchedule />
+      case 'myTrainings':
+        return <UserSchedule />
       default:
         return <div>В разработке...</div>
+
     }
   }
 

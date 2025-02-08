@@ -5,24 +5,25 @@ import { User } from '@/types/user'
 
 export interface Bid {
   id: string
-  userId: string
-  user_id: string
-  scheduleId: string
-  schedule_id: string
   status: 'active' | 'cancelled'
   createdAt: string
-  updatedAt: string
   schedule?: {
     id: string
     date: string
-    startTime: string
-    endTime: string
-    service: Service
-  }
-  user?: {
-    id: string
-    first_name: string
-    last_name: string
+    startTime: string  // "10:00:00"
+    service: {
+      id: string
+      name: string
+      description: string
+      max_students: number
+      duration: number
+    }
+    teacher: {
+      id: string
+      first_name: string
+      last_name: string
+    }
+    activeBidsCount: number
   }
 }
 
@@ -52,5 +53,10 @@ export class BidsService {
 
   static async cancelBid(data: { id: string; userId: string }): Promise<void> {
     await API.post('/bids/cancel', data)
+  }
+
+  static async getUserSchedule(userId: string): Promise<Bid[]> {
+    const response = await API.get<BidsResponse>(`/bids/user-schedule?userId=${userId}`)
+    return response.data.data
   }
 } 

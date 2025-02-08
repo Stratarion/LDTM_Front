@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { AuthService } from '@/services/auth.service'
 import { User as UserType } from '@/types/user'
 import { useAuth } from '@/hooks/useAuth'
+import UserSchedule from './profile/UserSchedule'
 
 interface UserProfileModalProps {
   isOpen: boolean
@@ -62,7 +63,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
           <div className="flex flex-col items-center">
             <div className="h-24 w-24 rounded-full overflow-hidden mb-4">
               <Image
-                src={user?.avatar_url || "https://picsum.photos/200"}
+                src={user?.avatar || "https://picsum.photos/200"}
                 alt="Profile"
                 width={96}
                 height={96}
@@ -70,7 +71,7 @@ export default function UserProfileModal({ isOpen, onClose }: UserProfileModalPr
               />
             </div>
 
-            <h2 className="text-2xl font-bold mb-1">{user?.name || 'Пользователь'}</h2>
+            <h2 className="text-2xl font-bold mb-1">{user?.first_name || 'Пользователь'}</h2>
             <p className="text-gray-600 mb-2">{user?.email}</p>
             <p className="text-sm text-gray-500 mb-6">
               {user?.userType ? roleLabels[user.userType] : ''}
