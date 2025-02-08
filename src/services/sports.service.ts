@@ -4,46 +4,21 @@ import { Review } from './reviews.service'
 export interface Sport {
   id: string
   name: string
-  avatar: string
-  description: string
-  reviewCount: number
-  total_rating: number
-  reviews_count: number
-  rating: number
+  description: string | null
+  category: 'sport' | string
   subcategory: string
-  totalRating: number
-  type: 'sport'
-  schoolType: 'state' | 'private'
-  max_students: number
-  price: number
-  address: string
-  gallery: string[]
-  features: {
-    id: string
-    name: string
-    icon: string
-    description: string
-  }[]
-  photo: {
-    id: string
-    url: string
-  }[]
-  reviews: Review[]
-  schedule: {
-    days: string[]
-    timeStart: string
-    timeEnd: string
-  }
-  age_from: number
-  category: string
-  age_to: number
+  price: string
   duration: number
-  createdAt: string
-  ownerId: string
-  org_id: string
-  director_name: string
-  email: string
+  max_students: number
+  age_from: number
+  age_to: number
+  address: string
+  image: string
+  rating: number
+  reviews_count: number
+  status: 'active' | 'inactive'
   phone: string
+  email: string
 }
 
 export interface SportResponse {
@@ -66,14 +41,13 @@ export type SportTypes =
   | 'other'
 
 export interface SportFiltersType {
-  type?: 'all' | 'state' | 'private'
-  sportType?: SportTypes
+  category?: string
+  subcategory?: string
   name?: string
   minRating?: number
-  priceRange?: [number, number]
-  city?: string
-  ageRange?: [number, number]
-  maxStudents?: number
+  price?: [number, number] | undefined
+  address?: string
+  ageRange?: [number, number] | undefined
 }
 
 interface SportRequestBody {

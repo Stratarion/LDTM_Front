@@ -1,8 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Search, ChevronDown, ChevronUp, X } from 'lucide-react'
-import { ServiceFiltersType } from '@/services/services.service'
+import { useState } from 'react'
 import { SportFiltersType } from '@/services/sports.service'
 
 interface SportFiltersProps {
@@ -10,261 +8,157 @@ interface SportFiltersProps {
   onFilterChange: (filters: SportFiltersType) => void
 }
 
-const SPORT_TYPES = [
-  { value: 'football', label: 'Футбол' },
-  { value: 'basketball', label: 'Баскетбол' },
-  { value: 'volleyball', label: 'Волейбол' },
-  { value: 'tennis', label: 'Теннис' },
-  { value: 'swimming', label: 'Плавание' },
-  { value: 'martial_arts', label: 'Единоборства' },
-  { value: 'gymnastics', label: 'Гимнастика' },
+const CATEGORIES = [
+  { value: 'sport', label: 'Спорт' },
   { value: 'dance', label: 'Танцы' },
-  { value: 'other', label: 'Другое' }
+  { value: 'art', label: 'Искусство' }
+]
+
+const SUBCATEGORIES = [
+  { value: 'Борьба', label: 'Борьба' },
+  { value: 'Футбол', label: 'Футбол' },
+  { value: 'Плавание', label: 'Плавание' }
 ]
 
 export default function SportFilters({ initialFilters, onFilterChange }: SportFiltersProps) {
   const [filters, setFilters] = useState<SportFiltersType>(initialFilters)
-  const [priceMin, setPriceMin] = useState(filters.priceRange?.[0]?.toString() || '')
-  const [priceMax, setPriceMax] = useState(filters.priceRange?.[1]?.toString() || '')
-  const [ageMin, setAgeMin] = useState(filters.ageRange?.[0]?.toString() || '')
-  const [ageMax, setAgeMax] = useState(filters.ageRange?.[1]?.toString() || '')
-  const [isExpanded, setIsExpanded] = useState(true)
 
-  useEffect(() => {
-    setFilters(initialFilters)
-    setPriceMin(initialFilters.priceRange?.[0]?.toString() || '')
-    setPriceMax(initialFilters.priceRange?.[1]?.toString() || '')
-    setAgeMin(initialFilters.ageRange?.[0]?.toString() || '')
-    setAgeMax(initialFilters.ageRange?.[1]?.toString() || '')
-  }, [initialFilters])
-
-  const handleFilterChange = (key: keyof SportFiltersType, value: any) => {
-    const newFilters = { ...filters, [key]: value }
-    setFilters(newFilters)
-    onFilterChange(newFilters)
-  }
-
-  const handlePriceChange = () => {
-    const min = Number(priceMin)
-    const max = Number(priceMax)
-    
-    if (min && max && min <= max) {
-      handleFilterChange('priceRange', [min, max])
-    }
-  }
-
-  const handleAgeChange = () => {
-    const min = Number(ageMin)
-    const max = Number(ageMax)
-    
-    if (min && max && min <= max) {
-      handleFilterChange('ageRange', [min, max])
-    }
-  }
-
-  const resetFilters = () => {
-    const emptyFilters: SportFiltersType = {
-      type: 'all',
-      sportType: undefined,
-      name: undefined,
-      minRating: undefined,
-      priceRange: undefined,
-      city: undefined,
-      ageRange: undefined,
-      maxStudents: undefined
-    }
-    setFilters(emptyFilters)
-    setPriceMin('')
-    setPriceMax('')
-    setAgeMin('')
-    setAgeMax('')
-    onFilterChange(emptyFilters)
+  const handleChange = (newFilters: Partial<SportFiltersType>) => {
+    const updatedFilters = { ...filters, ...newFilters }
+    setFilters(updatedFilters)
+    onFilterChange(updatedFilters)
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm">
-      {/* Заголовок с кнопками */}
-      <div className="p-6 flex items-center justify-between border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <h2 className="font-medium text-gray-900">Фильтры</h2>
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+    <div className="bg-white rounded-lg shadow p-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Поиск по названию */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-900">Название</label>
+          <input
+            type="text"
+            placeholder="Поиск по названию"
+            value={filters.name || ''}
+            onChange={(e) => handleChange({ name: e.target.value })}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+          />
+        </div>
+
+        {/* Адрес (новый фильтр) */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-900">Адрес</label>
+          <input
+            type="text"
+            placeholder="Поиск по адресу"
+            value={filters.address || ''}
+            onChange={(e) => handleChange({ address: e.target.value })}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+          />
+        </div>
+
+        {/* Категория */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-900">Категория</label>
+          <select
+            value={filters.category || ''}
+            onChange={(e) => handleChange({ category: e.target.value })}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900"
           >
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
+            <option value="">Все категории</option>
+            {CATEGORIES.map(cat => (
+              <option key={cat.value} value={cat.value}>{cat.label}</option>
+            ))}
+          </select>
         </div>
-        <button
-          onClick={resetFilters}
-          className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-        >
-          <X className="w-4 h-4" />
-          Сбросить
-        </button>
-      </div>
 
-      {isExpanded && (
-        <div className="p-6 space-y-6">
-          {/* Поиск по названию */}
-          <div className="relative">
+        {/* Подкатегория */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-900">Направление</label>
+          <select
+            value={filters.subcategory || ''}
+            onChange={(e) => handleChange({ subcategory: e.target.value })}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900"
+          >
+            <option value="">Все направления</option>
+            {SUBCATEGORIES.map(sub => (
+              <option key={sub.value} value={sub.value}>{sub.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Возрастной диапазон */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-900">Возраст</label>
+          <div className="flex gap-2 items-center">
             <input
-              type="text"
-              placeholder="Поиск по названию"
-              value={filters.name || ''}
-              onChange={(e) => handleFilterChange('name', e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
+              type="number"
+              placeholder="От"
+              value={filters.ageRange?.[0] || ''}
+              onChange={(e) => handleChange({ 
+                ageRange: [Number(e.target.value), filters.ageRange?.[1] || 18] 
+              })}
+              className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+              min="0"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Тип организации */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Тип организации
-              </label>
-              <select
-                value={filters.type || 'all'}
-                onChange={(e) => handleFilterChange('type', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-              >
-                <option value="all">Все</option>
-                <option value="state">Государственные</option>
-                <option value="private">Частные</option>
-              </select>
-            </div>
-
-            {/* Тип секции */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Вид спорта
-              </label>
-              <select
-                value={filters.sportType || ''}
-                onChange={(e) => handleFilterChange('sportType', e.target.value || undefined)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-              >
-                <option value="">Все виды</option>
-                {SPORT_TYPES.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Город */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Город
-              </label>
-              <select
-                value={filters.city || ''}
-                onChange={(e) => handleFilterChange('city', e.target.value || undefined)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-              >
-                <option value="">Все города</option>
-                <option value="moscow">Москва</option>
-                <option value="spb">Санкт-Петербург</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Диапазон цен */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Стоимость за занятие (₽)
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="number"
-                  placeholder="От"
-                  value={priceMin}
-                  onChange={(e) => setPriceMin(e.target.value)}
-                  onBlur={handlePriceChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
-                />
-                <span className="text-gray-600">—</span>
-                <input
-                  type="number"
-                  placeholder="До"
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
-                  onBlur={handlePriceChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
-                />
-              </div>
-            </div>
-
-            {/* Возрастной диапазон */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Возраст ребенка (лет)
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="number"
-                  placeholder="От"
-                  value={ageMin}
-                  onChange={(e) => setAgeMin(e.target.value)}
-                  onBlur={handleAgeChange}
-                  min="0"
-                  max="18"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
-                />
-                <span className="text-gray-600">—</span>
-                <input
-                  type="number"
-                  placeholder="До"
-                  value={ageMax}
-                  onChange={(e) => setAgeMax(e.target.value)}
-                  onBlur={handleAgeChange}
-                  min="0"
-                  max="18"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Количество детей и рейтинг */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Максимальное количество детей в группе
-              </label>
-              <select
-                value={filters.maxStudents || ''}
-                onChange={(e) => handleFilterChange('maxStudents', Number(e.target.value) || undefined)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-              >
-                <option value="">Любое количество</option>
-                <option value="5">До 5 детей</option>
-                <option value="10">До 10 детей</option>
-                <option value="15">До 15 детей</option>
-                <option value="20">До 20 детей</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Минимальный рейтинг
-              </label>
-              <select
-                value={filters.minRating || ''}
-                onChange={(e) => handleFilterChange('minRating', Number(e.target.value) || undefined)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-              >
-                <option value="">Любой</option>
-                <option value="4">От 4 и выше</option>
-                <option value="4.5">От 4.5 и выше</option>
-                <option value="4.8">От 4.8 и выше</option>
-              </select>
-            </div>
+            <span className="text-gray-900">—</span>
+            <input
+              type="number"
+              placeholder="До"
+              value={filters.ageRange?.[1] || ''}
+              onChange={(e) => handleChange({ 
+                ageRange: [filters.ageRange?.[0] || 0, Number(e.target.value)] 
+              })}
+              className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+              min="0"
+            />
+            <span className="text-gray-600">лет</span>
           </div>
         </div>
-      )}
+
+        {/* Ценовой диапазон */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-900">Цена за занятие</label>
+          <div className="flex gap-2 items-center">
+            <input
+              type="number"
+              placeholder="От"
+              value={filters.price?.[0] || ''}
+              onChange={(e) => handleChange({ 
+                price: [Number(e.target.value), filters.price?.[1] || 10000] 
+              })}
+              className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+              min="0"
+            />
+            <span className="text-gray-900">—</span>
+            <input
+              type="number"
+              placeholder="До"
+              value={filters.price?.[1] || ''}
+              onChange={(e) => handleChange({ 
+                price: [filters.price?.[0] || 0, Number(e.target.value)] 
+              })}
+              className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+              min="0"
+            />
+            <span className="text-gray-600">₽</span>
+          </div>
+        </div>
+
+        {/* Минимальный рейтинг */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-900">Рейтинг</label>
+          <select
+            value={filters.minRating || ''}
+            onChange={(e) => handleChange({ minRating: Number(e.target.value) })}
+            className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900"
+          >
+            <option value="">Любой рейтинг</option>
+            <option value="4">От 4.0</option>
+            <option value="4.5">От 4.5</option>
+            <option value="5">5.0</option>
+          </select>
+        </div>
+      </div>
     </div>
   )
 } 

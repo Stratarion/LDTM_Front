@@ -1,9 +1,10 @@
 'use client'
 
-import { Building2 } from 'lucide-react'
+import { Building2, Users } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Service } from '@/services/services.service'
+import { Star } from 'lucide-react'
 
 interface SportCardProps {
   sport: Service
@@ -14,50 +15,48 @@ export default function SportCard({ sport }: SportCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
       <Link href={`/sports/${sport.id}`}>
-        <div className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-              {sport.image ? (
-                <Image
-                  src={sport.image}
-                  alt={sport.name}
-                  width={96}
-                  height={96}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200">
-                  <Building2 className="w-12 h-12 text-gray-400" />
-                </div>
-              )}
+        <div className="flex gap-4 p-4">
+          <div className="w-48 h-32 relative rounded-lg overflow-hidden flex-shrink-0">
+            <Image
+              src={sport.image || '/placeholder.jpg'}
+              alt={sport.name}
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          <div className="flex-grow">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="text-lg font-medium text-gray-900">
+                  {sport.name}
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {sport.subcategory}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-medium text-gray-900">
+                  {Number(sport.price).toLocaleString('ru-RU')} ₽
+                </p>
+                <p className="text-sm text-gray-500">за занятие</p>
+              </div>
             </div>
 
-            <div className="flex-grow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {sport.name}
-                  </h3>
-                  <p className="text-gray-600 mt-1">{sport.address}</p>
-                </div>
-                {sport.price && (
-                  <span className="px-3 py-1 rounded-full text-sm bg-amber-50 text-amber-600">
-                    ~{sport.price.toLocaleString()} ₽/месяц
-                  </span>
-                )}
+            <div className="mt-3 flex items-center gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                <span>{sport.rating.toFixed(1)} ({sport.reviews_count})</span>
               </div>
-
-              {sport.description && (
-                <p className="text-gray-600 mt-2 line-clamp-2">
-                  {sport.description}
-                </p>
-              )}
-
-              <div className="flex items-center gap-4 mt-3">
-                <span className="text-sm text-gray-600">
-                  ⭐ {(sport.reviews_count && sport.rating) ? (sport.rating / sport.reviews_count).toFixed(1) : 0} ({sport.reviews_count})
-                </span>
+              <span>•</span>
+              <div className="flex items-center gap-1">
+                <Users className="w-4 h-4" />
+                <span>{sport.age_from}-{sport.age_to} лет</span>
               </div>
+            </div>
+
+            <div className="mt-2 text-sm text-gray-600">
+              {sport.address}
             </div>
           </div>
         </div>
