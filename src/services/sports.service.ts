@@ -41,29 +41,28 @@ export type SportTypes =
   | 'other'
 
 export interface SportFiltersType {
+  name?: string
+  address?: string
   category?: string
   subcategory?: string
-  name?: string
   minRating?: number
-  price?: [number, number] | undefined
-  address?: string
-  ageRange?: [number, number] | undefined
+  price?: [number, number]
+  ageRange?: [number, number]
 }
 
 interface SportRequestBody {
   page: number
   limit: number
   filters?: {
-    type?: 'state' | 'private'
     name?: string
+    address?: string
+    category?: string
+    subcategory?: string
     minRating?: number
     minPrice?: number
     maxPrice?: number
-    city?: string
     minAge?: number
     maxAge?: number
-    maxStudents?: number
-    sportType?: SportTypes
   }
 }
 
@@ -77,20 +76,19 @@ export const SportsService = {
       page,
       limit,
       filters: {
-        ...(filters?.type !== 'all' && { type: filters?.type }),
         ...(filters?.name && { name: filters.name }),
+        ...(filters?.address && { address: filters.address }),
+        ...(filters?.category && { category: filters.category }),
+        ...(filters?.subcategory && { subcategory: filters.subcategory }),
         ...(filters?.minRating && { minRating: filters.minRating }),
-        ...(filters?.priceRange && {
-          minPrice: filters.priceRange[0],
-          maxPrice: filters.priceRange[1]
+        ...(filters?.price && {
+          minPrice: filters.price[0],
+          maxPrice: filters.price[1]
         }),
-        ...(filters?.city && { city: filters.city }),
         ...(filters?.ageRange && {
           minAge: filters.ageRange[0],
           maxAge: filters.ageRange[1]
-        }),
-        ...(filters?.maxStudents && { maxStudents: filters.maxStudents }),
-        ...(filters?.sportType && { sportType: filters.sportType })
+        })
       }
     }
 

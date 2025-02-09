@@ -25,35 +25,26 @@ const parseAgeRange = (range: string | null): [number, number] | null => {
 
 const SportsList = () => {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const [sports, setSports] = useState<Service[]>([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const initialFetchRef = useRef(false)
+  const [currentFilters, setCurrentFilters] = useState<SportFiltersType>({})
 
-  // Получаем фильтры из URL
-  const filters: SportFiltersType = {
-    type: (searchParams.get('type') as SportFiltersType['type']) || 'all',
-    name: searchParams.get('name') || undefined,
-    minRating: searchParams.get('rating') ? Number(searchParams.get('rating')) : undefined,
-    priceRange: parsePriceRange(searchParams.get('price')),
-    city: searchParams.get('city') || undefined,
-    ageRange: parseAgeRange(searchParams.get('age'))
-  }
-
-  // Загрузка данных
-  const loadSports = useCallback(async (pageNum: number) => {
+  // Загрузка данных с фильтрами
+  const loadSports = useCallback(async (pageNum: number, filters: SportFiltersType) => {
     try {
+      console.log('5. loadSports - начало загрузки, страница:', pageNum)
+      console.log('6. loadSports - фильтры для запроса:', filters)
+      
       setIsLoading(true)
       setError(null)
-      const response = await SportsService.getSports(
-        pageNum,
-        12,
-        filters
-      )
+      
+      const response = await SportsService.getSports(pageNum, 12, filters)
+      console.log('7. loadSports - получен ответ:', response)
       
       if (pageNum === 1) {
         setSports(response.data)
@@ -63,24 +54,57 @@ const SportsList = () => {
       
       setHasMore(pageNum < response.totalPages)
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Произошла ошибка при загрузке данных'
-      setError(errorMessage)
+      console.error('8. loadSports - ошибка:', err)
+      setError(err.response?.data?.message || 'Произошла ошибка при загрузке данных')
       setHasMore(false)
-      console.error('Failed to load sports:', err)
     } finally {
       setIsLoading(false)
       setIsInitialLoad(false)
     }
-  }, [filters])
+  }, [])
+
+  // Обработчик изменения фильтров
+  const handleFilterChange = useCallback(async (newFilters: SportFiltersType) => {
+    console.log('3. handleFilterChange - получены новые фильтры:', newFilters)
+    const params = new URLSearchParams()
+    
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value !== undefined) {
+        if (Array.isArray(value)) {
+          params.set(key, JSON.stringify(value))
+        } else {
+          params.set(key, String(value))
+        }
+      }
+    })
+
+    console.log('4. handleFilterChange - новые параметры URL:', params.toString())
+    
+    // Обновляем URL и состояние фильтров
+    await router.push(`${pathname}${params.toString() ? '?' + params.toString() : ''}`)
+    setCurrentFilters(newFilters)
+
+    // Сбрасываем страницу и загружаем данные с новыми фильтрами
+    setPage(1)
+    setSports([])
+    loadSports(1, newFilters)
+  }, [router, pathname, loadSports])
+
+  // Загрузка следующей страницы
+  const loadNextPage = useCallback(() => {
+    if (!isLoading && hasMore && !isInitialLoad) {
+      const nextPage = page + 1
+      setPage(nextPage)
+      loadSports(nextPage, currentFilters)
+    }
+  }, [isLoading, hasMore, isInitialLoad, page, currentFilters, loadSports])
 
   // Первичная загрузка
   useEffect(() => {
-    if (!initialFetchRef.current) {
-      initialFetchRef.current = true
-      setPage(1)
-      loadSports(1)
+    if (isInitialLoad) {
+      loadSports(1, currentFilters)
     }
-  }, [loadSports])
+  }, [isInitialLoad, currentFilters, loadSports])
 
   // Intersection Observer для бесконечной прокрутки
   const { ref, inView } = useInView({
@@ -88,25 +112,10 @@ const SportsList = () => {
   })
 
   useEffect(() => {
-    if (inView && !isLoading && hasMore && !isInitialLoad) {
-      setPage(prev => prev + 1)
-      loadSports(page + 1)
+    if (inView) {
+      loadNextPage()
     }
-  }, [inView, isLoading, hasMore, loadSports, page, isInitialLoad])
-
-  // Обработчик изменения фильтров
-  const handleFilterChange = (newFilters: SportFiltersType) => {
-    const params = new URLSearchParams()
-    
-    if (newFilters.type && newFilters.type !== 'all') params.set('type', newFilters.type)
-    if (newFilters.name) params.set('name', newFilters.name)
-    if (newFilters.minRating) params.set('rating', String(newFilters.minRating))
-    if (newFilters.priceRange) params.set('price', `${newFilters.priceRange[0]}-${newFilters.priceRange[1]}`)
-    if (newFilters.city) params.set('city', newFilters.city)
-    if (newFilters.ageRange) params.set('age', `${newFilters.ageRange[0]}-${newFilters.ageRange[1]}`)
-
-    router.push(`/sports${params.toString() ? '?' + params.toString() : ''}`)
-  }
+  }, [inView, loadNextPage])
 
   // Компонент для отображения ошибки
   const ErrorMessage = () => (
@@ -118,7 +127,7 @@ const SportsList = () => {
       <button 
         onClick={() => {
           setError(null)
-          loadSports(1)
+          loadSports(1, currentFilters)
         }}
         className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
       >
@@ -153,7 +162,7 @@ const SportsList = () => {
     <>
       <div className="mb-8">
         <SportFilters
-          initialFilters={filters}
+          initialFilters={currentFilters}
           onFilterChange={handleFilterChange}
         />
       </div>
