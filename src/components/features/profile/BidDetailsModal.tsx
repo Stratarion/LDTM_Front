@@ -1,15 +1,19 @@
 'use client'
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { X } from 'lucide-react'
+import { X, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import { Bid } from '@/services/bids.service'
+import { Bid, BidsService } from '@/services/bids.service'
+import { useNotifications } from '@/hooks/useNotifications'
+import { User } from '@/types/user'
 
 interface BidDetailsModalProps {
   bid: Bid | null
   isOpen: boolean
   onClose: () => void
+  user: User | null
 }
 
 function formatTimeRange(date: string, startTime: string, duration: number): string {
@@ -29,8 +33,38 @@ function formatTimeRange(date: string, startTime: string, duration: number): str
   }
 }
 
-export default function BidDetailsModal({ bid, isOpen, onClose }: BidDetailsModalProps) {
+export default function BidDetailsModal({ bid, isOpen, onClose, user }: BidDetailsModalProps) {
+  const { showNotification } = useNotifications()
+  const [isCancelling, setIsCancelling] = useState(false)
+
   if (!isOpen || !bid?.schedule) return null;
+  console.log(bid)
+  const handleCancel = async () => {
+    if (!user || !bid) return
+
+    try {
+      setIsCancelling(true)
+      await BidsService.cancelBid({
+        id: bid.id,
+        userId: user.id
+      })
+
+      showNotification({
+        title: 'Успешно',
+        message: 'Запись отменена',
+        type: 'success'
+      })
+      onClose()
+    } catch (err: any) {
+      showNotification({
+        title: 'Ошибка',
+        message: err.response?.data?.message || 'Не удалось отменить запись',
+        type: 'error'
+      })
+    } finally {
+      setIsCancelling(false)
+    }
+  }
 
   return (
     <motion.div
@@ -127,13 +161,24 @@ export default function BidDetailsModal({ bid, isOpen, onClose }: BidDetailsModa
           </div>
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
           >
             Закрыть
           </button>
+
+          {bid.status === 'active' && (
+            <button
+              onClick={handleCancel}
+              disabled={isCancelling}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 flex items-center gap-2"
+            >
+              {isCancelling && <Loader2 className="w-4 h-4 animate-spin" />}
+              Отменить запись
+            </button>
+          )}
         </div>
       </motion.div>
     </motion.div>

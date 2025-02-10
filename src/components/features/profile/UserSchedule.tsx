@@ -176,6 +176,7 @@ export default function UserSchedule() {
         bid={selectedBid}
         isOpen={!!selectedBid}
         onClose={() => setSelectedBid(null)}
+        user={user}
       />
     </div>
   )
