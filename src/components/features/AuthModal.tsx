@@ -67,7 +67,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <X size={24} />
             </button>
 
-            <h2 className="text-2xl font-bold text-center mb-6">Войти в EduKids</h2>
+            <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Войти в EduKids</h2>
 
             {/* Форма входа */}
             <form onSubmit={handleSubmit} className="space-y-4 mb-6">

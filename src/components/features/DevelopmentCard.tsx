@@ -12,7 +12,7 @@ interface DevelopmentCardProps {
 export default function DevelopmentCard({ service }: DevelopmentCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-      <Link href={`/services/${service.id}`}>
+      <Link href={`/development/${service.id}`}>
         <div className="flex gap-4 p-4">
           <div className="w-48 h-32 relative rounded-lg overflow-hidden flex-shrink-0">
             <Image

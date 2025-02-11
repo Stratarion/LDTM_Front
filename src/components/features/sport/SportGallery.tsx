@@ -37,7 +37,7 @@ export default function SportGallery({ sport }: SportGalleryProps) {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Фотографии школы</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Фотографии</h2>
       
       <div className="relative">
         <div className="grid grid-cols-4 gap-4">
