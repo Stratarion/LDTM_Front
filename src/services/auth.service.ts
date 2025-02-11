@@ -92,7 +92,7 @@ export class AuthService {
 
 	static async logout(): Promise<void> {
 		try {
-			await API.post('/auth/logout')
+			await API.post('/user/logout')
 		} finally {
 			storage.clearAuth()
 		}
@@ -100,7 +100,7 @@ export class AuthService {
 
 	static async verifyEmail(token: string): Promise<void> {
 		try {
-			await API.post('/users/verify-email', { token })
+			await API.post('/user/verify-email', { token })
 		} catch (error: any) {
 			throw error
 		}
@@ -108,7 +108,7 @@ export class AuthService {
 
 	static async requestPasswordReset(email: string): Promise<void> {
 		try {
-			await API.post('/users/forgot-password', { email })
+			await API.post('/user/forgot-password', { email })
 		} catch (error: any) {
 			throw error
 		}
@@ -116,7 +116,7 @@ export class AuthService {
 
 	static async resetPassword(token: string, newPassword: string): Promise<void> {
 		try {
-			await API.post('/users/reset-password', {
+			await API.post('/user/reset-password', {
 				token,
 				new_password: newPassword
 			})
@@ -127,7 +127,7 @@ export class AuthService {
 
 	static async changePassword(oldPassword: string, newPassword: string): Promise<void> {
 		try {
-			await API.post('/users/change-password', {
+			await API.post('/user/change-password', {
 				old_password: oldPassword,
 				new_password: newPassword
 			})

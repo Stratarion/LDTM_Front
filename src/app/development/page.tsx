@@ -1,85 +1,89 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Loader2, AlertCircle } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import DevelopmentCard from '@/components/features/DevelopmentCard'
-import { Development, DevelopmentService, DevelopmentFiltersType } from '@/services/development.service'
 import DevelopmentFilters from '@/components/features/DevelopmentFilters'
-
-// Функция для преобразования строки в массив чисел [min, max]
-const parsePriceRange = (range: string | null): [number, number] | undefined => {
-  if (!range) return undefined
-  const [min, max] = range.split('-').map(Number)
-  if (isNaN(min) || isNaN(max)) return undefined
-  return [min, max]
-}
-
-const parseAgeRange = (range: string | null): [number, number] | undefined => {
-  if (!range) return undefined
-  const [min, max] = range.split('-').map(Number)
-  if (isNaN(min) || isNaN(max)) return undefined
-  return [min, max]
-}
-
-const DevelopmentList = () => {
+import { Service } from '@/types/service'
+import { ServiceFiltersType } from '@/services/services.service'
+import { DevelopmentService } from '@/services/development.service'
+export default function DevelopmentPage() {
+  
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const [developments, setDevelopments] = useState<Development[]>([])
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
+  const pathname = usePathname()
+  const [services, setServices] = useState<Service[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const initialFetchRef = useRef(false)
+  const [currentFilters, setCurrentFilters] = useState<ServiceFiltersType>({})
 
-  // Получаем фильтры из URL
-  const filters: DevelopmentFiltersType = {
-    type: (searchParams.get('type') as DevelopmentFiltersType['type']) || 'all',
-    name: searchParams.get('name') || undefined,
-    minRating: searchParams.get('rating') ? Number(searchParams.get('rating')) : undefined,
-    priceRange: parsePriceRange(searchParams.get('price')),
-    city: searchParams.get('city') || undefined,
-    ageRange: parseAgeRange(searchParams.get('age')),
-    developmentType: (searchParams.get('developmentType') as DevelopmentFiltersType['developmentType']) || undefined,
-    maxStudents: searchParams.get('maxStudents') ? Number(searchParams.get('maxStudents')) : undefined
-  }
-
-  // Загрузка данных
-  const loadDevelopments = useCallback(async (pageNum: number) => {
+  // Загрузка данных с фильтрами
+  const loadDevelopments = useCallback(async (pageNum: number, filters: ServiceFiltersType) => {
     try {
       setIsLoading(true)
       setError(null)
-      const response = await DevelopmentService.getDevelopments(pageNum, 12, filters)
       
+      const response = await DevelopmentService.getDevelopments(pageNum, 12, filters)
       if (pageNum === 1) {
-        setDevelopments(response.data)
+        setServices(response.data)
       } else {
-        setDevelopments(prev => [...prev, ...response.data])
+        setServices(prev => [...prev, ...response.data])
       }
       
       setHasMore(pageNum < response.totalPages)
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Произошла ошибка при загрузке данных'
-      setError(errorMessage)
+      setError(err.response?.data?.message || 'Произошла ошибка при загрузке данных')
       setHasMore(false)
-      console.error('Failed to load developments:', err)
     } finally {
       setIsLoading(false)
       setIsInitialLoad(false)
     }
-  }, [filters])
+  }, [])
+
+  const handleFilterChange = useCallback(async (newFilters: ServiceFiltersType) => {
+    const params = new URLSearchParams()
+    
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value !== undefined) {
+        if (Array.isArray(value)) {
+          params.set(key, JSON.stringify(value))
+        } else {
+          params.set(key, String(value))
+        }
+      }
+    })
+
+    // Обновляем URL и состояние фильтров
+    await router.push(`${pathname}${params.toString() ? '?' + params.toString() : ''}`)
+    setCurrentFilters(newFilters)
+
+    // Сбрасываем страницу и загружаем данные с новыми фильтрами
+    setCurrentPage(1)
+    setServices([])
+    loadDevelopments(1, newFilters)
+  }, [router, pathname, loadDevelopments])
+
+  // Загрузка следующей страницы
+  const loadNextPage = useCallback(() => {
+    if (!isLoading && hasMore && !isInitialLoad) {
+      const nextPage = currentPage + 1
+      setCurrentPage(nextPage)
+      loadDevelopments(nextPage, currentFilters)
+    }
+  }, [isLoading, hasMore, isInitialLoad, currentPage, currentFilters, loadDevelopments])
 
   // Первичная загрузка
   useEffect(() => {
-    if (!initialFetchRef.current) {
-      initialFetchRef.current = true
-      setPage(1)
-      loadDevelopments(1)
+    if (isInitialLoad) {
+      loadDevelopments(1, currentFilters)
     }
-  }, [loadDevelopments])
+  }, [isInitialLoad, currentFilters, loadDevelopments])
 
   // Intersection Observer для бесконечной прокрутки
   const { ref, inView } = useInView({
@@ -87,27 +91,10 @@ const DevelopmentList = () => {
   })
 
   useEffect(() => {
-    if (inView && !isLoading && hasMore && !isInitialLoad) {
-      setPage(prev => prev + 1)
-      loadDevelopments(page + 1)
+    if (inView) {
+      loadNextPage()
     }
-  }, [inView, isLoading, hasMore, loadDevelopments, page, isInitialLoad])
-
-  // Обработчик изменения фильтров
-  const handleFilterChange = (newFilters: DevelopmentFiltersType) => {
-    const params = new URLSearchParams()
-    
-    if (newFilters.type && newFilters.type !== 'all') params.set('type', newFilters.type)
-    if (newFilters.name) params.set('name', newFilters.name)
-    if (newFilters.minRating) params.set('rating', String(newFilters.minRating))
-    if (newFilters.priceRange) params.set('price', `${newFilters.priceRange[0]}-${newFilters.priceRange[1]}`)
-    if (newFilters.city) params.set('city', newFilters.city)
-    if (newFilters.ageRange) params.set('age', `${newFilters.ageRange[0]}-${newFilters.ageRange[1]}`)
-    if (newFilters.developmentType) params.set('developmentType', newFilters.developmentType)
-    if (newFilters.maxStudents) params.set('maxStudents', String(newFilters.maxStudents))
-
-    router.push(`/development${params.toString() ? '?' + params.toString() : ''}`)
-  }
+  }, [inView, loadNextPage])
 
   // Компонент для отображения ошибки
   const ErrorMessage = () => (
@@ -119,7 +106,7 @@ const DevelopmentList = () => {
       <button 
         onClick={() => {
           setError(null)
-          loadDevelopments(1)
+          loadDevelopments(1, currentFilters)
         }}
         className="mt-2 text-sm text-red-600 hover:text-red-800 underline"
       >
@@ -151,44 +138,7 @@ const DevelopmentList = () => {
   )
 
   return (
-    <>
-      <div className="mb-8">
-        <DevelopmentFilters
-          initialFilters={filters}
-          onFilterChange={handleFilterChange}
-        />
-      </div>
-
-      {error && <ErrorMessage />}
-
-      {!error && developments.length === 0 && !isInitialLoad && !isLoading && (
-        <EmptyState />
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {developments.map(development => (
-          <DevelopmentCard key={development.id} development={development} />
-        ))}
-      </div>
-
-      {isLoading && (
-        <div className="flex justify-center py-8">
-          <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
-        </div>
-      )}
-
-      {!isLoading && !error && hasMore && (
-        <div ref={ref} className="h-4" />
-      )}
-    </>
-  )
-}
-
-export default function DevelopmentPage() {
-  const pathname = usePathname()
-
-  return (
-    <main className="min-h-screen bg-gray-200">
+    <div className="min-h-screen bg-gray-200">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -196,13 +146,40 @@ export default function DevelopmentPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Развивающие занятия</h1>
             <p className="text-gray-600 mt-2">
-              Найдите подходящие развивающие занятия для вашего ребенка
+              Найдите подходящее развивающее занятие для вашего ребенка
             </p>
           </div>
         </div>
 
-        <DevelopmentList key={pathname} />
+        <div className="mb-8">
+          <DevelopmentFilters
+            initialFilters={currentFilters}
+            onChange={handleFilterChange}
+          />
+        </div>
+
+        {error && <ErrorMessage />}
+
+        {!error && services.length === 0 && !isLoading && (
+          <EmptyState />
+        )}
+
+        <div className="space-y-4">
+          {services.map(service => (
+            <DevelopmentCard key={service.id} service={service} />
+          ))}
+        </div>
+
+        {isLoading && (
+          <div className="flex justify-center py-8">
+            <Loader2 className="w-8 h-8 text-gray-400 animate-spin" />
+          </div>
+        )}
+
+        {!isLoading && !error && hasMore && (
+          <div ref={ref} className="h-4" />
+        )}
       </div>
-    </main>
+    </div>
   )
 } 

@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useInView } from 'react-intersection-observer'
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Loader2, AlertCircle } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import SportCard from '@/components/features/SportCard'
@@ -10,18 +10,6 @@ import { Service } from '@/services/services.service'
 import { SportsService, SportFiltersType } from '@/services/sports.service'
 import SportFilters from '@/components/features/SportFilters'
 
-// Функция для преобразования строки в массив чисел [min, max]
-const parsePriceRange = (range: string | null): [number, number] | null => {
-  if (!range) return null
-  const [min, max] = range.split('-').map(Number)
-  return [min, max]
-}
-
-const parseAgeRange = (range: string | null): [number, number] | null => {
-  if (!range) return null
-  const [min, max] = range.split('-').map(Number)
-  return [min, max]
-}
 
 const SportsList = () => {
   const router = useRouter()
@@ -37,15 +25,10 @@ const SportsList = () => {
   // Загрузка данных с фильтрами
   const loadSports = useCallback(async (pageNum: number, filters: SportFiltersType) => {
     try {
-      console.log('5. loadSports - начало загрузки, страница:', pageNum)
-      console.log('6. loadSports - фильтры для запроса:', filters)
-      
       setIsLoading(true)
       setError(null)
       
       const response = await SportsService.getSports(pageNum, 12, filters)
-      console.log('7. loadSports - получен ответ:', response)
-      
       if (pageNum === 1) {
         setSports(response.data)
       } else {
@@ -54,7 +37,6 @@ const SportsList = () => {
       
       setHasMore(pageNum < response.totalPages)
     } catch (err: any) {
-      console.error('8. loadSports - ошибка:', err)
       setError(err.response?.data?.message || 'Произошла ошибка при загрузке данных')
       setHasMore(false)
     } finally {
@@ -65,7 +47,6 @@ const SportsList = () => {
 
   // Обработчик изменения фильтров
   const handleFilterChange = useCallback(async (newFilters: SportFiltersType) => {
-    console.log('3. handleFilterChange - получены новые фильтры:', newFilters)
     const params = new URLSearchParams()
     
     Object.entries(newFilters).forEach(([key, value]) => {
@@ -78,8 +59,6 @@ const SportsList = () => {
       }
     })
 
-    console.log('4. handleFilterChange - новые параметры URL:', params.toString())
-    
     // Обновляем URL и состояние фильтров
     await router.push(`${pathname}${params.toString() ? '?' + params.toString() : ''}`)
     setCurrentFilters(newFilters)

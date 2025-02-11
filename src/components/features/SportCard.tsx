@@ -1,10 +1,9 @@
 'use client'
 
-import { Building2, Users } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Service } from '@/services/services.service'
-import { Star } from 'lucide-react'
+import { Service } from '@/types/service'
+import { Star, Users } from 'lucide-react'
 
 interface SportCardProps {
   sport: Service

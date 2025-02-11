@@ -1,270 +1,294 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Search, ChevronDown, ChevronUp, X } from 'lucide-react'
-import { DevelopmentFiltersType, DevelopmentTypes } from '@/services/development.service'
+import { useState, useCallback,useEffect } from 'react'
+import { ChevronDown, ChevronUp, X } from 'lucide-react'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { ServiceFiltersType } from '@/services/services.service'
 
 interface DevelopmentFiltersProps {
-  initialFilters: DevelopmentFiltersType
-  onFilterChange: (filters: DevelopmentFiltersType) => void
+  initialFilters: ServiceFiltersType
+  onChange: (filters: ServiceFiltersType) => void
 }
 
-const DEVELOPMENT_TYPES: { value: DevelopmentTypes; label: string }[] = [
-  { value: 'chess', label: 'Шахматы' },
-  { value: 'programming', label: 'Программирование' },
-  { value: 'robotics', label: 'Робототехника' },
-  { value: 'mathematics', label: 'Математика' },
-  { value: 'physics', label: 'Физика' },
-  { value: 'chemistry', label: 'Химия' },
-  { value: 'biology', label: 'Биология' },
-  { value: 'languages', label: 'Иностранные языки' },
-  { value: 'art', label: 'Рисование' },
-  { value: 'music', label: 'Музыка' }
+const SUBCATEGORIES = [
+  { value: 'Шахматы', label: 'Шахматы' },
+  { value: 'Логопед', label: 'Логопед' },
+  { value: 'Рисование', label: 'Рисование' },
+  { value: 'Программирование', label: 'Программирование' },
 ]
-
-export default function DevelopmentFilters({ initialFilters, onFilterChange }: DevelopmentFiltersProps) {
-  const [filters, setFilters] = useState<DevelopmentFiltersType>(initialFilters)
-  const [priceMin, setPriceMin] = useState(filters.priceRange?.[0]?.toString() || '')
-  const [priceMax, setPriceMax] = useState(filters.priceRange?.[1]?.toString() || '')
-  const [ageMin, setAgeMin] = useState(filters.ageRange?.[0]?.toString() || '')
-  const [ageMax, setAgeMax] = useState(filters.ageRange?.[1]?.toString() || '')
+export default function DevelopmentFilters({ initialFilters, onChange }: DevelopmentFiltersProps) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  
   const [isExpanded, setIsExpanded] = useState(true)
+  const [filters, setFilters] = useState<ServiceFiltersType>(initialFilters)
 
+  // Синхронизируем состояние с URL при изменении searchParams
   useEffect(() => {
-    setFilters(initialFilters)
-    setPriceMin(initialFilters.priceRange?.[0]?.toString() || '')
-    setPriceMax(initialFilters.priceRange?.[1]?.toString() || '')
-    setAgeMin(initialFilters.ageRange?.[0]?.toString() || '')
-    setAgeMax(initialFilters.ageRange?.[1]?.toString() || '')
-  }, [initialFilters])
-
-  const handleFilterChange = (key: keyof DevelopmentFiltersType, value: any) => {
-    const newFilters = { ...filters, [key]: value }
+    const newFilters = {
+      name: searchParams.get('name') || undefined,
+      address: searchParams.get('address') || undefined,
+      subcategory: searchParams.get('subcategory') || undefined,
+      minRating: searchParams.get('minRating') ? Number(searchParams.get('minRating')) : undefined,
+      price: searchParams.get('price') ? 
+        searchParams.get('price')!.split('-').map(Number) as [number, number] : 
+        undefined,
+      ageRange: searchParams.get('ageRange') ? 
+        searchParams.get('ageRange')!.split('-').map(Number) as [number, number] : 
+        undefined
+    }
     setFilters(newFilters)
-    onFilterChange(newFilters)
-  }
+  }, [searchParams])
 
-  const handlePriceChange = () => {
-    const min = Number(priceMin)
-    const max = Number(priceMax)
+  const updateURL = useCallback((newFilters: ServiceFiltersType) => {
+    const params = new URLSearchParams(searchParams.toString())
     
-    if (min && max && min <= max) {
-      handleFilterChange('priceRange', [min, max])
-    }
-  }
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value === undefined) {
+        params.delete(key)
+      } else if (Array.isArray(value)) {
+        params.set(key, `${value[0]}-${value[1]}`)
+      } else {
+        params.set(key, String(value))
+      }
+    })
 
-  const handleAgeChange = () => {
-    const min = Number(ageMin)
-    const max = Number(ageMax)
-    
-    if (min && max && min <= max) {
-      handleFilterChange('ageRange', [min, max])
-    }
-  }
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+  }, [router, pathname, searchParams])
 
-  const resetFilters = () => {
-    const emptyFilters: DevelopmentFiltersType = {
-      type: 'all',
-      developmentType: undefined,
-      name: undefined,
-      minRating: undefined,
-      priceRange: undefined,
-      city: undefined,
-      ageRange: undefined,
-      maxStudents: undefined
-    }
+  const handleChange = useCallback((newFilters: Partial<ServiceFiltersType>) => {
+    setFilters(prev => {
+      const updatedFilters = { ...prev, ...newFilters }
+      
+      // Удаляем пустые значения
+      Object.keys(updatedFilters).forEach(key => {
+        const value = updatedFilters[key as keyof ServiceFiltersType]
+        if (value === '' || value === undefined || value === null) {
+          delete updatedFilters[key as keyof ServiceFiltersType]
+        }
+      })
+
+      return updatedFilters
+    })
+  }, [])
+
+  const handleReset = useCallback(() => {
+    const emptyFilters = {}
     setFilters(emptyFilters)
-    setPriceMin('')
-    setPriceMax('')
-    setAgeMin('')
-    setAgeMax('')
-    onFilterChange(emptyFilters)
-  }
+    router.push(pathname, { scroll: false })
+    onChange(emptyFilters)
+  }, [router, pathname, onChange])
+
+  const handleRangeChange = useCallback((
+    type: 'price' | 'ageRange',
+    index: 0 | 1,
+    value: number
+  ) => {
+    setFilters(prev => {
+      const currentRange = prev[type] || [0, 0]
+      const newRange: [number, number] = [...currentRange] as [number, number]
+      newRange[index] = value
+
+      const updatedFilters = {
+        ...prev,
+        [type]: newRange[0] === 0 && newRange[1] === 0 ? undefined : newRange
+      }
+
+      return updatedFilters
+    })
+  }, [])
+
+  const handleApplyFilters = useCallback(() => {
+    updateURL(filters)
+    onChange(filters)
+  }, [filters, updateURL, onChange])
+
+  const hasActiveFilters = Object.values(filters).some(value => value !== undefined)
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm">
-      {/* Заголовок с кнопками */}
-      <div className="p-6 flex items-center justify-between border-b border-gray-100">
-        <div className="flex items-center gap-2">
-          <h2 className="font-medium text-gray-900">Фильтры</h2>
+    <div className="bg-white rounded-lg shadow p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-medium text-gray-900">Фильтры</h2>
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            {isExpanded ? (
+              <>
+                <ChevronUp className="w-4 h-4" />
+                <span>Свернуть</span>
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4" />
+                <span>Развернуть</span>
+              </>
+            )}
           </button>
+          {hasActiveFilters && (
+            <button
+              onClick={handleReset}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              <X className="w-4 h-4" />
+              <span>Сбросить все</span>
+            </button>
+          )}
         </div>
-        <button
-          onClick={resetFilters}
-          className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
-        >
-          <X className="w-4 h-4" />
-          Сбросить
-        </button>
       </div>
 
+      {/* Основные фильтры */}
       {isExpanded && (
-        <div className="p-6 space-y-6">
-          {/* Поиск по названию */}
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Поиск по названию"
-              value={filters.name || ''}
-              onChange={(e) => handleFilterChange('name', e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
-            />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Тип организации */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Тип организации
-              </label>
-              <select
-                value={filters.type || 'all'}
-                onChange={(e) => handleFilterChange('type', e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-              >
-                <option value="all">Все</option>
-                <option value="state">Государственные</option>
-                <option value="private">Частные</option>
-              </select>
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            {/* Поиск по названию */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900">Название</label>
+              <input
+                type="text"
+                placeholder="Поиск по названию"
+                value={filters.name || ''}
+                onChange={(e) => handleChange({ name: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+              />
             </div>
 
-            {/* Тип занятия */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Тип занятия
-              </label>
+            {/* Адрес (новый фильтр) */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900">Адрес</label>
+              <input
+                type="text"
+                placeholder="Поиск по адресу"
+                value={filters.address || ''}
+                onChange={(e) => handleChange({ address: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+              />
+            </div>
+
+            {/* Подкатегория */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900">Направление</label>
               <select
-                value={filters.developmentType || ''}
-                onChange={(e) => handleFilterChange('developmentType', e.target.value || undefined)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
+                value={filters.subcategory || ''}
+                onChange={(e) => handleChange({ subcategory: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900"
               >
-                <option value="">Все типы</option>
-                {DEVELOPMENT_TYPES.map(type => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
+                <option value="">Все направления</option>
+                {SUBCATEGORIES.map(sub => (
+                  <option key={sub.value} value={sub.value}>{sub.label}</option>
                 ))}
               </select>
             </div>
 
-            {/* Город */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Город
-              </label>
-              <select
-                value={filters.city || ''}
-                onChange={(e) => handleFilterChange('city', e.target.value || undefined)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-              >
-                <option value="">Все города</option>
-                <option value="moscow">Москва</option>
-                <option value="spb">Санкт-Петербург</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Диапазон цен */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Стоимость за занятие (₽)
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="number"
-                  placeholder="От"
-                  value={priceMin}
-                  onChange={(e) => setPriceMin(e.target.value)}
-                  onBlur={handlePriceChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
-                />
-                <span className="text-gray-600">—</span>
-                <input
-                  type="number"
-                  placeholder="До"
-                  value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value)}
-                  onBlur={handlePriceChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
-                />
-              </div>
-            </div>
-
             {/* Возрастной диапазон */}
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Возраст ребенка (лет)
-              </label>
-              <div className="flex items-center gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900">Возраст</label>
+              <div className="flex gap-2 items-center">
                 <input
                   type="number"
                   placeholder="От"
-                  value={ageMin}
-                  onChange={(e) => setAgeMin(e.target.value)}
-                  onBlur={handleAgeChange}
+                  value={filters.ageRange?.[0] || ''}
+                  onChange={(e) => handleRangeChange('ageRange', 0, Number(e.target.value))}
+                  className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
                   min="0"
-                  max="18"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
                 />
-                <span className="text-gray-600">—</span>
+                <span className="text-gray-900">—</span>
                 <input
                   type="number"
                   placeholder="До"
-                  value={ageMax}
-                  onChange={(e) => setAgeMax(e.target.value)}
-                  onBlur={handleAgeChange}
+                  value={filters.ageRange?.[1] || ''}
+                  onChange={(e) => handleRangeChange('ageRange', 1, Number(e.target.value))}
+                  className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
                   min="0"
-                  max="18"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900 placeholder-gray-500"
                 />
+                <span className="text-gray-600">лет</span>
               </div>
             </div>
-          </div>
 
-          {/* Количество детей и рейтинг */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Максимальное количество детей в группе
-              </label>
-              <select
-                value={filters.maxStudents || ''}
-                onChange={(e) => handleFilterChange('maxStudents', Number(e.target.value) || undefined)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-              >
-                <option value="">Любое количество</option>
-                <option value="5">До 5 детей</option>
-                <option value="10">До 10 детей</option>
-                <option value="15">До 15 детей</option>
-                <option value="20">До 20 детей</option>
-              </select>
+            {/* Ценовой диапазон */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900">Цена за занятие</label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="number"
+                  placeholder="От"
+                  value={filters.price?.[0] || ''}
+                  onChange={(e) => handleRangeChange('price', 0, Number(e.target.value))}
+                  className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+                  min="0"
+                />
+                <span className="text-gray-900">—</span>
+                <input
+                  type="number"
+                  placeholder="До"
+                  value={filters.price?.[1] || ''}
+                  onChange={(e) => handleRangeChange('price', 1, Number(e.target.value))}
+                  className="w-24 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900 placeholder-gray-500"
+                  min="0"
+                />
+                <span className="text-gray-600">₽</span>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Минимальный рейтинг
-              </label>
+            {/* Минимальный рейтинг */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900">Рейтинг</label>
               <select
                 value={filters.minRating || ''}
-                onChange={(e) => handleFilterChange('minRating', Number(e.target.value) || undefined)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
+                onChange={(e) => handleChange({ minRating: Number(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900"
               >
-                <option value="">Любой</option>
-                <option value="4">От 4 и выше</option>
-                <option value="4.5">От 4.5 и выше</option>
-                <option value="4.8">От 4.8 и выше</option>
+                <option value="">Любой рейтинг</option>
+                <option value="4">От 4.0</option>
+                <option value="4.5">От 4.5</option>
+                <option value="5">5.0</option>
               </select>
             </div>
+          </div>
+
+          {/* Кнопки управления фильтрами */}
+          <div className="flex justify-end gap-4 pt-4 border-t">
+            <button
+              onClick={handleApplyFilters}
+              className="px-6 py-2 bg-[#5CD2C6] text-white rounded-lg hover:bg-[#4BC0B5]"
+            >
+              Применить
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Показываем активные фильтры даже когда свёрнуто */}
+      {hasActiveFilters && (
+        <div className={`${isExpanded ? 'mt-4 pt-4 border-t' : ''}`}>
+          <div className="flex flex-wrap gap-2">
+            {filters.name && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-full text-sm text-gray-800">
+                <span>Название: {filters.name}</span>
+                <button
+                  onClick={() => handleChange({ name: undefined })}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
+            {filters.address && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-full text-sm text-gray-800">
+                <span>Адрес: {filters.address}</span>
+                <button
+                  onClick={() => handleChange({ address: undefined })}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
     </div>
   )
-} 
+}

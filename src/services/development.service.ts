@@ -1,39 +1,24 @@
 import { API } from './api'
+import { ServiceFiltersType } from './services.service'
 
 export interface Development {
   id: string
   name: string
-  avatar: string
-  description: string
-  reviewCount: number
-  rating: number
-  totalRating: number
-  type: 'development'
-  schoolType: 'state' | 'private'
-  maxCount: number
-  approach: string
-  costInfo?: number
+  description: string | null
+  category: 'development' | string
+  subcategory: string
+  price: string
+  duration: number
+  max_students: number
+  age_from: number
+  age_to: number
   address: string
-  gallery: string[]
-  features: {
-    id: string
-    name: string
-    icon: string
-    description: string
-  }[]
-  schedule: {
-    days: string[]
-    timeStart: string
-    timeEnd: string
-  }
-  ageFrom: number
-  ageTo: number
-  createdAt: string
-  ownerId: string
-  createrId: string
-  director_name: string
-  email: string
+  image: string
+  rating: number
+  reviews_count: number
+  status: 'active' | 'inactive'
   phone: string
+  email: string
 }
 
 export interface DevelopmentResponse {
@@ -87,26 +72,25 @@ export const DevelopmentService = {
   async getDevelopments(
     page: number,
     limit: number,
-    filters?: DevelopmentFiltersType
+    filters?: ServiceFiltersType
   ): Promise<DevelopmentResponse> {
     const requestBody: DevelopmentRequestBody = {
       page,
       limit,
       filters: {
-        ...(filters?.type !== 'all' && { type: filters?.type }),
         ...(filters?.name && { name: filters.name }),
+        ...(filters?.address && { address: filters.address }),
+        ...(filters?.category && { category: filters.category }),
+        ...(filters?.subcategory && { subcategory: filters.subcategory }),
         ...(filters?.minRating && { minRating: filters.minRating }),
-        ...(filters?.priceRange && {
-          minPrice: filters.priceRange[0],
-          maxPrice: filters.priceRange[1]
+        ...(filters?.price && {
+          minPrice: filters.price[0],
+          maxPrice: filters.price[1]
         }),
-        ...(filters?.city && { city: filters.city }),
         ...(filters?.ageRange && {
           minAge: filters.ageRange[0],
           maxAge: filters.ageRange[1]
-        }),
-        ...(filters?.maxStudents && { maxStudents: filters.maxStudents }),
-        ...(filters?.developmentType && { developmentType: filters.developmentType })
+        })
       }
     }
 

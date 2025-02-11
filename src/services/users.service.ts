@@ -10,6 +10,18 @@ interface UpdateUserDto {
   role?: string
 }
 
+interface PaginationData {
+  totalItems: number
+  totalPages: number
+  currentPage: number
+  itemsPerPage: number
+}
+
+interface GetUserListResponse {
+  data: User[]
+  pagination: PaginationData
+}
+
 export const UsersService = {
   updateUser: async (userId: string, data: UpdateUserDto) => {
     const response = await API.put<User>(`/user/update?id=${userId}`, data)
@@ -17,12 +29,12 @@ export const UsersService = {
   },
 
   getUsers: async () => {
-    const response = await API.get<User[]>('/users')
+    const response = await API.get<User[]>('/user')
     return response.data
   },
 
   getUserById: async (userId: string) => {
-    const response = await API.get<User>(`/users/${userId}`)
+    const response = await API.get<User>(`/user/${userId}`)
     debugger;
     return response.data
   },
@@ -33,6 +45,11 @@ export const UsersService = {
         'Content-Type': 'multipart/form-data',
       },
     })
+    return response.data
+  },
+
+  getUserList: async (page: number) => {
+    const response = await API.get<GetUserListResponse>(`/user/getUserList?page=${page}`)
     return response.data
   },
 

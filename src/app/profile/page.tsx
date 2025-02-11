@@ -7,11 +7,12 @@ import { User, Settings, Calendar, Building2, Users, BookOpen, Book } from 'luci
 import PersonalData from '@/components/features/profile/PersonalData'
 import UserLessons from '@/components/features/profile/UserLessons'
 import AdminUsers from '@/components/features/profile/AdminUsers'
-
-import ProviderOrganizations from '@/components/features/profile/ProviderOrganizations'
+import AdminOrganisations from '@/components/features/profile/AdminOrganisations'
+import ProviderOrganisations from '@/components/features/profile/ProviderOrganizations'
 import ProviderServices from '@/components/features/profile/ProviderServices'
 import ProviderSchedule from '@/components/features/profile/ProviderSchedule'
 import UserSchedule from '@/components/features/profile/UserSchedule'
+import AdminServices from '@/components/features/profile/AdminServices'
 
 export default function ProfilePage() {
   const { user } = useAuth()
@@ -24,6 +25,7 @@ export default function ProfilePage() {
           { id: 'personal', label: 'Личные данные', icon: User },
           { id: 'requests', label: 'Заявки', icon: Settings },
           { id: 'organizations', label: 'Организации', icon: Building2 },
+          { id: 'services', label: 'Услуги', icon: BookOpen },
           { id: 'users', label: 'Пользователи', icon: Users },
         ]
       case 'provider':
@@ -54,16 +56,15 @@ export default function ProfilePage() {
       case 'users':
         return <AdminUsers />
       case 'organizations':
-        return <ProviderOrganizations />
+        return user?.role === 'admin' ? <AdminOrganisations /> : <ProviderOrganisations />
       case 'services':
-        return <ProviderServices />
+        return  user?.role === 'admin' ? <AdminServices /> : <ProviderServices />
       case 'schedule':
         return <ProviderSchedule />
       case 'myTrainings':
         return <UserSchedule />
       default:
         return <div>В разработке...</div>
-
     }
   }
 

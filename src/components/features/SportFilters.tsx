@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
-import { X, RotateCcw, ChevronUp, ChevronDown } from 'lucide-react'
+import { useState, useCallback, useEffect } from 'react'
+import { X, ChevronUp, ChevronDown } from 'lucide-react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { SportFiltersType } from '@/services/sports.service'
-import debounce from 'lodash.debounce'
 
 interface SportFiltersProps {
   initialFilters: SportFiltersType
@@ -89,21 +88,6 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
     router.push(pathname, { scroll: false })
     onFilterChange(emptyFilters)
   }, [router, pathname, onFilterChange])
-
-  const [availableSubcategories, setAvailableSubcategories] = useState(
-    SUBCATEGORIES[filters.category as keyof typeof SUBCATEGORIES] || []
-  )
-
-  const handleCategoryChange = useCallback((category: string) => {
-    setFilters(prev => ({
-      ...prev,
-      category,
-      subcategory: undefined
-    }))
-    setAvailableSubcategories(
-      SUBCATEGORIES[category as keyof typeof SUBCATEGORIES] || []
-    )
-  }, [])
 
   const handleRangeChange = useCallback((
     type: 'price' | 'ageRange',
