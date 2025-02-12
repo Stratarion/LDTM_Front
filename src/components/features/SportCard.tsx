@@ -2,11 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Service } from '@/types/service'
+import { Sport } from '@/services/sports.service'
 import { Star, Users } from 'lucide-react'
 
 interface SportCardProps {
-  sport: Service
+  sport: Sport
 }
 
 export default function SportCard({ sport }: SportCardProps) {

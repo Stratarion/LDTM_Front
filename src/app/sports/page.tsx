@@ -6,21 +6,40 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Loader2, AlertCircle } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import SportCard from '@/components/features/SportCard'
-import { Service } from '@/services/services.service'
-import { SportsService, SportFiltersType } from '@/services/sports.service'
+import { Sport, SportsService, SportFiltersType } from '@/services/sports.service'
 import SportFilters from '@/components/features/SportFilters'
-
+import SportMap from '@/components/features/sport/SportMap'
 
 const SportsList = () => {
   const router = useRouter()
   const pathname = usePathname()
-  const [sports, setSports] = useState<Service[]>([])
+  const [sports, setSports] = useState<Sport[]>([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [currentFilters, setCurrentFilters] = useState<SportFiltersType>({})
+  const [isMapFullscreen, setIsMapFullscreen] = useState(false)
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [mapCenter, setMapCenter] = useState<[number, number]>([55.75, 37.57])
+
+  // Get user location
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const coords: [number, number] = [position.coords.latitude, position.coords.longitude]
+          setUserLocation(coords)
+          setMapCenter(coords)
+          // Больше не обновляем фильтры с координатами пользователя
+        },
+        (error) => {
+          console.error('Error getting location:', error)
+        }
+      )
+    }
+  }, [])
 
   // Загрузка данных с фильтрами
   const loadSports = useCallback(async (pageNum: number, filters: SportFiltersType) => {
@@ -28,7 +47,7 @@ const SportsList = () => {
       setIsLoading(true)
       setError(null)
       
-      const response = await SportsService.getSports(pageNum, 12, filters)
+      const response = await SportsService.getSports(pageNum, 12, filters, userLocation || undefined)
       if (pageNum === 1) {
         setSports(response.data)
       } else {
@@ -43,9 +62,9 @@ const SportsList = () => {
       setIsLoading(false)
       setIsInitialLoad(false)
     }
-  }, [])
+  }, [userLocation])
 
-  // Обработчик изменения фильтров
+  // Обработчик изменения фильтров (с обновлением URL)
   const handleFilterChange = useCallback(async (newFilters: SportFiltersType) => {
     const params = new URLSearchParams()
     
@@ -59,44 +78,36 @@ const SportsList = () => {
       }
     })
 
-    // Обновляем URL и состояние фильтров
     await router.push(`${pathname}${params.toString() ? '?' + params.toString() : ''}`)
     setCurrentFilters(newFilters)
-
-    // Сбрасываем страницу и загружаем данные с новыми фильтрами
     setPage(1)
     setSports([])
     loadSports(1, newFilters)
   }, [router, pathname, loadSports])
 
+  // Обработчик изменения центра карты (только обновление состояния)
+  const handleMapCenterChange = useCallback((newCenter: [number, number]) => {
+    setMapCenter(newCenter)
+  }, [])
+
   // Загрузка следующей страницы
-  const loadNextPage = useCallback(() => {
-    if (!isLoading && hasMore && !isInitialLoad) {
+  const { ref, inView } = useInView({
+    threshold: 0,
+  })
+
+  useEffect(() => {
+    if (inView && hasMore && !isLoading) {
       const nextPage = page + 1
       setPage(nextPage)
       loadSports(nextPage, currentFilters)
     }
-  }, [isLoading, hasMore, isInitialLoad, page, currentFilters, loadSports])
+  }, [inView, hasMore, isLoading, page, loadSports, currentFilters])
 
-  // Первичная загрузка
+  // Начальная загрузка только при изменении фильтров
   useEffect(() => {
-    if (isInitialLoad) {
-      loadSports(1, currentFilters)
-    }
-  }, [isInitialLoad, currentFilters, loadSports])
+    loadSports(1, currentFilters)
+  }, [loadSports, currentFilters])
 
-  // Intersection Observer для бесконечной прокрутки
-  const { ref, inView } = useInView({
-    threshold: 0
-  })
-
-  useEffect(() => {
-    if (inView) {
-      loadNextPage()
-    }
-  }, [inView, loadNextPage])
-
-  // Компонент для отображения ошибки
   const ErrorMessage = () => (
     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
       <div className="flex items-center gap-2 text-red-700">
@@ -115,7 +126,6 @@ const SportsList = () => {
     </div>
   )
 
-  // Компонент для пустого состояния
   const EmptyState = () => (
     <div className="bg-gray-50 rounded-lg p-8 text-center">
       <div className="text-gray-500 mb-4">
@@ -151,6 +161,13 @@ const SportsList = () => {
       {!error && sports.length === 0 && !isInitialLoad && !isLoading && (
         <EmptyState />
       )}
+
+      <SportMap 
+        sports={sports} 
+        isFullscreen={isMapFullscreen}
+        onFullscreenChange={setIsMapFullscreen}
+        onCenterChange={handleMapCenterChange}
+      />
 
       <div className="space-y-4">
         {sports.map(sport => (

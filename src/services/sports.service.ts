@@ -47,7 +47,11 @@ export interface SportFiltersType {
   subcategory?: string
   minRating?: number
   price?: [number, number]
+  age?: number
   ageRange?: [number, number]
+  radius?: number
+  coordinates?: [number, number]
+  mapCenter?: [number, number]
 }
 
 interface SportRequestBody {
@@ -63,14 +67,17 @@ interface SportRequestBody {
     maxPrice?: number
     minAge?: number
     maxAge?: number
+    radius?: number
   }
+  mapCenter?: [number, number]
 }
 
 export const SportsService = {
   async getSports(
     page: number,
     limit: number,
-    filters?: SportFiltersType
+    filters?: SportFiltersType,
+    mapCenter?: [number, number]
   ): Promise<SportResponse> {
     const requestBody: SportRequestBody = {
       page,
@@ -88,8 +95,10 @@ export const SportsService = {
         ...(filters?.ageRange && {
           minAge: filters.ageRange[0],
           maxAge: filters.ageRange[1]
-        })
-      }
+        }),
+        ...(filters?.radius && { radius: filters.radius })
+      },
+      mapCenter
     }
 
     const { data } = await API.post<SportResponse>(

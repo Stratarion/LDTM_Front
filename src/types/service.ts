@@ -12,6 +12,11 @@ export interface ServiceReview {
   rating: number;
 }
 
+export interface ServiceAddress {
+  full: string;
+  coordinates: [number, number];
+}
+
 export interface Service {
   id: string;
   name: string;
@@ -25,7 +30,7 @@ export interface Service {
   updatedAt: string;
   
   // Additional fields
-  address: string;
+  address: ServiceAddress;
   age_from: number;
   age_to: number;
   avgRating: number;

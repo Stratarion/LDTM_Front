@@ -10,12 +10,13 @@ import { validateImage, resizeImage } from '@/utils/image'
 import Image from 'next/image'
 import ConfirmModal from '@/components/shared/ConfirmModal'
 import { useNotifications } from '@/hooks/useNotifications'
+import AddressAutocomplete from '@/components/features/AddressAutocomplete'
 
 interface AddServiceFormProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
-  initialType: ServiceType
+  initialType: 'sport' | 'development'
 }
 
 interface FormData {
@@ -27,10 +28,18 @@ interface FormData {
   age_from: string
   age_to: string
   address: string
+  country: string
+  coordinates: string | null
   duration: string
   email: string
   phone: string
   subcategory: string
+}
+
+interface PhotoData {
+  file: File
+  preview: string
+  isMain?: boolean
 }
 
 export default function AddServiceForm({
@@ -40,29 +49,31 @@ export default function AddServiceForm({
   initialType
 }: AddServiceFormProps) {
   const { user } = useAuth()
-  const [serviceType, setServiceType] = useState<ServiceType>(initialType)
+  const { showNotification } = useNotifications()
+  const [serviceType, setServiceType] = useState<'sport' | 'development'>(initialType)
   const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
     duration: '',
-    category: 'sport',
+    category: serviceType,
     price: '',
     max_students: '',
     age_from: '',
     age_to: '',
     address: '',
-    subcategory: '',
-    email: '',
-    phone: ''
+    country: '',
+    coordinates: null,
+    email: user?.email || '',
+    phone: '',
+    subcategory: ''
   })
+  const [photos, setPhotos] = useState<PhotoData[]>([])
+  const [mainPhotoIndex, setMainPhotoIndex] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [photos, setPhotos] = useState<{ file: File; preview: string; description?: string }[]>([])
-
-  const [isConfirmPhotoDeleteOpen, setIsConfirmPhotoDeleteOpen] = useState(false)
-  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [photoToDelete, setPhotoToDelete] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { showNotification } = useNotifications()
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -71,37 +82,122 @@ export default function AddServiceForm({
     }))
   }
 
+  const handleAddressChange = (address: {
+    fullAddress: string
+    country: string
+    coordinates: string
+  }) => {
+    setFormData(prev => ({
+      ...prev,
+      address: address.fullAddress,
+      country: address.country,
+      coordinates: address.coordinates
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!user) return
+
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      // Validate required fields
+      const requiredFields = ['name', 'price', 'address', 'age_from', 'age_to', 'phone']
+      const missingFields = requiredFields.filter(field => !formData[field as keyof FormData])
+      
+      if (missingFields.length > 0) {
+        setError('Пожалуйста, заполните все обязательные поля')
+        return
+      }
+
+      // Create service
+      const serviceData = {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category,
+        price: parseFloat(formData.price),
+        max_students: parseInt(formData.max_students),
+        age_from: parseInt(formData.age_from),
+        age_to: parseInt(formData.age_to),
+        address: formData.address,
+        country: formData.country,
+        coordinates: formData.coordinates || undefined,
+        duration: parseInt(formData.duration),
+        email: formData.email,
+        phone: formData.phone,
+        subcategory: formData.subcategory,
+        organisation_id: user.id,
+        status: 'pending' as const
+      }
+
+      const response = await ServicesService.createService(serviceData)
+
+      // Upload photos if any
+      if (photos.length > 0) {
+        await Promise.all(
+          photos.map(async (photo, index) => {
+            const resizedBlob = await resizeImage(photo.file)
+            // Convert Blob to File
+            const resizedFile = new File(
+              [resizedBlob], 
+              photo.file.name, 
+              { 
+                type: resizedBlob.type,
+                lastModified: photo.file.lastModified
+              }
+            )
+            await PhotosService.uploadPhoto(
+              resizedFile,
+              'service',
+              response.id,
+              user.id,
+              index === mainPhotoIndex ? 'main' : undefined
+            )
+          })
+        )
+      }
+
+      onSuccess()
+      onClose()
+      showNotification({
+        title: 'Успех',
+        message: 'Услуга успешно добавлена',
+        type: 'success'
+      })
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Произошла ошибка при создании услуги')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
-    const totalPhotos = photos.length + files.length
-
-    if (totalPhotos > 5) {
-      showNotification({
-        title: 'Ошибка',
-        message: 'Максимальное количество фотографий - 5',
-        type: 'error'
-      })
-      return
-    }
+    if (!files.length) return
 
     try {
       const newPhotos = await Promise.all(
         files.map(async (file) => {
-          validateImage(file)
-          const preview = URL.createObjectURL(file)
+          await validateImage(file)
           return {
             file,
-            preview,
-            description: photos.length === 0 && files[0] === file ? 'main' : undefined
+            preview: URL.createObjectURL(file),
+            isMain: photos.length === 0 // First photo is main by default
           }
         })
       )
 
       setPhotos(prev => [...prev, ...newPhotos])
-    } catch (err: any) {
+      if (photos.length === 0) {
+        setMainPhotoIndex(0)
+      }
+    } catch (error: any) {
       showNotification({
         title: 'Ошибка',
-        message: err.message,
+        message: error.message,
         type: 'error'
       })
     }
@@ -112,96 +208,27 @@ export default function AddServiceForm({
   }
 
   const handlePhotoDelete = (index: number) => {
-    setSelectedPhotoIndex(index)
-    setIsConfirmPhotoDeleteOpen(true)
+    setPhotoToDelete(index)
   }
 
   const confirmPhotoDelete = () => {
-    if (selectedPhotoIndex === null) return
+    if (photoToDelete === null) return
     
     const newPhotos = [...photos]
-    URL.revokeObjectURL(newPhotos[selectedPhotoIndex].preview)
+    URL.revokeObjectURL(newPhotos[photoToDelete].preview)
 
-    // Если удаляем главное фото, делаем главным следующее
-    if (newPhotos[selectedPhotoIndex].description === 'main' && newPhotos.length > 1) {
-      const nextIndex = selectedPhotoIndex === newPhotos.length - 1 ? 0 : selectedPhotoIndex + 1
-      newPhotos[nextIndex].description = 'main'
+    // If deleting main photo, make next photo main
+    if (photoToDelete === mainPhotoIndex) {
+      const nextIndex = photoToDelete === newPhotos.length - 1 ? 0 : photoToDelete + 1
+      setMainPhotoIndex(nextIndex)
+    } else if (photoToDelete < mainPhotoIndex) {
+      // Adjust mainPhotoIndex if deleting photo before it
+      setMainPhotoIndex(mainPhotoIndex - 1)
     }
 
-    newPhotos.splice(selectedPhotoIndex, 1)
+    newPhotos.splice(photoToDelete, 1)
     setPhotos(newPhotos)
-    setSelectedPhotoIndex(null)
-    setIsConfirmPhotoDeleteOpen(false)
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!formData.name || !formData.price || !formData.max_students || !formData.age_from || !formData.age_to || !formData.address) {
-      setError('Заполните все обязательные поля')
-      return
-    }
-
-    if (!user) {
-      setError('Необходимо авторизоваться')
-      return
-    }
-
-    setIsLoading(true)
-    setError('')
-
-    try {
-      // Подготавливаем фотографии
-      const processedPhotos = await Promise.all(
-        photos.map(async (photo) => {
-          const resizedImage = await resizeImage(photo.file)
-          const base64Data = await new Promise<string>((resolve) => {
-            const reader = new FileReader()
-            reader.onloadend = () => resolve(reader.result as string)
-            reader.readAsDataURL(resizedImage)
-          })
-          return {
-            base64Data,
-            description: photo.description
-          }
-        })
-      )
-
-      const serviceData = {
-        name: formData.name,
-        description: formData.description || '',
-        category: serviceType,
-        price: Number(formData.price),
-        max_students: Number(formData.max_students),
-        age_from: Number(formData.age_from),
-        age_to: Number(formData.age_to),
-        address: formData.address,
-        org_id: user.id,
-        duration: Number(formData.duration),
-        subcategory: formData.subcategory,
-        email: formData.email,
-        phone: formData.phone,
-        photos: processedPhotos
-      }
-
-      await ServicesService.createService(serviceData)
-
-      // Очищаем URL превью
-      photos.forEach(photo => URL.revokeObjectURL(photo.preview))
-
-      onSuccess()
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Произошла ошибка при создании услуги')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleSetMainPhoto = (index: number) => {
-    setPhotos(photos.map((photo, i) => ({
-      ...photo,
-      description: i === index ? 'main' : undefined
-    })))
+    setPhotoToDelete(null)
   }
 
   useEffect(() => {
@@ -418,21 +445,17 @@ export default function AddServiceForm({
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Адрес проведения
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Адрес <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                name="address"
+              <AddressAutocomplete
                 value={formData.address}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5CD2C6] text-gray-900"
-                required
+                className="text-gray-700"
+                onChange={handleAddressChange}
+                error={error && !formData.address ? 'Обязательное поле' : undefined}
               />
             </div>
-
-
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -448,17 +471,17 @@ export default function AddServiceForm({
                         fill
                         className="object-cover"
                       />
-                      {photo.description === 'main' && (
+                      {photo.isMain && (
                         <div className="absolute top-2 left-2 bg-yellow-400 text-white p-1 rounded-full">
                           <Star className="w-4 h-4" />
                         </div>
                       )}
                     </div>
                     <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      {photo.description !== 'main' && (
+                      {photo.isMain && (
                         <button
                           type="button"
-                          onClick={() => handleSetMainPhoto(index)}
+                          onClick={() => setMainPhotoIndex(index)}
                           className="p-1 bg-yellow-400 text-white rounded-full hover:bg-yellow-500"
                           title="Сделать главным"
                         >
@@ -522,10 +545,9 @@ export default function AddServiceForm({
       </motion.div>
 
       <ConfirmModal
-        isOpen={isConfirmPhotoDeleteOpen}
+        isOpen={photoToDelete !== null}
         onClose={() => {
-          setIsConfirmPhotoDeleteOpen(false)
-          setSelectedPhotoIndex(null)
+          setPhotoToDelete(null)
         }}
         onConfirm={confirmPhotoDelete}
         title="Удаление фото"

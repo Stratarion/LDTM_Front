@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { X, ChevronUp, ChevronDown } from 'lucide-react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { SportFiltersType } from '@/services/sports.service'
+import { Input } from '@/components/ui/input'
 
 interface SportFiltersProps {
   initialFilters: SportFiltersType
@@ -27,6 +28,16 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
   const searchParams = useSearchParams()
   const [isExpanded, setIsExpanded] = useState(true)
   const [filters, setFilters] = useState<SportFiltersType>(initialFilters)
+  const [debouncedFilters, setDebouncedFilters] = useState<SportFiltersType>(initialFilters)
+
+  // Радиусы поиска в километрах
+  const radiusOptions = [
+    { value: 1, label: '1 км' },
+    { value: 2, label: '2 км' },
+    { value: 5, label: '5 км' },
+    { value: 10, label: '10 км' },
+    { value: 20, label: '20 км' },
+  ]
 
   // Синхронизируем состояние с URL при изменении searchParams
   useEffect(() => {
@@ -40,10 +51,23 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
         undefined,
       ageRange: searchParams.get('ageRange') ? 
         searchParams.get('ageRange')!.split('-').map(Number) as [number, number] : 
-        undefined
+        undefined,
+      radius: searchParams.get('radius') ? Number(searchParams.get('radius')) : undefined
     }
     setFilters(newFilters)
   }, [searchParams])
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFilters(filters)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [filters])
+
+  useEffect(() => {
+    onFilterChange(debouncedFilters)
+  }, [debouncedFilters, onFilterChange])
 
   const updateURL = useCallback((newFilters: SportFiltersType) => {
     const params = new URLSearchParams(searchParams.toString())
@@ -150,7 +174,7 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
             {/* Поиск по названию */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-900">Название</label>
-              <input
+              <Input
                 type="text"
                 placeholder="Поиск по названию"
                 value={filters.name || ''}
@@ -248,6 +272,23 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
                 <option value="4">От 4.0</option>
                 <option value="4.5">От 4.5</option>
                 <option value="5">5.0</option>
+              </select>
+            </div>
+
+            {/* Радиус поиска */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-900">Радиус поиска</label>
+              <select
+                value={filters.radius || ''}
+                onChange={(e) => handleChange({ radius: Number(e.target.value) })}
+                className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#5CD2C6] focus:border-transparent text-gray-900"
+              >
+                <option value="">Любой радиус</option>
+                {radiusOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
