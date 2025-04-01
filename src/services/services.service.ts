@@ -1,18 +1,18 @@
 import { API } from './api'
-import { Service, ServiceFilters, ServiceListResponse, ServiceStatus } from '@/types/service'
+import { Service, ServiceAddress, ServiceFilters, ServiceListResponse, ServiceStatus } from '@/types/service'
 
 export interface CreateServiceDTO {
   name: string;
-  description: string;
+  description?: string;
   category: string;
-  price: number;
+  price?: number;
   duration: number;
   organisation_id: string;
 }
 
 export interface ServiceFiltersType {
   name?: string
-  address?: string
+  address?: ServiceAddress | null
   category?: string
   subcategory?: string
   minRating?: number

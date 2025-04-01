@@ -9,8 +9,8 @@ interface SchoolInfoProps {
 
 export default function SchoolInfo({ school }: SchoolInfoProps) {
   // Рассчитываем средний рейтинг
-  const averageRating = school.total_rating && school.reviews_count 
-    ? (school.total_rating / school.reviews_count).toFixed(1) 
+  const averageRating = school.totalRating && school.reviewCount 
+    ? (school.totalRating / school.reviewCount).toFixed(1) 
     : '0.0'
 
   return (
@@ -21,7 +21,7 @@ export default function SchoolInfo({ school }: SchoolInfoProps) {
           <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
           <div className="flex flex-col items-end">
             <span className="text-xl font-bold text-gray-900">{averageRating}</span>
-            <span className="text-sm text-gray-500">{school.reviews_count || 0} отзывов</span>
+            <span className="text-sm text-gray-500">{school.reviewCount || 0} отзывов</span>
           </div>
         </div>
       </div>

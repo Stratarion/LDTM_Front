@@ -3,16 +3,16 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { Loader2, Search, Building2 } from 'lucide-react'
+import { Loader2, Building2 } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import GardenCard from '@/components/features/GardenCard'
 import { Garden, GardensService, GardensFiltersType } from '@/services/gardens.service'
 import GardenFilters from '@/components/features/GardenFilters'
 
 // Функция для преобразования строки в массив чисел [min, max]
-const parsePriceRange = (range: string | null): [number, number] | null => {
-  if (!range) return null
-  const [min, max] = range.split('-').map(Number)
+function parsePriceRange(priceStr: string | null): [number, number] | undefined {
+  if (!priceStr) return undefined
+  const [min, max] = priceStr.split('-').map(Number)
   return [min, max]
 }
 
@@ -134,7 +134,6 @@ const GardensList = () => {
       <button
         onClick={() => {
           router.push('/gardens')
-          setFilters({})
         }}
         className="mt-4 text-[#5CD2C6] hover:text-[#4BC0B5] underline"
       >

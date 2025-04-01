@@ -7,11 +7,6 @@ interface TokenData {
   timestamp: number
 }
 
-interface StorageData {
-  token: TokenData
-  user: User
-}
-
 export const storage = {
   setTokenData(data: TokenData) {
     if (typeof window === 'undefined') return
@@ -48,6 +43,7 @@ export const storage = {
       return JSON.parse(data) as TokenData
     } catch (error) {
       this.removeTokenData()
+      console.error(error)
       return null
     }
   },
@@ -61,6 +57,7 @@ export const storage = {
       return JSON.parse(data) as User
     } catch (error) {
       this.removeUserData()
+      console.error(error)
       return null
     }
   },

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, Star, Dumbbell, Brain, Upload, X as XIcon } from 'lucide-react'
-import { ServicesService, ServiceType } from '@/services/services.service'
+import { ServicesService } from '@/services/services.service'
 import { useAuth } from '@/hooks/useAuth'
 import { PhotosService } from '@/services/photos.service'
 import { validateImage, resizeImage } from '@/utils/image'

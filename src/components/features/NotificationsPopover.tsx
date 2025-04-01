@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { Bell, MessageSquare, Calendar, Star, BookOpen, X } from 'lucide-react'
+import { Bell, MessageSquare, Calendar, Star, BookOpen } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 interface Notification {

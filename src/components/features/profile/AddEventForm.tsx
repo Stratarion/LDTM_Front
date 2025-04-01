@@ -6,9 +6,9 @@ import { X, Loader2, Search, User } from 'lucide-react'
 import { CreateEventDto, ScheduleService } from '@/services/schedule.service'
 import { ServicesService } from '@/services/services.service'
 import { useAuth } from '@/hooks/useAuth'
-import { Service } from '@/services/services.service'
 import { User as UserType } from '@/types/user'
 import { debounce } from '@/utils/debounce'
+import { Service } from '@/types/service'
 
 interface AddEventFormProps {
   isOpen: boolean

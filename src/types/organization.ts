@@ -12,7 +12,7 @@ export interface Organization {
   website?: string
   type: OrganizationType
   school_type: SchoolType
-  max_count?: number
+  max_count: number
   approach?: string
   cost_info?: number
   owner_id: string

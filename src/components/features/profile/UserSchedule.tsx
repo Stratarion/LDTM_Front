@@ -6,7 +6,6 @@ import { BidsService } from '@/services/bids.service'
 import { useAuth } from '@/hooks/useAuth'
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import Image from 'next/image'
 import BidDetailsModal from './BidDetailsModal'
 import { Bid } from '@/services/bids.service'
 

@@ -9,10 +9,10 @@ export interface Garden {
   rating: number
   totalRating: number
   type: 'garden'
-  schoolType: 'state' | 'private'
-  maxCount: number
+  school_type: 'state' | 'private'
+  max_count: number
   approach: string
-  costInfo?: number
+  cost_info?: number
   address: string
   gallery: string[]
   features: {

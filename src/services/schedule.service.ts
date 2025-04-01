@@ -1,5 +1,6 @@
+import { Service } from '@/types/service'
 import { API } from './api'
-import { Service } from './services.service'
+
 import { User } from '@/types/user'
 
 export interface ScheduleEvent {
@@ -9,14 +10,14 @@ export interface ScheduleEvent {
   endTime: string
   serviceId: string
   service: Service
-  teacherId: string
+  teacherId?: string
   teacher: User
   ownerId: string
   owner: User
   maxStudents: number
   currentParticipants: number
   participants: User[]
-  status: 'active' | 'cancelled'
+  status: 'active' | 'cancelled' | 'inactive'
   createdAt: string
 }
 
@@ -29,7 +30,7 @@ export interface CreateEventDto {
   date: string
   startTime: string
   serviceId: string
-  teacherId: string
+  teacherId?: string
   maxStudents: number
   ownerId: string
 }
@@ -40,20 +41,15 @@ export interface Schedule {
   date: string
   startTime: string
   endTime: string
-  status: 'active' | 'inactive'
+  status: 'active' | 'inactive' | 'cancelled'
   createdAt: string
   teacher: {
     id: string
     first_name: string
     last_name: string
-    avatar?: string
+    avatar?: string | null
   }
   currentParticipants: number
-}
-
-interface ScheduleResponse {
-  data: Schedule[]
-  count: number
 }
 
 export class ScheduleService {

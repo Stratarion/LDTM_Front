@@ -14,7 +14,7 @@ export interface ServiceReview {
 
 export interface ServiceAddress {
   full: string;
-  coordinates: [number, number];
+  coordinates?: [number, number];
 }
 
 export interface Service {

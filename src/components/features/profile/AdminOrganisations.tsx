@@ -85,14 +85,6 @@ export default function AdminOrganisations() {
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('ru-RU', {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric'
-    })
-  }
-
   const getStatusColor = (status: OrganisationStatus) => {
     switch (status) {
       case 'active':

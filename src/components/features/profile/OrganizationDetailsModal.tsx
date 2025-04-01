@@ -2,18 +2,18 @@
 
 import { useState, useRef } from 'react'
 import Image from 'next/image'
-import { X, ChevronLeft, ChevronRight, Trash, Edit, Save, ArrowLeft, Loader2, Building2, Upload, Star } from 'lucide-react'
+import { X, ChevronLeft, ChevronRight, Trash, Edit, Save, ArrowLeft, Loader2, Upload, Star } from 'lucide-react'
 import { Organization } from '@/types/organization'
 import { useNotifications } from '@/hooks/useNotifications'
 import ConfirmModal from '@/components/shared/ConfirmModal'
 import { OrganizationsService } from '@/services/organizations.service'
-import { PhotosService } from '@/services/photos.service'
+import { Photo, PhotosService } from '@/services/photos.service'
 import { useAuth } from '@/hooks/useAuth'
 import { validateImage, resizeImage } from '@/utils/image'
 
 interface OrganizationDetailsModalProps {
   organization: Organization
-  photos: { id: string; url: string }[]
+  photos: Photo[]
   isOpen: boolean
   onClose: () => void
   onDelete: (id: string) => void
@@ -52,9 +52,9 @@ export default function OrganizationDetailsModal({
     director_name: organization.director_name,
     type: organization.type,
     school_type: organization.school_type,
-    max_count: organization.max_count || '',
+    max_count: organization.max_count || 0,
     approach: organization.approach || '',
-    cost_info: organization.cost_info || '',
+    cost_info: organization.cost_info || 0,
     website: organization.website || ''
   })
 
@@ -120,6 +120,7 @@ export default function OrganizationDetailsModal({
         type: 'success'
       })
     } catch (err) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: 'Не удалось удалить фото',
@@ -159,13 +160,17 @@ export default function OrganizationDetailsModal({
         organization.id,
         user.id
       )
-      setPhotos([...photos, { id: newPhoto.id, url: newPhoto.url }])
+      setPhotos([...photos, {
+        id: newPhoto.id, url: newPhoto.url,
+        description: ''
+      }])
       showNotification({
         title: 'Успешно',
         message: 'Фото загружено',
         type: 'success'
       })
     } catch (err) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: 'Не удалось загрузить фото',
@@ -202,6 +207,7 @@ export default function OrganizationDetailsModal({
         type: 'success'
       })
     } catch (err) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: 'Не удалось обновить главное фото',
@@ -248,7 +254,7 @@ export default function OrganizationDetailsModal({
             <div className="relative mb-6">
               <div className="aspect-video relative">
                 <Image
-                  src={photos[currentImageIndex].url}
+                  src={photos[currentImageIndex].url || ''}
                   alt={`${organization.name} - фото ${currentImageIndex + 1}`}
                   fill
                   className="object-cover rounded-lg"
@@ -283,7 +289,7 @@ export default function OrganizationDetailsModal({
                       }`}
                     >
                       <Image
-                        src={photo.url}
+                        src={photo.url || ''}
                         alt={`${organization.name} - миниатюра ${index + 1}`}
                         fill
                         className="object-cover rounded"
@@ -567,7 +573,7 @@ export default function OrganizationDetailsModal({
                   <div key={photo.id} className="relative group">
                     <div className="aspect-square relative rounded-lg overflow-hidden">
                       <Image
-                        src={photo.url}
+                        src={photo.url || ''}
                         alt={`Фото ${index + 1}`}
                         fill
                         className="object-cover"

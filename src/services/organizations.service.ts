@@ -10,9 +10,9 @@ interface CreateOrganizationDTO {
   director_name: string;
   type: 'school' | 'garden';
   school_type?: 'state' | 'private';
-  max_count: number | null;
+  max_count: number;
   approach?: string;
-  cost_info: number | null;
+  cost_info: number;
   owner_id: string;
   creater_id: string;
 }

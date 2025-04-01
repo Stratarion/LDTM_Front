@@ -8,7 +8,6 @@ import Header from '@/components/layout/Header'
 import SchoolCard from '@/components/features/SchoolCard'
 import { School, SchoolsService, SchoolFiltersType } from '@/services/schools.service'
 import SchoolFilters from '@/components/features/SchoolFilters'
-import { PhotosService } from '@/services/photos.service'
 
 // Функция для преобразования строки в массив чисел [min, max]
 const parsePriceRange = (range: string | null): [number, number] | null => {
@@ -92,7 +91,7 @@ const SchoolsList = () => {
       const averageRating = school.totalRating && school.reviewCount 
         ? school.totalRating / school.reviewCount 
         : 0
-      return averageRating >= activeFilters.minRating
+      return averageRating >= (activeFilters.minRating || 0)
     })
   }, [activeFilters.minRating])
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { UserLoginData } from '../../types/user';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { TextField, Button, Box } from '@mui/material';
 
 interface LoginFormProps {
   onSubmit: (data: UserLoginData) => void;

@@ -2,11 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Loader2, Upload, Image as ImageIcon, Star, Trash } from 'lucide-react'
+import { X, Loader2, Upload, Star, Trash } from 'lucide-react'
 import { OrganizationsService } from '@/services/organizations.service'
 import Image from 'next/image'
 import { useAuth } from '@/hooks/useAuth'
-import { PhotosService } from '@/services/photos.service'
 import { validateImage, resizeImage } from '@/utils/image'
 import { OrganizationType, OrganizationStatus } from '@/types/organization'
 import ConfirmModal from '@/components/shared/ConfirmModal'
@@ -27,9 +26,9 @@ interface FormData {
   website: string
   director_name: string
   school_type: 'state' | 'private'
-  max_count: string
+  max_count: number
   approach: string
-  cost_info: string
+  cost_info: number
   type: OrganizationType
   status: OrganizationStatus
 }
@@ -42,8 +41,6 @@ export default function AddOrganizationForm({
   const { user } = useAuth()
   const [organizationType, setOrganizationType] = useState<OrganizationType>('school')
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [selectedImages, setSelectedImages] = useState<File[]>([])
-  const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
@@ -53,9 +50,9 @@ export default function AddOrganizationForm({
     website: '',
     director_name: '',
     school_type: 'state',
-    max_count: '',
+    max_count: 0,
     approach: '',
-    cost_info: '',
+    cost_info: 0,
     type: 'school',
     status: 'pending'
   })

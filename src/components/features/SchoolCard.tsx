@@ -47,9 +47,9 @@ export default function SchoolCard({ school }: SchoolCardProps) {
                 </h3>
                 <p className="text-gray-600 mt-1">{school.address}</p>
               </div>
-              {school.costInfo && school.schoolType === 'private' && (
+              {school.cost_info && school.school_type === 'private' && (
                 <span className="px-3 py-1 rounded-full text-sm bg-amber-50 text-amber-600">
-                  ~{school.costInfo.toLocaleString()} ₽/месяц
+                  ~{school.cost_info.toLocaleString()} ₽/месяц
                 </span>
               )}
             </div>
@@ -71,9 +71,9 @@ export default function SchoolCard({ school }: SchoolCardProps) {
                 {school.type === 'school' ? 'Школа' : 'Детский сад'}
               </span>
 
-              {school.schoolType && (
+              {school.school_type && (
                 <span className="text-sm text-gray-600">
-                  {school.schoolType === 'state' ? 'Государственная' : 'Частная'}
+                  {school.school_type === 'state' ? 'Государственная' : 'Частная'}
                 </span>
               )}
             </div>

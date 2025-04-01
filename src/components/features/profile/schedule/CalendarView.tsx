@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { ScheduleEvent } from '@/services/schedule.service'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
@@ -10,7 +9,6 @@ import {
   format,
   isSameMonth,
   isSameDay,
-  addMonths,
   startOfWeek,
   endOfWeek
 } from 'date-fns'
@@ -121,7 +119,7 @@ export default function CalendarView({
                         {event.service?.name}
                       </div>
                       <div className="text-[10px] text-gray-600 truncate">
-                        {event.teacher?.name}
+                        {event.teacher?.first_name}
                       </div>
                     </button>
                   ))}

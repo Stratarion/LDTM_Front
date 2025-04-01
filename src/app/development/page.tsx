@@ -7,16 +7,37 @@ import { Loader2, AlertCircle } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import DevelopmentCard from '@/components/features/DevelopmentCard'
 import DevelopmentFilters from '@/components/features/DevelopmentFilters'
-import { Service } from '@/types/service'
+import { Service, DevelopmentType } from '@/types/service'
 import { ServiceFiltersType } from '@/services/services.service'
-import { DevelopmentService } from '@/services/development.service'
+import { DevelopmentService, Development } from '@/services/development.service'
+
+// Функция для преобразования Development в Service
+const mapDevelopmentToService = (development: Development): Service => ({
+  ...development,
+  category: 'development' as const,
+  org_id: '', // Добавляем обязательные поля с пустыми значениями
+  createdAt: '',
+  updatedAt: '',
+  avgRating: development.rating,
+  location: development.address,
+  photos: [],
+  reviews: [],
+  teacher_id: null,
+  development_type: development.subcategory as DevelopmentType,
+  skill_level: 'beginner',
+  learning_format: 'group',
+  address: {
+    full: development.address,
+    coordinates: [0, 0] // Временные координаты, так как они не приходят с бэкенда
+  }
+})
+
 export default function DevelopmentPage() {
   
   const router = useRouter()
   const pathname = usePathname()
   const [services, setServices] = useState<Service[]>([])
   const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const [isInitialLoad, setIsInitialLoad] = useState(true)
@@ -31,9 +52,9 @@ export default function DevelopmentPage() {
       
       const response = await DevelopmentService.getDevelopments(pageNum, 12, filters)
       if (pageNum === 1) {
-        setServices(response.data)
+        setServices(response.data.map(mapDevelopmentToService))
       } else {
-        setServices(prev => [...prev, ...response.data])
+        setServices(prev => [...prev, ...response.data.map(mapDevelopmentToService)])
       }
       
       setHasMore(pageNum < response.totalPages)

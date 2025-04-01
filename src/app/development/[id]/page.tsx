@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import SportGallery from '@/components/features/sport/SportGallery'
@@ -10,14 +10,14 @@ import SportFeatures from '@/components/features/sport/SportFeatures'
 import SportReviews from '@/components/features/sport/SportReviews'
 import { Sport, SportsService } from '@/services/sports.service'
 import { useAuth } from '@/hooks/useAuth'
-import { Service, ServicesService } from '@/services/services.service'
+import { ServicesService } from '@/services/services.service'
+import { Service } from '@/types/service'
 import { Schedule, ScheduleService } from '@/services/schedule.service'
 import SportSchedule from '@/components/features/sport/SportSchedule'
 
 export default function SportPage() {
   const { id } = useParams()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { isAuthenticated } = useAuth()
   const [sport, setSport] = useState<Sport | null>(null)
   const [service, setService] = useState<Service | null>(null)

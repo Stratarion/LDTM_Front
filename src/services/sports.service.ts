@@ -2,6 +2,11 @@ import { API } from './api'
 import { Review } from './reviews.service'
 
 export interface Sport {
+  ageRange: any
+  type: any
+  maxStudents: any
+  reviews: Review[]
+  features: any
   id: string
   name: string
   description: string | null
@@ -14,6 +19,7 @@ export interface Sport {
   age_to: number
   address: string
   image: string
+  images: string[]
   rating: number
   reviews_count: number
   status: 'active' | 'inactive'

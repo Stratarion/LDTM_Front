@@ -3,12 +3,13 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight, Trash, Edit, Save, ArrowLeft, Loader2, Upload, Star } from 'lucide-react'
-import { Service, ServicesService, ServiceType } from '@/services/services.service'
-import { useNotifications } from '@/hooks/useNotifications'
+import { ServicesService } from '@/services/services.service'
+import { ServiceType, useNotifications } from '@/hooks/useNotifications'
 import ConfirmModal from '@/components/shared/ConfirmModal'
 import { Photo, PhotosService } from '@/services/photos.service'
 import { useAuth } from '@/hooks/useAuth'
 import { validateImage, resizeImage } from '@/utils/image'
+import { Service } from '@/types/service'
 
 interface ServiceDetailsModalProps {
   serviceId: string
@@ -49,7 +50,10 @@ export default function ServiceDetailsModal({
     age_from: '',
     age_to: '',
     duration: '',
-    address: '',
+    address: {
+      full: '',
+      coordinates: [0, 0]
+    },
     phone: '',
     email: '',
     subcategory: '',
@@ -71,7 +75,7 @@ export default function ServiceDetailsModal({
           age_from: data.age_from?.toString() || '',
           age_to: data.age_to?.toString() || '',
           duration: data.duration?.toString() || '',
-          address: data.address || '',
+          address: data.address,
           phone: data.phone || '',
           email: data.email || '',
           subcategory: data.subcategory || '',
@@ -120,6 +124,7 @@ export default function ServiceDetailsModal({
         type: 'success'
       })
     } catch (err) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: 'Не удалось удалить фото',
@@ -140,6 +145,7 @@ export default function ServiceDetailsModal({
       setSelectedFile(file)
       setIsConfirmPhotoUploadOpen(true)
     } catch (err: any) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: err.message,
@@ -166,6 +172,7 @@ export default function ServiceDetailsModal({
         type: 'success'
       })
     } catch (err) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: 'Не удалось загрузить фото',
@@ -202,6 +209,7 @@ export default function ServiceDetailsModal({
         type: 'success'
       })
     } catch (err) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: 'Не удалось обновить главное фото',

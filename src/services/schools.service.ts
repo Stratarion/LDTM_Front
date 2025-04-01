@@ -5,11 +5,11 @@ export interface School {
   name: string;
   description?: string;
   type: 'school' | 'garden';
-  schoolType?: 'state' | 'private';
+  school_type?: 'state' | 'private';
   address: string;
   avatar?: string;
-  costInfo?: number;
-  maxCount?: number;
+  cost_info?: number;
+  max_count?: number;
   approach?: string;
   status?: string;
   website?: string;

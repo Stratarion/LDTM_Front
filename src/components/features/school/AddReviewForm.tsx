@@ -17,7 +17,6 @@ export default function AddReviewForm({ schoolId, onReviewAdded }: AddReviewForm
   const [content, setContent] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [hasUserReview, setHasUserReview] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,14 +56,6 @@ export default function AddReviewForm({ schoolId, onReviewAdded }: AddReviewForm
     } finally {
       setIsLoading(false)
     }
-  }
-
-  if (hasUserReview) {
-    return (
-      <div className="bg-yellow-50 p-4 rounded-lg text-yellow-800">
-        Вы уже оставили отзыв об этой школе
-      </div>
-    )
   }
 
   if (!user) {

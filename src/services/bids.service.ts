@@ -1,7 +1,4 @@
 import { API } from './api'
-import { Schedule } from './schedule.service'
-import { Service } from './services.service'
-import { User } from '@/types/user'
 
 export interface Bid {
   id: string

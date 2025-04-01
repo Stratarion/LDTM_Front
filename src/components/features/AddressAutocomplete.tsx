@@ -10,7 +10,7 @@ interface AddressAutocompleteProps {
   onChange: (address: {
     fullAddress: string
     country: string
-    coordinates: [number, number]
+    coordinates: string
   }) => void
   error?: string
   className?: string

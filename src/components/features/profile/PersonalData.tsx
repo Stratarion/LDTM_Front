@@ -44,7 +44,7 @@ interface PersonalDataProps {
 }
 
 export default function PersonalData({ user }: PersonalDataProps) {
-  const { login, refreshUserData, isLoading: isAuthLoading } = useAuth()
+  const { refreshUserData, isLoading: isAuthLoading } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)

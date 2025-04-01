@@ -7,18 +7,18 @@ export interface Photo {
   id: string
   url: string
   thumbnailUrl?: string
-  entityType: PhotoEntityType
-  entityId: string
-  order: number
-  status: PhotoStatus
-  mimeType: string
-  size: number
+  entityType?: PhotoEntityType
+  entityId?: string
+  order?: number
+  status?: PhotoStatus
+  mimeType?: string
+  size?: number
   width?: number
   height?: number
   description?: string
-  uploadedBy: string
-  createdAt: string
-  updatedAt: string
+  uploadedBy?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 interface UpdatePhotoDTO {

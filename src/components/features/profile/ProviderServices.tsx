@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Dumbbell, Brain, Loader2 } from 'lucide-react'
-import { Service, ServiceType, ServicesService } from '@/services/services.service'
+import { ServicesService } from '@/services/services.service'
 import { useAuth } from '@/hooks/useAuth'
-import { useNotifications } from '@/hooks/useNotifications'
+import { useNotifications, ServiceType } from '@/hooks/useNotifications'
 import AddServiceForm from './AddServiceForm'
 import ServiceDetailsModal from './ServiceDetailsModal'
-import { mockGalleryImages } from '@/mock/galleryImages'
+import { Service } from '@/types/service'
 
 export default function ProviderServices() {
   const { user } = useAuth()
@@ -48,6 +48,7 @@ export default function ProviderServices() {
         type: 'success'
       })
     } catch (err) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: 'Не удалось удалить услугу',
@@ -56,25 +57,9 @@ export default function ProviderServices() {
     }
   }
 
-  const handleEdit = async (id: string) => {
+  const handleEdit = async () => {
     await loadServices()
   }
-
-  // Преобразование Service в Sport для совместимости с OrganizationDetailsModal
-  const serviceToSport = (service: Service) => ({
-    id: service.id,
-    name: service.name,
-    description: service.description,
-    type: service.category,
-    images: mockGalleryImages,
-    rating: service.rating || 0,
-    address: service.address,
-    duration: service.duration,
-    maxStudents: service.max_students,
-    ageRange: [service.age_from, service.age_to] as [number, number],
-    price: service.price,
-    reviews: service.reviews || []
-  })
 
   const filteredServices = services.filter(service => service.category === activeType)
 

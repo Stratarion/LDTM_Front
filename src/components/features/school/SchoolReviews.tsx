@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Star, ThumbsUp, MessageCircle, Loader2 } from 'lucide-react'
 import Image from 'next/image'
-import { ReviewsService, Review, ReviewsResponse } from '@/services/reviews.service'
+import { ReviewsService, Review } from '@/services/reviews.service'
 import { useAuth } from '@/hooks/useAuth'
 import AddReviewForm from './AddReviewForm'
 

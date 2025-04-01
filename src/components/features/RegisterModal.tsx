@@ -5,7 +5,6 @@ import { X, Mail, Lock, User, Phone, MapPin } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthService } from '@/services/auth.service'
-import { storage } from '@/utils/storage'
 
 interface RegisterModalProps {
   isOpen: boolean

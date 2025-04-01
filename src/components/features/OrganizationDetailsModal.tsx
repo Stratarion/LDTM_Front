@@ -34,9 +34,9 @@ export default function OrganizationDetailsModal({
 
   const [formData, setFormData] = useState({
     name: sport.name,
-    description: sport.description,
+    description: sport.description || "",
     category: sport.type,
-    price: sport.price,
+    price: +sport.price || 0,
     max_students: sport.maxStudents,
     age_from: sport.ageRange[0],
     age_to: sport.ageRange[1],
@@ -87,18 +87,6 @@ export default function OrganizationDetailsModal({
     setCurrentImageIndex((prev) => 
       prev === sport.images.length - 1 ? 0 : prev + 1
     )
-  }
-
-  const handleDelete = () => {
-    setIsConfirmDeleteOpen(true)
-  }
-
-  const confirmDelete = () => {
-    onDelete(sport.id)
-  }
-
-  const handleEdit = () => {
-    setIsEditing(true)
   }
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -377,7 +365,7 @@ export default function OrganizationDetailsModal({
               {/* Reviews */}
               <div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-4">Отзывы</h3>
-                <Reviews sportId={sport.id} readOnly />
+                <Reviews sportId={sport.id} />
               </div>
             </>
           )}

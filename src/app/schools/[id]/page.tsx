@@ -1,19 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import Header from '@/components/layout/Header'
 import SchoolGallery from '@/components/features/school/SchoolGallery'
 import SchoolInfo from '@/components/features/school/SchoolInfo'
-import SchoolFeatures from '@/components/features/school/SchoolFeatures'
 import SchoolReviews from '@/components/features/school/SchoolReviews'
 import { School, SchoolsService } from '@/services/schools.service'
 
 export default function SchoolPage() {
   const { id } = useParams()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [school, setSchool] = useState<School | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -82,7 +80,7 @@ export default function SchoolPage() {
         <div className="space-y-8">
           <SchoolGallery school={school} />
           <SchoolInfo school={school} />
-          <SchoolFeatures features={school.features} />
+          {/* <SchoolFeatures features={school.features} /> */}
           <SchoolReviews schoolId={school.id} />
         </div>
       </div>

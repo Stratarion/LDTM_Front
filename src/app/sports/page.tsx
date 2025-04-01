@@ -22,7 +22,6 @@ const SportsList = () => {
   const [currentFilters, setCurrentFilters] = useState<SportFiltersType>({})
   const [isMapFullscreen, setIsMapFullscreen] = useState(false)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
-  const [mapCenter, setMapCenter] = useState<[number, number]>([55.75, 37.57])
 
   // Get user location
   useEffect(() => {
@@ -31,7 +30,6 @@ const SportsList = () => {
         (position) => {
           const coords: [number, number] = [position.coords.latitude, position.coords.longitude]
           setUserLocation(coords)
-          setMapCenter(coords)
           // Больше не обновляем фильтры с координатами пользователя
         },
         (error) => {
@@ -84,11 +82,6 @@ const SportsList = () => {
     setSports([])
     loadSports(1, newFilters)
   }, [router, pathname, loadSports])
-
-  // Обработчик изменения центра карты (только обновление состояния)
-  const handleMapCenterChange = useCallback((newCenter: [number, number]) => {
-    setMapCenter(newCenter)
-  }, [])
 
   // Загрузка следующей страницы
   const { ref, inView } = useInView({
@@ -166,7 +159,6 @@ const SportsList = () => {
         sports={sports} 
         isFullscreen={isMapFullscreen}
         onFullscreenChange={setIsMapFullscreen}
-        onCenterChange={handleMapCenterChange}
       />
 
       <div className="space-y-4">

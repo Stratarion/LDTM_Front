@@ -7,7 +7,6 @@ import { useState } from 'react'
 import { AuthService } from '@/services/auth.service'
 import RegisterModal from './RegisterModal'
 import { useAuth } from '@/hooks/useAuth'
-import { storage } from '@/utils/storage'
 
 interface AuthModalProps {
   isOpen: boolean

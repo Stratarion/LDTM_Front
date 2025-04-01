@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { X, Loader2 } from 'lucide-react'
-import { Service, ServicesService } from '@/services/services.service'
+import { ServicesService } from '@/services/services.service'
 import { useNotifications } from '@/hooks/useNotifications'
+import { Service } from '@/types/service'
 
 interface EditServiceModalProps {
   service: Service
@@ -22,9 +23,9 @@ export default function EditServiceModal({
   const { showNotification } = useNotifications()
   const [formData, setFormData] = useState({
     name: service.name,
-    description: service.description,
+    description: service.description || '',
     category: service.category,
-    price: service.price,
+    price: +service.price,
     max_students: service.max_students,
     age_from: service.age_from,
     age_to: service.age_to,
@@ -209,7 +210,7 @@ export default function EditServiceModal({
             <input
               type="text"
               name="address"
-              value={formData.address}
+              value={formData.address.full}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5CD2C6]"
               required

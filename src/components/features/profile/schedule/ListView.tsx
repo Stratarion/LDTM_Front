@@ -1,7 +1,7 @@
 'use client'
 
 import { ScheduleEvent } from '@/services/schedule.service'
-import { Clock, Users, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Users, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
 
@@ -96,7 +96,7 @@ export default function ListView({
                           <span>{event.currentParticipants}/{event.maxStudents}</span>
                         </div>
                         <div className="text-sm text-gray-500">
-                          {event.teacher?.name}
+                          {event.teacher?.first_name}
                         </div>
                       </div>
                     </div>

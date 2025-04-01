@@ -1,12 +1,11 @@
 'use client'
 
-import { Bell, Settings, LogIn } from 'lucide-react'
+import { Bell, Settings, LogIn, MessageCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import AuthModal from '../features/AuthModal'
 import UserProfileModal from '../features/UserProfileModal'
-import { usePathname } from 'next/navigation'
 import NotificationsPopover from '../features/NotificationsPopover'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -14,7 +13,6 @@ export default function Header() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-  const pathname = usePathname()
   const { user, isAuthenticated, isLoading } = useAuth()
 
   useEffect(() => {
@@ -37,6 +35,12 @@ export default function Header() {
             <div className="flex items-center gap-4">
               {isAuthenticated && user ? (
                 <>
+                  <Link
+                    href="/chat"
+                    className="p-2 hover:bg-gray-100 rounded-full relative"
+                  >
+                    <MessageCircle className="w-5 h-5 text-gray-600" />
+                  </Link>
                   <div className="relative">
                     <button 
                       className="p-2 hover:bg-gray-100 rounded-full relative"

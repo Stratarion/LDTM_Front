@@ -52,10 +52,6 @@ export default function DevelopmentCard({ service }: DevelopmentCardProps) {
                 <span>{service.age_from}-{service.age_to} лет</span>
               </div>
             </div>
-
-            <div className="mt-2 text-sm text-gray-600">
-              {service.address}
-            </div>
           </div>
         </div>
       </Link>

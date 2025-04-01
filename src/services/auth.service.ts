@@ -1,5 +1,5 @@
 import { API } from './api'
-import { User, UserRegisterData, UserLoginData } from '@/types/user'
+import { User, UserRegisterData } from '@/types/user'
 import { storage } from '@/utils/storage'
 
 interface TokenData {

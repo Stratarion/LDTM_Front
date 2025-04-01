@@ -1,5 +1,5 @@
 import React from 'react'
-import { ServiceCategory } from '../../services/services.service'
+import { ServiceCategory } from '@/types/service';
 
 const SERVICE_CATEGORIES: { value: ServiceCategory; label: string }[] = [
   { value: 'sport', label: 'Спорт' },
@@ -8,7 +8,7 @@ const SERVICE_CATEGORIES: { value: ServiceCategory; label: string }[] = [
   { value: 'other', label: 'Другое' }
 ]
 
-export default function ServiceFilters({ initialFilters, onFilterChange }: ServiceFiltersProps) {
+export default function ServiceFilters() {
   // ... остальной код без изменений
 
   return (

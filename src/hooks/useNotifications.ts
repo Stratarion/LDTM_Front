@@ -2,6 +2,7 @@ import { create } from 'zustand'
 
 type NotificationVariant = 'default' | 'destructive' | 'outline'
 
+export type ServiceType = 'sport' | 'development'
 interface NotificationAction {
   label: string
   onClick: () => void

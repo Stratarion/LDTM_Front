@@ -29,6 +29,7 @@ function formatTimeRange(date: string, startTime: string, duration: number): str
     const end = new Date(start.getTime() + duration * 60000);
     return `${format(start, 'HH:mm', { locale: ru })} - ${format(end, 'HH:mm', { locale: ru })}`;
   } catch (error) {
+    console.error(error)
     return '--:-- - --:--';
   }
 }

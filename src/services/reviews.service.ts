@@ -1,6 +1,5 @@
 import { StaticImport } from 'next/dist/shared/lib/get-img-props'
 import { API } from './api'
-import { User } from '@/types/user'
 
 export interface Review {
   creater_id: string
@@ -12,6 +11,8 @@ export interface Review {
   organizationId: string
   organizationType: 'school' | 'garden'
   createdAt: string
+  likes_count: number
+  replies_count: number
 }
 
 export interface ReviewsResponse {
@@ -31,9 +32,9 @@ interface CreateReviewDto {
 }
 
 export const ReviewsService = {
-  async getSchoolReviews(schoolId: string): Promise<ReviewsResponse> {
+  async getSchoolReviews(schoolId: string): Promise<Review[]> {
     const response = await API.get<ReviewsResponse>(`/reviews/list?id=${schoolId}`)
-    return response.data
+    return response.data.data
   },
 
   async createReview(reviewData: CreateReviewDto): Promise<Review> {

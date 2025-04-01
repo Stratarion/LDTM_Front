@@ -43,11 +43,11 @@ export default function GardenCard({ garden }: GardenCardProps) {
                 {garden.name}
               </h3>
               <span className={`px-3 py-1 rounded-full text-sm ${
-                garden.schoolType === 'state' 
+                garden.school_type === 'state' 
                   ? 'bg-blue-50 text-blue-600'
                   : 'bg-purple-50 text-purple-600'
               }`}>
-                {garden.schoolType === 'state' ? 'Государственный' : 'Частный'}
+                {garden.school_type === 'state' ? 'Государственный' : 'Частный'}
               </span>
             </div>
 
@@ -62,19 +62,19 @@ export default function GardenCard({ garden }: GardenCardProps) {
                   <span className="font-medium">{garden.rating.toFixed(1)}</span>
                 </div>
               )}
-              {garden.maxCount && (
+              {garden.max_count && (
                 <div className="flex items-center gap-1 text-gray-500">
                   <Building2 className="w-4 h-4" />
-                  <span>до {garden.maxCount} детей</span>
+                  <span>до {garden.max_count} детей</span>
                 </div>
               )}
             </div>
 
-            {garden.costInfo && (
+            {garden.cost_info && (
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Стоимость в месяц</span>
                 <span className="font-medium text-gray-900">
-                  ~{garden.costInfo.toLocaleString()} ₽
+                  ~{garden.cost_info.toLocaleString()} ₽
                 </span>
               </div>
             )}

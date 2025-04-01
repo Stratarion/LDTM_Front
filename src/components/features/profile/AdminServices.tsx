@@ -261,8 +261,8 @@ export default function AdminServices() {
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900">{service.name}</div>
                       <div className="text-sm text-gray-500">{service.description || '—'}</div>
-                      <div className="text-xs text-gray-500 truncate max-w-xs" title={service.address}>
-                        {service.address}
+                      <div className="text-xs text-gray-500 truncate max-w-xs" title={service.address.full}>
+                        {service.address.full}
                       </div>
                     </div>
                   </div>

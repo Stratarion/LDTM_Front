@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Building2, Loader2, GraduationCap, Flower } from 'lucide-react'
-import { School } from '@/services/schools.service'
 import { OrganizationsService } from '@/services/organizations.service'
-import { PhotosService } from '@/services/photos.service'
+import { Photo, PhotosService } from '@/services/photos.service'
 import { useAuth } from '@/hooks/useAuth'
 import AddOrganizationForm from './AddOrganizationForm'
 import Image from 'next/image'
@@ -27,6 +26,7 @@ const TypeIcon = ({ type }: { type: OrganizationType }) => {
 }
 
 interface OrganizationWithPhoto extends Organization {
+  photos: Photo[]
   mainPhoto?: {
     url: string;
   } | null;
@@ -58,8 +58,7 @@ export default function ProviderOrganizations() {
             // Если главного фото нет, берем первое активное по порядку
             if (!mainPhoto) {
               mainPhoto = photos
-                .filter(p => p.status === 'active')
-                .sort((a, b) => a.order - b.order)[0]
+                .filter(p => p.status === 'active')[0]
             }
             
             return { 
@@ -98,6 +97,7 @@ export default function ProviderOrganizations() {
         type: 'success'
       })
     } catch (err) {
+      console.error(err)
       showNotification({
         title: 'Ошибка',
         message: 'Не удалось удалить организацию',
@@ -106,7 +106,7 @@ export default function ProviderOrganizations() {
     }
   }
 
-  const handleEdit = async (id: string) => {
+  const handleEdit = async () => {
     await loadOrganizations()
   }
 

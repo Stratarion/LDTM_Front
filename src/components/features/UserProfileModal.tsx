@@ -4,10 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, User, LogOut } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { AuthService } from '@/services/auth.service'
 import { User as UserType } from '@/types/user'
 import { useAuth } from '@/hooks/useAuth'
-import UserSchedule from './profile/UserSchedule'
 
 interface UserProfileModalProps {
   isOpen: boolean

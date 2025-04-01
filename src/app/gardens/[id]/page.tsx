@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Loader2, MapPin, Phone, Mail, Star, Building2, Users } from 'lucide-react'
+import { Loader2, MapPin, Phone, Mail, Star, Users } from 'lucide-react'
 import Image from 'next/image'
 import Header from '@/components/layout/Header'
 import { Garden, GardensService } from '@/services/gardens.service'
 import ImageGallery from '@/components/features/ImageGallery'
-import Reviews from '@/components/features/Reviews'
+import GardenReviews from '@/components/features/garden/GardenReviews'
 
 export default function GardenPage() {
   const { id } = useParams()
@@ -80,11 +80,11 @@ export default function GardenPage() {
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold text-gray-900">{garden.name}</h1>
                 <span className={`px-3 py-1 rounded-full text-sm ${
-                  garden.schoolType === 'state' 
+                  garden.school_type === 'state' 
                     ? 'bg-blue-50 text-blue-600'
                     : 'bg-purple-50 text-purple-600'
                 }`}>
-                  {garden.schoolType === 'state' ? 'Государственный' : 'Частный'}
+                  {garden.school_type === 'state' ? 'Государственный' : 'Частный'}
                 </span>
               </div>
 
@@ -102,10 +102,10 @@ export default function GardenPage() {
                       </div>
                     </div>
                   )}
-                  {garden.maxCount && (
+                  {garden.max_count && (
                     <div className="flex items-center gap-2 text-gray-600">
                       <Users className="w-5 h-5" />
-                      <span>до {garden.maxCount} детей</span>
+                      <span>до {garden.max_count} детей</span>
                     </div>
                   )}
                 </div>
@@ -127,11 +127,11 @@ export default function GardenPage() {
                 </div>
 
                 {/* Стоимость */}
-                {garden.costInfo && (
+                {garden.cost_info && (
                   <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                     <div className="text-gray-600">Стоимость в месяц</div>
                     <div className="text-2xl font-medium text-gray-900">
-                      ~{garden.costInfo.toLocaleString()} ₽
+                      ~{garden.cost_info.toLocaleString()} ₽
                     </div>
                   </div>
                 )}
@@ -184,11 +184,8 @@ export default function GardenPage() {
         {/* Отзывы */}
         <div className="bg-white rounded-2xl p-6 shadow-sm">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Отзывы</h2>
-          <Reviews 
+          <GardenReviews 
             organizationId={garden.id}
-            organizationType="garden"
-            rating={garden.rating}
-            reviewCount={garden.reviewCount}
           />
         </div>
       </div>
