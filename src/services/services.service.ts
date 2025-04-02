@@ -1,5 +1,5 @@
 import { API } from './api'
-import { Service, ServiceAddress, ServiceFilters, ServiceListResponse, ServiceStatus } from '@/types/service'
+import { Service, ServiceListResponse, ServiceStatus, ServiceFilters } from '@/shared/types/service'
 
 export interface CreateServiceDTO {
   name: string;
@@ -12,7 +12,7 @@ export interface CreateServiceDTO {
 
 export interface ServiceFiltersType {
   name?: string
-  address?: ServiceAddress | null
+  address?: string
   category?: string
   subcategory?: string
   minRating?: number

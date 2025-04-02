@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Loader2, MapPin, Phone, Mail, Star, Users } from 'lucide-react'
 import Image from 'next/image'
-import Header from '@/components/layout/Header'
+import Header from '@/widgets/Header'
 import { Garden, GardensService } from '@/services/gardens.service'
-import ImageGallery from '@/components/features/ImageGallery'
-import GardenReviews from '@/components/features/garden/GardenReviews'
+import ImageGallery from '@/features/ImageGallery'
+import GardenReviews from '@/features/garden/GardenReviews'
 
 export default function GardenPage() {
   const { id } = useParams()

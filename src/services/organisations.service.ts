@@ -1,5 +1,5 @@
 import { API } from './api'
-import { Organisation, OrganisationFilters, OrganisationListResponse } from '@/types/organisation'
+import { Organisation, OrganisationFilters, OrganisationListResponse } from '@/shared/types/organisation'
 
 export const OrganisationsService = {
   getAdminList: async (page: number, filters?: OrganisationFilters) => {

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { storage } from '@/utils/storage';
+import { storage } from '@/shared/lib/utils/storage';
 
 const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 

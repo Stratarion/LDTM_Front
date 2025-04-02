@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Loader2 } from 'lucide-react'
-import Header from '@/components/layout/Header'
-import SchoolGallery from '@/components/features/school/SchoolGallery'
-import SchoolInfo from '@/components/features/school/SchoolInfo'
-import SchoolReviews from '@/components/features/school/SchoolReviews'
+import Header from '@/widgets/Header'
+import SchoolGallery from '@/features/school/SchoolGallery'
+import SchoolInfo from '@/features/school/SchoolInfo'
+import SchoolReviews from '@/features/school/SchoolReviews'
 import { School, SchoolsService } from '@/services/schools.service'
 
 export default function SchoolPage() {

@@ -1,6 +1,6 @@
 import { API } from './api'
-import { User, UserRegisterData } from '@/types/user'
-import { storage } from '@/utils/storage'
+import { User, UserRegisterData } from '@/shared/types/user'
+import { storage } from '@/shared/lib/utils/storage'
 
 interface TokenData {
 	token: string

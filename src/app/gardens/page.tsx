@@ -4,10 +4,10 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Loader2, Building2 } from 'lucide-react'
-import Header from '@/components/layout/Header'
-import GardenCard from '@/components/features/GardenCard'
+import Header from '@/widgets/Header'
+import GardenCard from '@/features/GardenCard'
 import { Garden, GardensService, GardensFiltersType } from '@/services/gardens.service'
-import GardenFilters from '@/components/features/GardenFilters'
+import GardenFilters from '@/features/GardenFilters'
 
 // Функция для преобразования строки в массив чисел [min, max]
 function parsePriceRange(priceStr: string | null): [number, number] | undefined {

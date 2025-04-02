@@ -4,10 +4,10 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Loader2, Search } from 'lucide-react'
-import Header from '@/components/layout/Header'
-import SchoolCard from '@/components/features/SchoolCard'
+import Header from '@/widgets/Header'
+import SchoolCard from '@/features/SchoolCard'
 import { School, SchoolsService, SchoolFiltersType } from '@/services/schools.service'
-import SchoolFilters from '@/components/features/SchoolFilters'
+import SchoolFilters from '@/features/SchoolFilters'
 
 // Функция для преобразования строки в массив чисел [min, max]
 const parsePriceRange = (range: string | null): [number, number] | null => {

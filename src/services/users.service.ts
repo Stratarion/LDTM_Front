@@ -1,5 +1,5 @@
 import { API } from './api'
-import { User } from '@/types/user'
+import { User } from '@/shared/types/user'
 
 interface UpdateUserDto {
   name?: string

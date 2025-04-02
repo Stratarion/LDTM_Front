@@ -1,7 +1,7 @@
-import { Service } from '@/types/service'
+import { Service } from '@/shared/types/service'
 import { API } from './api'
 
-import { User } from '@/types/user'
+import { User } from '@/shared/types/user'
 
 export interface ScheduleEvent {
   id: string

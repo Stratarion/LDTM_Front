@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useState, useRef } from 'react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { chatService, Room, Message } from '@/services/chat.service'
 import { Socket } from 'socket.io-client'
 import { redirect } from 'next/navigation'
-import Header from '@/components/layout/Header'
+import Header from '@/widgets/Header'
 import { Users, MessageCircle, X, Search, MoreVertical } from 'lucide-react'
 import { UsersService } from '@/services/users.service'
-import { User } from '@/types/user'
+import { User } from '@/shared/types/user'
 
 type ChatCreationType = 'direct' | 'group' | null;
 

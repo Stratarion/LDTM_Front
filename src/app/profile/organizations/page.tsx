@@ -1,6 +1,6 @@
 'use client'
 
-import ProviderOrganizations from '@/components/features/profile/ProviderOrganizations'
+import ProviderOrganizations from '@/features/profile/ProviderOrganizations'
 
 export default function OrganizationsPage() {
   return <ProviderOrganizations />
