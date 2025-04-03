@@ -1,5 +1,5 @@
 import { API } from '@/shared/api'
-import { SportFiltersType, Sport } from '@/shared/types/sport'
+import { SportFiltersType } from '@/shared/types/sport'
 import { SportListResponse, SportListRequestBody } from '../lib/types'
 
 export const SportListService = {
@@ -35,11 +35,6 @@ export const SportListService = {
       `/services/sport/list`,
       requestBody
     )
-    return data
-  },
-
-	async getSportById(id: string): Promise<Sport> {
-    const { data } = await API.get<Sport>(`/services/${id}`)
     return data
   }
 } 

@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import Header from '@/widgets/Header'
-import { SportsList } from '@/features/sport/sport-list'
+import { SportList } from '@/features/sport/sport-list'
 export const SportListPage = () => {
   const pathname = usePathname()
   return (
@@ -19,7 +19,7 @@ export const SportListPage = () => {
           </div>
         </div>
 
-        <SportsList key={pathname} />
+        <SportList key={pathname} />
       </div>
     </main>
   )
