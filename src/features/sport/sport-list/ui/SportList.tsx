@@ -5,12 +5,13 @@ import { useInView } from 'react-intersection-observer'
 import { useRouter, usePathname } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import SportCard from '@/features/SportCard'
-import { Sport, SportsService, SportFiltersType } from '@/services/sports.service'
 import SportFilters from '@/features/SportFilters'
 import SportMap from '@/features/sport/SportMap'
 import { ErrorMessage } from './ErrorMessage'
 import { EmptyState } from './EmptyState'
 import { loadUserLocation } from '../lib/helpers'
+import { ISport, SportFiltersType } from '@/shared/types/sport'
+import { SportListService } from '@/features/sport/sport-list/api'
 
 import { MOSCOW_COORDS } from '@/shared/lib/constants'
 import { Coordinates } from '@/shared/types/map'
@@ -18,7 +19,7 @@ import { Coordinates } from '@/shared/types/map'
 export const SportList = () => {
 	const router = useRouter()
 	const pathname = usePathname()
-	const [sports, setSports] = useState<Sport[]>([])
+	const [sports, setSports] = useState<ISport[]>([])
 	const [page, setPage] = useState(1)
 	const [hasMore, setHasMore] = useState(true)
 	const [isLoading, setIsLoading] = useState(false)
@@ -44,7 +45,7 @@ export const SportList = () => {
 			setIsLoading(true)
 			setError(null)
 			
-			const response = await SportsService.getSports(pageNum, 12, filters, userLocation || undefined)
+			const response = await SportListService.getSports(pageNum, 12, filters, userLocation || undefined)
 			if (pageNum === 1) {
 				setSports(response.data)
 			} else {
