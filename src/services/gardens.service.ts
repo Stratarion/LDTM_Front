@@ -1,4 +1,4 @@
-import { API } from './api'
+import { API } from '../shared/api'
 
 export interface Garden {
   id: string

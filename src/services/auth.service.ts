@@ -1,4 +1,4 @@
-import { API } from './api'
+import { API } from '../shared/api'
 import { User, UserRegisterData } from '@/shared/types/user'
 import { storage } from '@/shared/lib/utils/storage'
 

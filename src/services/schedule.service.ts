@@ -1,5 +1,5 @@
 import { Service } from '@/shared/types/service'
-import { API } from './api'
+import { API } from '../shared/api'
 
 import { User } from '@/shared/types/user'
 

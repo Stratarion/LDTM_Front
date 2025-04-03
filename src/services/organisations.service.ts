@@ -1,4 +1,4 @@
-import { API } from './api'
+import { API } from '../shared/api'
 import { Organisation, OrganisationFilters, OrganisationListResponse } from '@/shared/types/organisation'
 
 export const OrganisationsService = {

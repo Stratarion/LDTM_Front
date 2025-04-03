@@ -1,4 +1,4 @@
-import { API } from './api'
+import { API } from '../shared/api'
 import { Service, ServiceListResponse, ServiceStatus, ServiceFilters } from '@/shared/types/service'
 
 export interface CreateServiceDTO {

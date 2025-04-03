@@ -1,5 +1,5 @@
 import { StaticImport } from 'next/dist/shared/lib/get-img-props'
-import { API } from './api'
+import { API } from '../shared/api'
 
 export interface Review {
   creater_id: string

@@ -1,4 +1,4 @@
-import { API } from './api'
+import { API } from '../shared/api'
 
 export type PhotoEntityType = 'organisation' | 'service' | 'user' | 'review'
 export type PhotoStatus = 'active' | 'inactive' | 'deleted'
