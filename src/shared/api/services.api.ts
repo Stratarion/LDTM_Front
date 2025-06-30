@@ -1,26 +1,13 @@
-import { API } from '../shared/api'
-import { Service, ServiceListResponse, ServiceStatus, ServiceFilters } from '@/shared/types/service'
+import { API } from '../api'
+import {
+	Service,
+	ServiceListResponse,
+	ServiceStatus,
+	ServiceFilters,
+	CreateServiceDTO,
+} from '@/shared/types/service'
 
-export interface CreateServiceDTO {
-  name: string;
-  description?: string;
-  category: string;
-  price?: number;
-  duration: number;
-  organisation_id: string;
-}
-
-export interface ServiceFiltersType {
-  name?: string
-  address?: string
-  category?: string
-  subcategory?: string
-  minRating?: number
-  price?: [number, number]
-  ageRange?: [number, number]
-}
-
-export const ServicesService = {
+export const ServicesAPI = {
   getAdminList: async (page: number, filters?: ServiceFilters) => {
     const response = await API.post<ServiceListResponse>('/services/admin/all', {
       filters
@@ -63,7 +50,7 @@ export const ServicesService = {
     await API.delete(`/services/delete/${id}`)
   },
 
-  getServiceById: async (id: string): Promise<Service> => {
+	getServiceById: async (id: string): Promise<Service> => {
     const response = await API.get<Service>(`/services/${id}`)
     return response.data
   }

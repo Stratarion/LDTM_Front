@@ -20,36 +20,32 @@ export interface ServiceAddress {
 export interface Service {
   id: string;
   name: string;
-  description: string | null;
+  description: string;
+  address: string;
   category: ServiceCategory;
-  status: ServiceStatus;
-  price: string;
-  duration: number;
-  org_id: string;
-  createdAt: string;
-  updatedAt: string;
-  
-  // Additional fields
-  address: ServiceAddress;
+  coordinates: string;
+  subcategory: string;
+  phone: string;
+  email: string;
   age_from: number;
   age_to: number;
-  avgRating: number;
-  email: string;
+  price: string;
+  duration: number;
+  max_students: number;
+  org_id: string;
+  teacher_id: string | null;
+  status: ServiceStatus;
+  rating: number;
+  reviews_count: number;
   image: string | null;
   location: string | null;
-  max_students: number;
-  phone: string;
-  photos: ServicePhoto[];
-  rating: number;
-  reviews: ServiceReview[];
-  reviews_count: number;
-  subcategory: string | null;
-  teacher_id: string | null;
+  createdAt: string;
+  updatedAt: string;
 
-  // Development specific fields
-  development_type?: DevelopmentType;
-  skill_level?: 'beginner' | 'intermediate' | 'advanced';
-  learning_format?: 'individual' | 'group' | 'both';
+  // Additional fields
+  photos: ServicePhoto[];
+  reviews: ServiceReview[];
+  avgRating: number;
 }
 
 export interface ServiceFilters {
@@ -68,4 +64,23 @@ export interface ServiceListResponse {
   total: number;
   currentPage: number;
   totalPages: number;
-} 
+}
+
+export interface CreateServiceDTO {
+  name: string;
+  description?: string;
+  category: string;
+  price?: number;
+  duration: number;
+  organisation_id: string;
+}
+
+export interface ServiceFiltersType {
+  name?: string
+  address?: string
+  category?: string
+  subcategory?: string
+  minRating?: number
+  price?: [number, number]
+  ageRange?: [number, number]
+}

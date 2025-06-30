@@ -5,7 +5,7 @@ import { Star, ThumbsUp, MessageCircle } from 'lucide-react'
 import Image from 'next/image'
 import { Review } from '@/services/reviews.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
-import AddReviewForm from './AddReviewForm'
+import AddReviewForm from '../../../AddReviewForm'
 
 
 

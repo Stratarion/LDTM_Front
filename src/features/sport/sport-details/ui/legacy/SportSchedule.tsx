@@ -6,7 +6,7 @@ import { Schedule } from '@/services/schedule.service'
 import { Service } from '@/shared/types/service'
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import ConfirmBidModal from './ConfirmBidModal'
+import ConfirmBidModal from '../../../ConfirmBidModal'
 import { formatTime, calculateEndTime } from '@/shared/lib/utils/time'
 
 interface SportScheduleProps {

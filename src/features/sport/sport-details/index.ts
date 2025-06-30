@@ -1,0 +1,1 @@
+export { SportDetails }  from './ui/SportDetails'
