@@ -162,7 +162,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
       </div>
 
       {/* Selected Sport Info */}
-      {selectedSport && !isCollapsed && (
+      {/* {selectedSport && !isCollapsed && (
         <div className={`absolute ${isFullscreen ? 'left-6 top-6' : 'left-4 top-4'} z-10 w-80 bg-white rounded-lg shadow-lg p-4`}>
           <button
             onClick={() => setSelectedSport(null)}
@@ -207,7 +207,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
             </Link>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Collapsed Map Title */}
       {isCollapsed && (
@@ -247,7 +247,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
                 }}
               />
             )}
-            {sportsWithCoords.map((sport) => {
+            {/* {sportsWithCoords.map((sport) => {
               if (sport.coordinates) {
                 return (
                   <Placemark
@@ -266,7 +266,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
                 )
               }
               return null
-            })}
+            })} */}
           </Map>
         </YMaps>
       )}

@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Service, ServiceFilters, ServiceCategory, ServiceStatus } from '@/shared/types/service'
-import { ServicesService } from '@/services/services.service'
+import { IService, ServiceFilters, ServiceCategory, ServiceStatus } from '@/shared/types/service'
+import { ServicesAPI } from '@/shared/api/services.api'
 import { useDebounce } from '@/shared/lib/hooks/useDebounce'
 
 export default function AdminServices() {
-  const [services, setServices] = useState<Service[]>([])
+  const [services, setServices] = useState<IService[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -26,7 +26,7 @@ export default function AdminServices() {
   const fetchServices = async (page: number, filters: ServiceFilters) => {
     try {
       setIsLoading(true)
-      const response = await ServicesService.getAdminList(page, filters)
+      const response = await ServicesAPI.getAdminList(page, filters)
       setServices(response.data)
       setCurrentPage(response.currentPage)
       setTotalPages(response.totalPages)
@@ -46,7 +46,7 @@ export default function AdminServices() {
 
     try {
       setIsBulkUpdating(true)
-      await ServicesService.activateService(selectedIds)
+      await ServicesAPI.activateService(selectedIds)
       await fetchServices(currentPage, filters)
       setSelectedIds([])
     } catch (error) {

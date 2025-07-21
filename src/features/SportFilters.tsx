@@ -3,12 +3,12 @@
 import { useState, useCallback, useEffect } from 'react'
 import { X, ChevronUp, ChevronDown } from 'lucide-react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
-import { SportFiltersType } from '@/services/sports.service'
+import { ISportFilters } from '@/services/sports.service'
 import { Input } from '@/shared/ui/input'
 
 interface SportFiltersProps {
-  initialFilters: SportFiltersType
-  onFilterChange: (filters: SportFiltersType) => void
+  initialFilters: ISportFilters
+  onFilterChange: (filters: ISportFilters) => void
 }
 
 const SUBCATEGORIES = [
@@ -27,8 +27,8 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [isExpanded, setIsExpanded] = useState(true)
-  const [filters, setFilters] = useState<SportFiltersType>(initialFilters)
-  const [debouncedFilters, setDebouncedFilters] = useState<SportFiltersType>(initialFilters)
+  const [filters, setFilters] = useState<ISportFilters>(initialFilters)
+  const [debouncedFilters, setDebouncedFilters] = useState<ISportFilters>(initialFilters)
 
   // Радиусы поиска в километрах
   const radiusOptions = [
@@ -69,7 +69,7 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
     onFilterChange(debouncedFilters)
   }, [debouncedFilters, onFilterChange])
 
-  const updateURL = useCallback((newFilters: SportFiltersType) => {
+  const updateURL = useCallback((newFilters: ISportFilters) => {
     const params = new URLSearchParams(searchParams.toString())
     
     Object.entries(newFilters).forEach(([key, value]) => {
@@ -85,15 +85,15 @@ export default function SportFilters({ initialFilters, onFilterChange }: SportFi
     router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }, [router, pathname, searchParams])
 
-  const handleChange = useCallback((newFilters: Partial<SportFiltersType>) => {
+  const handleChange = useCallback((newFilters: Partial<ISportFilters>) => {
     setFilters(prev => {
       const updatedFilters = { ...prev, ...newFilters }
       
       // Удаляем пустые значения
       Object.keys(updatedFilters).forEach(key => {
-        const value = updatedFilters[key as keyof SportFiltersType]
+        const value = updatedFilters[key as keyof ISportFilters]
         if (value === '' || value === undefined || value === null) {
-          delete updatedFilters[key as keyof SportFiltersType]
+          delete updatedFilters[key as keyof ISportFilters]
         }
       })
 

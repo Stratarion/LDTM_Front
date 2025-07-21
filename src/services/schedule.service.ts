@@ -1,4 +1,4 @@
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 import { API } from '../shared/api'
 
 import { User } from '@/shared/types/user'
@@ -9,7 +9,7 @@ export interface ScheduleEvent {
   startTime: string
   endTime: string
   serviceId: string
-  service: Service
+  service: IService
   teacherId?: string
   teacher: User
   ownerId: string

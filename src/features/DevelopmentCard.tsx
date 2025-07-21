@@ -2,11 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 import { Star, Users } from 'lucide-react'
 
 interface DevelopmentCardProps {
-  service: Service
+  service: IService
 }
 
 export default function DevelopmentCard({ service }: DevelopmentCardProps) {

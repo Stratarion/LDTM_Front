@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, Star, Dumbbell, Brain, Upload, X as XIcon } from 'lucide-react'
-import { ServicesService } from '@/services/services.service'
+import { ServicesAPI } from '@/shared/api/services.api'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { PhotosService } from '@/services/photos.service'
 import { validateImage, resizeImage } from '@/shared/lib/utils/image'
@@ -133,7 +133,7 @@ export default function AddServiceForm({
         status: 'pending' as const
       }
 
-      const response = await ServicesService.createService(serviceData)
+      const response = await ServicesAPI.createService(serviceData)
 
       // Upload photos if any
       if (photos.length > 0) {

@@ -9,11 +9,11 @@ import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { ServicesAPI } from '@/shared/api/services.api'
 import { Schedule, ScheduleService } from '@/services/schedule.service'
 import SportSchedule from '@/features/sport/sport-details/ui/legacy/SportSchedule'
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 
 export const SportDetails = ({ id }: { id: string }) => {
   const { isAuthenticated } = useAuth()
-  const [service, setService] = useState<Service | null>(null)
+  const [service, setService] = useState<IService | null>(null)
   const [schedule, setSchedule] = useState<Schedule[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

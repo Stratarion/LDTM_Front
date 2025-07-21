@@ -7,12 +7,12 @@ import { Loader2, AlertCircle } from 'lucide-react'
 import Header from '@/widgets/Header'
 import DevelopmentCard from '@/features/DevelopmentCard'
 import DevelopmentFilters from '@/features/DevelopmentFilters'
-import { Service, DevelopmentType } from '@/shared/types/service'
+import { IService, DevelopmentType } from '@/shared/types/service'
 import { ServiceFiltersType } from '@/services/services.service'
 import { DevelopmentService, Development } from '@/services/development.service'
 
 // Функция для преобразования Development в Service
-const mapDevelopmentToService = (development: Development): Service => ({
+const mapDevelopmentToService = (development: Development): IService => ({
   ...development,
   category: 'development' as const,
   org_id: '', // Добавляем обязательные поля с пустыми значениями
@@ -36,7 +36,7 @@ export default function DevelopmentPage() {
   
   const router = useRouter()
   const pathname = usePathname()
-  const [services, setServices] = useState<Service[]>([])
+  const [services, setServices] = useState<IService[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
   const [hasMore, setHasMore] = useState(true)

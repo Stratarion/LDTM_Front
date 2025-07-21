@@ -10,17 +10,17 @@ import SportFeatures from '@/features/sport/sport-details/ui/legacy/SportFeature
 import SportReviews from '@/features/sport/sport-details/ui/legacy/SportReviews'
 import { Sport, SportsService } from '@/services/sports.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
-import { ServicesService } from '@/services/services.service'
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 import { Schedule, ScheduleService } from '@/services/schedule.service'
 import SportSchedule from '@/features/sport/sport-details/ui/legacy/SportSchedule'
+import { ServicesAPI } from '@/shared/api/services.api'
 
 export default function SportPage() {
   const { id } = useParams()
   const router = useRouter()
   const { isAuthenticated } = useAuth()
   const [sport, setSport] = useState<Sport | null>(null)
-  const [service, setService] = useState<Service | null>(null)
+  const [service, setService] = useState<IService | null>(null)
   const [schedule, setSchedule] = useState<Schedule[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,7 +31,7 @@ export default function SportPage() {
         setIsLoading(true)
         const [sportData, serviceData, scheduleData] = await Promise.all([
           SportsService.getSportById(id as string),
-          ServicesService.getServiceById(id as string),
+          ServicesAPI.getServiceById(id as string),
           isAuthenticated ? ScheduleService.getScheduleByServiceId(id as string) : Promise.resolve([])
         ])
         

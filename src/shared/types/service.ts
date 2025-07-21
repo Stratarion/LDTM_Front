@@ -1,3 +1,5 @@
+import { IReview } from "./reviews";
+
 export type ServiceCategory = 'sport' | 'development' | 'art' | 'education' | 'other';
 export type ServiceStatus = 'active' | 'inactive' | 'pending' | 'rejected';
 
@@ -17,7 +19,7 @@ export interface ServiceAddress {
   coordinates?: number[];
 }
 
-export interface Service {
+export interface IService {
   id: string;
   name: string;
   description: string;
@@ -44,7 +46,7 @@ export interface Service {
 
   // Additional fields
   photos: ServicePhoto[];
-  reviews: ServiceReview[];
+  reviews: IReview[];
   avgRating: number;
 }
 
@@ -60,10 +62,10 @@ export interface ServiceFilters {
 }
 
 export interface ServiceListResponse {
-  data: Service[];
-  total: number;
-  currentPage: number;
-  totalPages: number;
+	currentPage: number
+	data: IService[]
+	totalPages: number
+	totalCount: number
 }
 
 export interface CreateServiceDTO {
@@ -84,3 +86,25 @@ export interface ServiceFiltersType {
   price?: [number, number]
   ageRange?: [number, number]
 }
+
+export interface BaseListRequestBody<TFilters = undefined> {
+  page: number
+  limit: number
+  filters?: TFilters
+  mapCenter?: [number, number]
+}
+
+export interface SportListFilters {
+  name?: string
+  address?: string
+  category?: string
+  subcategory?: string
+  minRating?: number
+  minPrice?: number
+  maxPrice?: number
+  minAge?: number
+  maxAge?: number
+  radius?: number
+}
+
+export type SportListRequestBody = BaseListRequestBody<SportListFilters>

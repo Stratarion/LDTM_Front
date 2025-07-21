@@ -3,13 +3,13 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import { X, ChevronLeft, ChevronRight, Trash, Edit, Save, ArrowLeft, Loader2, Upload, Star } from 'lucide-react'
-import { ServicesService } from '@/services/services.service'
+import { ServicesAPI } from '@/shared/api/services.api'
 import { ServiceType, useNotifications } from '@/shared/lib/hooks/useNotifications'
 import { ConfirmModal } from '@/shared/ui/confirmModal'
 import { Photo, PhotosService } from '@/services/photos.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { validateImage, resizeImage } from '@/shared/lib/utils/image'
-import { Service, ServiceAddress } from '@/shared/types/service'
+import { IService, ServiceAddress } from '@/shared/types/service'
 
 interface ServiceDetailsModalProps {
   serviceId: string
@@ -27,7 +27,7 @@ export default function ServiceDetailsModal({
   onEdit
 }: ServiceDetailsModalProps) {
   const { user } = useAuth()
-  const [service, setService] = useState<Service | null>(null)
+  const [service, setService] = useState<IService | null>(null)
   const [photos, setPhotos] = useState<Photo[]>([])
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false)
@@ -62,7 +62,7 @@ export default function ServiceDetailsModal({
 
   useEffect(() => {
     const loadService = async () => {
-      const data = await ServicesService.getServiceById(serviceId)
+      const data = await ServicesAPI.getServiceById(serviceId)
       setService(data)
       setPhotos(data?.photos || [])
       if (data) {
@@ -95,7 +95,7 @@ export default function ServiceDetailsModal({
     setError('')
     if (!service) return
     try {
-      await ServicesService.updateService(service.id, formData)
+      await ServicesAPI.updateService(service.id, formData)
       showNotification({
         title: 'Успешно',
         message: 'Услуга обновлена',

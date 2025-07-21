@@ -2,23 +2,18 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Sport } from '@/services/sports.service'
 import { Star, Users } from 'lucide-react'
+import { ItemProps } from '../models/ItemProps'
 
-interface SportCardProps {
-  sport: Sport
-}
-
-export default function SportCard({ sport }: SportCardProps) {
-  
+export const ItemComponent = ({ item, startLink }: ItemProps) => {
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
-      <Link href={`/sports/${sport.id}`}>
+      <Link href={`/${startLink}/${item.id}`}>
         <div className="flex gap-4 p-4">
           <div className="w-48 h-32 relative rounded-lg overflow-hidden flex-shrink-0">
             <Image
-              src={sport.image || '/placeholder.jpg'}
-              alt={sport.name}
+              src={item.image || '/placeholder.jpg'}
+              alt={item.name}
               fill
               className="object-cover"
             />
@@ -28,15 +23,15 @@ export default function SportCard({ sport }: SportCardProps) {
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-medium text-gray-900">
-                  {sport.name}
+                  {item.name}
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  {sport.subcategory}
+                  {item.subcategory}
                 </p>
               </div>
               <div className="text-right">
                 <p className="text-lg font-medium text-gray-900">
-                  {Number(sport.price).toLocaleString('ru-RU')} ₽
+                  {Number(item.price).toLocaleString('ru-RU')} ₽
                 </p>
                 <p className="text-sm text-gray-500">за занятие</p>
               </div>
@@ -45,17 +40,17 @@ export default function SportCard({ sport }: SportCardProps) {
             <div className="mt-3 flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                <span>{sport.rating.toFixed(1)} ({sport.reviews_count})</span>
+                <span>{item.rating.toFixed(1)} ({item.reviews_count})</span>
               </div>
               <span>•</span>
               <div className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
-                <span>{sport.age_from}-{sport.age_to} лет</span>
+                <span>{item.age_from}-{item.age_to} лет</span>
               </div>
             </div>
 
             <div className="mt-2 text-sm text-gray-600">
-              {sport.address}
+              {item.address}
             </div>
           </div>
         </div>

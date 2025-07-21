@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, Search, User } from 'lucide-react'
 import { CreateEventDto, ScheduleService } from '@/services/schedule.service'
-import { ServicesService } from '@/services/services.service'
+import { ServicesAPI } from '@/shared/api/services.api'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { User as UserType } from '@/shared/types/user'
 import { debounce } from '@/shared/lib/utils/debounce'
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 
 interface AddEventFormProps {
   isOpen: boolean
@@ -31,7 +31,7 @@ export default function AddEventForm({
   onSuccess
 }: AddEventFormProps) {
   const { user } = useAuth()
-  const [services, setServices] = useState<Service[]>([])
+  const [services, setServices] = useState<IService[]>([])
   const [teachers, setTeachers] = useState<UserType[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isSearching, setIsSearching] = useState(false)
@@ -62,8 +62,8 @@ export default function AddEventForm({
     const loadServices = async () => {
       if (!user) return
       try {
-        const sportServices = await ServicesService.getUserServices(user.id, 'sport')
-        const devServices = await ServicesService.getUserServices(user.id, 'development')
+        const sportServices = await ServicesAPI.getUserServices(user.id, 'sport')
+        const devServices = await ServicesAPI.getUserServices(user.id, 'development')
         setServices([...sportServices, ...devServices])
       } catch (err) {
         console.error('Failed to load services:', err)

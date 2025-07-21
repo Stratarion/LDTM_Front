@@ -3,12 +3,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { X, Loader2 } from 'lucide-react'
-import { ServicesService } from '@/services/services.service'
+import { ServicesAPI } from '@/shared/api/services.api'
 import { useNotifications } from '@/shared/lib/hooks/useNotifications'
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 
 interface EditServiceModalProps {
-  service: Service
+  service: IService
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
@@ -51,7 +51,7 @@ export default function EditServiceModal({
     setError('')
 
     try {
-      await ServicesService.updateService(service.id, formData)
+      await ServicesAPI.updateService(service.id, formData)
       showNotification({
         title: 'Успешно',
         message: 'Услуга обновлена',
@@ -210,7 +210,7 @@ export default function EditServiceModal({
             <input
               type="text"
               name="address"
-              value={formData.address.full}
+              value={formData.address}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#5CD2C6]"
               required

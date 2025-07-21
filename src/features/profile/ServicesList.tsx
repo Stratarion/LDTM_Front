@@ -1,21 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ServicesService } from '@/services/services.service'
+import { ServicesAPI } from '@/shared/api/services.api'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 
 export default function ServicesList() {
   const { user } = useAuth()
-  const [services, setServices] = useState<Service[]>([])
+  const [services, setServices] = useState<IService[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const loadServices = async () => {
       if (!user) return
       try {
-        const sportServices = await ServicesService.getUserServices(user.id, 'sport')
-        const developmentServices = await ServicesService.getUserServices(user.id, 'development')
+        const sportServices = await ServicesAPI.getUserServices(user.id, 'sport')
+        const developmentServices = await ServicesAPI.getUserServices(user.id, 'development')
         setServices([...sportServices, ...developmentServices])
       } catch (err) {
         console.error('Failed to load services:', err)

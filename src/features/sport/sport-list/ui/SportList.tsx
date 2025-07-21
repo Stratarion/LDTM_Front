@@ -4,28 +4,31 @@ import { useEffect, useState, useCallback } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useRouter, usePathname } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
-import SportCard from '@/features/SportCard'
 import SportFilters from '@/features/SportFilters'
 import SportMap from '@/features/sport/SportMap'
 import { ErrorMessage } from './ErrorMessage'
 import { EmptyState } from './EmptyState'
 import { loadUserLocation } from '../lib/helpers'
-import { ISport, SportFiltersType } from '@/shared/types/sport'
+import { ISportFilters } from '@/shared/types/SportFilter'
 import { SportListService } from '@/features/sport/sport-list/api'
 
 import { MOSCOW_COORDS } from '@/shared/lib/constants'
 import { Coordinates } from '@/shared/types/map'
+import { MainList } from '@/widgets/MainList'
+import { IContentItem } from '@/widgets/MainList/models/ContentItem'
+import { IService } from '@/shared/types/service'
+import { ServicesAPI } from '@/shared/api/services.api'
 
 export const SportList = () => {
 	const router = useRouter()
 	const pathname = usePathname()
-	const [sports, setSports] = useState<ISport[]>([])
+	const [sports, setSports] = useState<IService[]>([])
 	const [page, setPage] = useState(1)
 	const [hasMore, setHasMore] = useState(true)
 	const [isLoading, setIsLoading] = useState(false)
 	const [isInitialLoad, setIsInitialLoad] = useState(true)
 	const [error, setError] = useState<string | null>(null)
-	const [currentFilters, setCurrentFilters] = useState<SportFiltersType>({})
+	const [currentFilters, setCurrentFilters] = useState<ISportFilters>({})
 	const [isMapFullscreen, setIsMapFullscreen] = useState(false)
 	const [userLocation, setUserLocation] = useState<Coordinates>(null)
 
@@ -40,12 +43,12 @@ export const SportList = () => {
 	}, [])
 
 	// Загрузка данных с фильтрами
-	const loadSports = useCallback(async (pageNum: number, filters: SportFiltersType) => {
+	const loadSports = useCallback(async (pageNum: number, filters: ISportFilters) => {
 		try {
 			setIsLoading(true)
 			setError(null)
 			
-			const response = await SportListService.getSports(pageNum, 12, filters, userLocation || undefined)
+			const response = await ServicesAPI.getServicesWithMap(pageNum, 12, filters, userLocation || undefined)
 			if (pageNum === 1) {
 				setSports(response.data)
 			} else {
@@ -63,7 +66,7 @@ export const SportList = () => {
 	}, [userLocation])
 
 	// Обработчик изменения фильтров (с обновлением URL)
-	const handleFilterChange = useCallback((newFilters: SportFiltersType) => {
+	const handleFilterChange = useCallback((newFilters: ISportFilters) => {
 		const params = new URLSearchParams()
 		
 		Object.entries(newFilters).forEach(([key, value]) => {
@@ -127,11 +130,7 @@ export const SportList = () => {
 				onFullscreenChange={setIsMapFullscreen}
 			/>
 
-			<div className="space-y-4">
-				{sports.map(sport => (
-					<SportCard key={sport.id} sport={sport} />
-				))}
-			</div>
+      <MainList content={sports as IContentItem[]} startLink='sport' />
 
 			{isLoading && (
 				<div className="flex justify-center py-8">

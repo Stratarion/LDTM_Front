@@ -7,7 +7,7 @@ import { Sport } from '@/services/sports.service'
 import { useNotifications } from '@/shared/lib/hooks/useNotifications'
 import Reviews from './Reviews'
 import ConfirmModal from '../shared/ui/ConfirmModal'
-import { ServicesService } from '@/services/services.service'
+import { ServicesAPI } from '@/shared/api/services.api'
 
 interface OrganizationDetailsModalProps {
   sport: Sport
@@ -60,7 +60,7 @@ export default function OrganizationDetailsModal({
     setError('')
 
     try {
-      await ServicesService.updateService(sport.id, formData)
+      await ServicesAPI.updateService(sport.id, formData)
       showNotification({
         title: 'Успешно',
         message: 'Услуга обновлена',

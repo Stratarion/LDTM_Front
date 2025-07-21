@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { Schedule } from '@/services/schedule.service'
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import ConfirmBidModal from '../../../ConfirmBidModal'
@@ -11,7 +11,7 @@ import { formatTime, calculateEndTime } from '@/shared/lib/utils/time'
 
 interface SportScheduleProps {
   schedule: Schedule[]
-  service: Service | null
+  service: IService | null
   isLoading?: boolean
 }
 

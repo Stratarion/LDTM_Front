@@ -2,28 +2,28 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Dumbbell, Brain, Loader2 } from 'lucide-react'
-import { ServicesService } from '@/services/services.service'
+import { ServicesAPI } from '@/shared/api/services.api'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { useNotifications, ServiceType } from '@/shared/lib/hooks/useNotifications'
 import AddServiceForm from './AddServiceForm'
 import ServiceDetailsModal from './ServiceDetailsModal'
-import { Service } from '@/shared/types/service'
+import { IService } from '@/shared/types/service'
 
 export default function ProviderServices() {
   const { user } = useAuth()
   const { showNotification } = useNotifications()
-  const [services, setServices] = useState<Service[]>([])
+  const [services, setServices] = useState<IService[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [error, setError] = useState('')
   const [activeType, setActiveType] = useState<ServiceType>('sport')
-  const [selectedService, setSelectedService] = useState<Service | null>(null)
+  const [selectedService, setSelectedService] = useState<IService | null>(null)
 
   const loadServices = async () => {
     if (!user) return
     
     try {
-      const data = await ServicesService.getUserServices(user.id, activeType)
+      const data = await ServicesAPI.getUserServices(user.id, activeType)
       setServices(data)
     } catch (err) {
       setError('Не удалось загрузить услуги')
@@ -39,7 +39,7 @@ export default function ProviderServices() {
 
   const handleDelete = async (id: string) => {
     try {
-      await ServicesService.deleteService(id)
+      await ServicesAPI.deleteService(id)
       setServices(services.filter(service => service.id !== id))
       setSelectedService(null)
       showNotification({
