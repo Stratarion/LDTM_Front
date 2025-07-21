@@ -10,7 +10,6 @@ import { ErrorMessage } from './ErrorMessage'
 import { EmptyState } from './EmptyState'
 import { loadUserLocation } from '../lib/helpers'
 import { ISportFilters } from '@/shared/types/SportFilter'
-import { SportListService } from '@/features/sport/sport-list/api'
 
 import { MOSCOW_COORDS } from '@/shared/lib/constants'
 import { Coordinates } from '@/shared/types/map'

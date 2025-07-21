@@ -2,29 +2,28 @@
 
 import { useEffect, useState } from 'react'
 import { YMaps, Map, Placemark, ZoomControl } from '@pbe/react-yandex-maps'
-import { Sport } from '@/services/sports.service'
 import { Maximize2, Minimize2, ChevronDown, ChevronUp, X } from 'lucide-react'
 import Link from 'next/link'
+import { IService } from '@/shared/types/service'
+import Image from 'next/image'
 
 interface SportMapProps {
-  sports: Sport[]
+  sports: IService[]
   isFullscreen?: boolean
   onFullscreenChange?: (isFullscreen: boolean) => void
-  onCenterChange?: (center: [number, number]) => void
+  onCenterChange?: (center: number[]) => void
 }
 
-interface SportWithCoords extends Sport {
-  coordinates?: [number, number]
-}
+
 
 const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterChange }: SportMapProps) => {
   const [mapState, setMapState] = useState({
     center: [55.75, 37.57], // Moscow coordinates as fallback
     zoom: 10,
   })
-  const [sportsWithCoords, setSportsWithCoords] = useState<SportWithCoords[]>([])
+  const [sportsWithCoords, setSportsWithCoords] = useState<IService[]>([])
   const [ymaps, setYmaps] = useState<any>(null)
-  const [selectedSport, setSelectedSport] = useState<SportWithCoords | null>(null)
+  const [selectedSport, setSelectedSport] = useState<IService | null>(null)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
 
@@ -81,15 +80,15 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
       })
 
       const newSportsWithCoords = await Promise.all(sportsWithCoordsPromises)
-      setSportsWithCoords(newSportsWithCoords as SportWithCoords[])
+      setSportsWithCoords(newSportsWithCoords as IService[])
 
       // Only update map center if user location is not available
       if (!userLocation) {
-        const firstSportWithCoords = newSportsWithCoords.find(s => (s as SportWithCoords).coordinates)
-        if (firstSportWithCoords && (firstSportWithCoords as SportWithCoords).coordinates) {
+        const firstSportWithCoords = newSportsWithCoords.find(s => (s as IService).coordinates)
+        if (firstSportWithCoords && (firstSportWithCoords as IService).coordinates) {
           setMapState(prev => ({
             ...prev,
-            center: (firstSportWithCoords as SportWithCoords).coordinates!,
+            center: (firstSportWithCoords as IService).coordinates!,
           }))
         }
       }
@@ -98,7 +97,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
     geocodeAddresses()
   }, [ymaps, sports, userLocation])
 
-  const handlePlacemarkClick = (sport: SportWithCoords) => {
+  const handlePlacemarkClick = (sport: IService) => {
     setSelectedSport(sport)
     if (sport.coordinates) {
       setMapState(prev => ({
@@ -162,7 +161,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
       </div>
 
       {/* Selected Sport Info */}
-      {/* {selectedSport && !isCollapsed && (
+      {selectedSport && !isCollapsed && (
         <div className={`absolute ${isFullscreen ? 'left-6 top-6' : 'left-4 top-4'} z-10 w-80 bg-white rounded-lg shadow-lg p-4`}>
           <button
             onClick={() => setSelectedSport(null)}
@@ -175,7 +174,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
             <h3 className="font-semibold text-lg text-gray-800">{selectedSport.name}</h3>
             
             {selectedSport.image && (
-              <img
+              <Image
                 src={selectedSport.image}
                 alt={selectedSport.name}
                 className="w-full h-40 object-cover rounded-md"
@@ -207,7 +206,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
             </Link>
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Collapsed Map Title */}
       {isCollapsed && (
@@ -247,7 +246,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
                 }}
               />
             )}
-            {/* {sportsWithCoords.map((sport) => {
+            {sportsWithCoords.map((sport) => {
               if (sport.coordinates) {
                 return (
                   <Placemark
@@ -266,7 +265,7 @@ const SportMap = ({ sports, isFullscreen = false, onFullscreenChange, onCenterCh
                 )
               }
               return null
-            })} */}
+            })}
           </Map>
         </YMaps>
       )}

@@ -25,7 +25,7 @@ export interface IService {
   description: string;
   address: string;
   category: ServiceCategory;
-  coordinates: string;
+  coordinates: number[];
   subcategory: string;
   phone: string;
   email: string;
