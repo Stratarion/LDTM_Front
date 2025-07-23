@@ -10,8 +10,8 @@ import SportFeatures from '@/features/sport/sport-details/ui/legacy/SportFeature
 import SportReviews from '@/features/sport/sport-details/ui/legacy/SportReviews'
 import { Sport, SportsService } from '@/services/sports.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
-import { IService } from '@/shared/types/service'
-import { Schedule, ScheduleService } from '@/services/schedule.service'
+import { IService } from '@/entities/service/model/service'
+import { Schedule, ScheduleService } from '@/entities/schedule/schedule.service'
 import SportSchedule from '@/features/sport/sport-details/ui/legacy/SportSchedule'
 import { ServicesAPI } from '@/shared/api/services.api'
 

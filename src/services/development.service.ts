@@ -102,7 +102,7 @@ export const DevelopmentService = {
   },
 
   async getDevelopmentById(id: string): Promise<Development> {
-    const { data } = await API.get<Development>(`/organisations/getOrganisationById?id=${id}`)
+    const { data } = await API.get<Development>(`/organizations/getOrganizationById?id=${id}`)
     return data
   }
 } 

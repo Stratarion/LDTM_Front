@@ -5,9 +5,9 @@ import { motion } from 'framer-motion'
 import { X, Loader2 } from 'lucide-react'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import { Bid, BidsService } from '@/services/bids.service'
+import { Bid, BidsService } from '@/entities/bid/api/bids.service'
 import { useNotifications } from '@/shared/lib/hooks/useNotifications'
-import { User } from '@/shared/types/user'
+import { User } from '@/entities/user/model/user'
 
 interface BidDetailsModalProps {
   bid: Bid | null

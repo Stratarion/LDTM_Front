@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
-import { chatService, Room, Message } from '@/services/chat.service'
+import { chatService, Room, Message } from '@/entities/chat/api/chat.service'
 import { Socket } from 'socket.io-client'
 import { redirect } from 'next/navigation'
 import Header from '@/widgets/Header'
 import { Users, MessageCircle, X, Search, MoreVertical } from 'lucide-react'
-import { UsersService } from '@/services/users.service'
-import { User } from '@/shared/types/user'
+import { User } from '@/entities/user/model/user'
+import { UsersService } from '@/entities/user/api/users.service'
 
 type ChatCreationType = 'direct' | 'group' | null;
 

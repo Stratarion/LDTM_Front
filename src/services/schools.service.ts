@@ -84,14 +84,14 @@ export const SchoolsService = {
     }
 
     const { data } = await API.post<SchoolsResponse>(
-      '/organisations/school',
+      '/organizations/school',
       requestBody
     );
     return data;
   },
 
   async getSchoolById(id: string): Promise<School> {
-    const { data } = await API.get<School>(`/organisations/getOrganisationById?id=${id}`)
+    const { data } = await API.get<School>(`/organizations/getOrganizationById?id=${id}`)
     return data
   }
 }; 

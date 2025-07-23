@@ -3,26 +3,26 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { X, Loader2, Users } from 'lucide-react'
-import { Schedule } from '@/services/schedule.service'
-import { Service } from '@/services/services.service'
-import { BidsService } from '@/services/bids.service'
+import { Schedule } from '@/entities/schedule/schedule.service'
+import { Bid, BidsService } from '@/entities/bid/api/bids.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { useNotifications } from '@/shared/lib/hooks/useNotifications'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import Image from 'next/image'
 import { formatTime, calculateEndTime } from '@/shared/lib/utils/time'
+import { IService } from '@/entities/service/model/service'
 
 interface ConfirmBidModalProps {
   isOpen: boolean
   onClose: () => void
   schedule: Schedule | null
-  service: Service | null
+  service: IService | null
 }
 
 const checkExistingBid = (bids: Bid[], userId: string): boolean => {
   return bids.some(bid => {
-    const bidUserId = bid.userId || bid.user_id
+    const bidUserId = bid.user_id
     return bidUserId === userId && bid.status === 'active'
   })
 }
@@ -64,7 +64,7 @@ export default function ConfirmBidModal({
 
   // Находим существующую заявку пользователя
   const userBid = user && existingBids.find(bid => 
-    (bid.userId === user.id || bid.user_id === user.id) && 
+    (bid.user_id === user.id) && 
     bid.status === 'active'
   )
 

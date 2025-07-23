@@ -1,27 +1,27 @@
 'use client'
 
-import { Organisation, OrganisationType, OrganisationStatus, SchoolType } from '@/shared/types/organisation'
-import { OrganisationsService } from '@/services/organisations.service'
+import { Organization, OrganizationType, OrganizationStatus, SchoolType } from '@/entities/organization/model/organization'
+import { OrganizationsService } from '@/entities/organization/api/organization.service'
 import { useEffect, useState } from 'react'
 
-interface EditOrganisationModalProps {
-  organisation: Organisation | null
+interface EditOrganizationModalProps {
+  organization: Organization | null
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
 }
 
-export default function EditOrganisationModal({
-  organisation,
+export default function EditOrganizationModal({
+  organization,
   isOpen,
   onClose,
   onSuccess
-}: EditOrganisationModalProps) {
+}: EditOrganizationModalProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
-    type: 'school' as OrganisationType,
-    status: 'active' as OrganisationStatus,
+    type: 'school' as OrganizationType,
+    status: 'active' as OrganizationStatus,
     address: '',
     description: '',
     director_name: '',
@@ -34,41 +34,41 @@ export default function EditOrganisationModal({
   })
 
   useEffect(() => {
-    if (organisation) {
+    if (organization) {
       setFormData({
-        name: organisation.name,
-        type: organisation.type,
-        status: organisation.status,
-        address: organisation.address,
-        description: organisation.description,
-        director_name: organisation.director_name,
-        email: organisation.email,
-        phone: organisation.phone,
-        website: organisation.website,
-        max_count: organisation.max_count,
-        school_type: organisation.school_type,
-        approach: organisation.approach
+        name: organization.name,
+        type: organization.type,
+        status: organization.status,
+        address: organization.address,
+        description: organization.description,
+        director_name: organization.director_name,
+        email: organization.email,
+        phone: organization.phone,
+        website: organization.website,
+        max_count: organization.max_count,
+        school_type: organization.school_type,
+        approach: organization.approach
       })
     }
-  }, [organisation])
+  }, [organization])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!organisation) return
+    if (!organization) return
 
     try {
       setIsLoading(true)
-      await OrganisationsService.updateOrganisation(organisation.id, formData)
+      await OrganizationsService.updateOrganization(organization.id, formData)
       onSuccess()
       onClose()
     } catch (error) {
-      console.error('Error updating organisation:', error)
+      console.error('Error updating organization:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  if (!isOpen || !organisation) return null
+  if (!isOpen || !organization) return null
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -99,7 +99,7 @@ export default function EditOrganisationModal({
               <label className="block text-sm font-medium text-gray-700">Тип</label>
               <select
                 value={formData.type}
-                onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as OrganisationType }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as OrganizationType }))}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-700 focus:border-[#5CD2C6] focus:outline-none focus:ring-1 focus:ring-[#5CD2C6]"
               >
                 <option value="school">Школа</option>
@@ -112,7 +112,7 @@ export default function EditOrganisationModal({
               <label className="block text-sm font-medium text-gray-700">Статус</label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as OrganisationStatus }))}
+                onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as OrganizationStatus }))}
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-700 focus:border-[#5CD2C6] focus:outline-none focus:ring-1 focus:ring-[#5CD2C6]"
               >
                 <option value="active">Активна</option>

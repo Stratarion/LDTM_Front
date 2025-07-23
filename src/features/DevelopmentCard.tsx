@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { IService } from '@/shared/types/service'
+import { IService } from '@/entities/service/model/service'
 import { Star, Users } from 'lucide-react'
 
 interface DevelopmentCardProps {

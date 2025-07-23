@@ -1,0 +1,1 @@
+export type TScheduleStatus = 'active' | 'cancelled' | 'inactive'

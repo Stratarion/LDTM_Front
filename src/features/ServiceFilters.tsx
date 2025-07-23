@@ -1,5 +1,5 @@
 import React from 'react'
-import { ServiceCategory } from '@/shared/types/service';
+import { ServiceCategory } from '@/entities/service/model/service';
 
 const SERVICE_CATEGORIES: { value: ServiceCategory; label: string }[] = [
   { value: 'sport', label: 'Спорт' },

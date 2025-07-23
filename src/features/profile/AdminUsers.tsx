@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { User } from '@/shared/types/user'
+import { User } from '@/entities/user/model/user'
 import { UsersService } from '@/services/users.service'
 import EditUserModal from './EditUserModal'
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { User, UserRole, UserStatus } from '@/shared/types/user'
+import { User, UserRole, UserStatus } from '@/entities/user/model/user'
 import { UsersService } from '@/services/users.service'
 import { useEffect, useState } from 'react'
 

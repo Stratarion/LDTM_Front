@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { IService, ServiceFilters, ServiceCategory, ServiceStatus } from '@/shared/types/service'
+import { IService, ServiceFilters, ServiceCategory, ServiceStatus } from '@/entities/service/model/service'
 import { ServicesAPI } from '@/shared/api/services.api'
 import { useDebounce } from '@/shared/lib/hooks/useDebounce'
 

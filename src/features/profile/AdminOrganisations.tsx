@@ -1,22 +1,22 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Organisation, OrganisationFilters, OrganisationType, OrganisationStatus, SchoolType } from '@/shared/types/organisation'
-import { OrganisationsService } from '@/services/organisations.service'
+import { Organization, OrganizationFilters, OrganizationType, OrganizationStatus, SchoolType } from '@/entities/organization/model/organization'
+import { OrganizationsService } from '@/entities/organization/api/organization.service'
 import { useDebounce } from '@/shared/lib/hooks/useDebounce'
-import EditOrganisationModal from './EditOrganisationModal'
+import EditOrganizationModal from './EditOrganizationModal'
 
-export default function AdminOrganisations() {
-  const [organisations, setOrganisations] = useState<Organisation[]>([])
+export default function AdminOrganizations() {
+  const [organizations, setOrganizations] = useState<Organization[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedOrganisation, setSelectedOrganisation] = useState<Organisation | null>(null)
+  const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
   const [isBulkUpdating, setIsBulkUpdating] = useState(false)
   
-  const [filters, setFilters] = useState<OrganisationFilters>({
+  const [filters, setFilters] = useState<OrganizationFilters>({
     name: '',
     type: undefined,
     status: undefined,
@@ -26,31 +26,31 @@ export default function AdminOrganisations() {
 
   const debouncedFilters = useDebounce(filters, 500)
 
-  const fetchOrganisations = async (page: number, filters: OrganisationFilters) => {
+  const fetchOrganizations = async (page: number, filters: OrganizationFilters) => {
     try {
       setIsLoading(true)
-      const response = await OrganisationsService.getAdminList(page, filters)
-      setOrganisations(response.data)
+      const response = await OrganizationsService.getAdminList(page, filters)
+      setOrganizations(response.data)
       setCurrentPage(response.currentPage)
       setTotalPages(response.totalPages)
     } catch (error) {
-      console.error('Error fetching organisations:', error)
+      console.error('Error fetching organizations:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchOrganisations(currentPage, debouncedFilters)
+    fetchOrganizations(currentPage, debouncedFilters)
   }, [currentPage, debouncedFilters])
 
-  const handleEditClick = (org: Organisation) => {
-    setSelectedOrganisation(org)
+  const handleEditClick = (org: Organization) => {
+    setSelectedOrganization(org)
     setIsEditModalOpen(true)
   }
 
   const handleEditModalClose = () => {
-    setSelectedOrganisation(null)
+    setSelectedOrganization(null)
     setIsEditModalOpen(false)
   }
 
@@ -59,11 +59,11 @@ export default function AdminOrganisations() {
 
     try {
       setIsBulkUpdating(true)
-      await OrganisationsService.activateOrganisation(selectedIds)
-      await fetchOrganisations(currentPage, filters)
+      await OrganizationsService.activateOrganization(selectedIds)
+      await fetchOrganizations(currentPage, filters)
       setSelectedIds([])
     } catch (error) {
-      console.error('Error activating organisations:', error)
+      console.error('Error activating organizations:', error)
     } finally {
       setIsBulkUpdating(false)
     }
@@ -71,7 +71,7 @@ export default function AdminOrganisations() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(organisations.map(org => org.id))
+      setSelectedIds(organizations.map(org => org.id))
     } else {
       setSelectedIds([])
     }
@@ -85,7 +85,7 @@ export default function AdminOrganisations() {
     }
   }
 
-  const getStatusColor = (status: OrganisationStatus) => {
+  const getStatusColor = (status: OrganizationStatus) => {
     switch (status) {
       case 'active':
         return 'bg-green-100 text-green-800'
@@ -100,7 +100,7 @@ export default function AdminOrganisations() {
     }
   }
 
-  const getStatusText = (status: OrganisationStatus) => {
+  const getStatusText = (status: OrganizationStatus) => {
     switch (status) {
       case 'active':
         return 'Активна'
@@ -162,7 +162,7 @@ export default function AdminOrganisations() {
             <label className="block text-sm font-medium text-gray-700">Тип</label>
             <select
               value={filters.type || ''}
-              onChange={(e) => setFilters(prev => ({ ...prev, type: (e.target.value || undefined) as OrganisationType }))}
+              onChange={(e) => setFilters(prev => ({ ...prev, type: (e.target.value || undefined) as OrganizationType }))}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-700 focus:border-[#5CD2C6] focus:outline-none focus:ring-1 focus:ring-[#5CD2C6]"
             >
               <option value="">Все типы</option>
@@ -176,7 +176,7 @@ export default function AdminOrganisations() {
             <label className="block text-sm font-medium text-gray-700">Статус</label>
             <select
               value={filters.status || ''}
-              onChange={(e) => setFilters(prev => ({ ...prev, status: (e.target.value || undefined) as OrganisationStatus }))}
+              onChange={(e) => setFilters(prev => ({ ...prev, status: (e.target.value || undefined) as OrganizationStatus }))}
               className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-gray-700 focus:border-[#5CD2C6] focus:outline-none focus:ring-1 focus:ring-[#5CD2C6]"
             >
               <option value="">Все статусы</option>
@@ -220,7 +220,7 @@ export default function AdminOrganisations() {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <input
                   type="checkbox"
-                  checked={selectedIds.length === organisations.length && organisations.length > 0}
+                  checked={selectedIds.length === organizations.length && organizations.length > 0}
                   onChange={(e) => handleSelectAll(e.target.checked)}
                   className="h-4 w-4 text-[#5CD2C6] focus:ring-[#5CD2C6] border-gray-300 rounded"
                 />
@@ -246,7 +246,7 @@ export default function AdminOrganisations() {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {organisations.map((org) => (
+            {organizations.map((org) => (
               <tr key={org.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <input
@@ -340,12 +340,12 @@ export default function AdminOrganisations() {
         </button>
       </div>
 
-      <EditOrganisationModal
-        organisation={selectedOrganisation}
+      <EditOrganizationModal
+        organization={selectedOrganization}
         isOpen={isEditModalOpen}
         onClose={handleEditModalClose}
         onSuccess={() => {
-          fetchOrganisations(currentPage, filters)
+          fetchOrganizations(currentPage, filters)
           handleEditModalClose()
         }}
       />

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ServicesAPI } from '@/shared/api/services.api'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
-import { IService } from '@/shared/types/service'
+import { IService } from '@/entities/service/model/service'
 
 export default function ServicesList() {
   const { user } = useAuth()

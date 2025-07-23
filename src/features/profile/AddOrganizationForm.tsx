@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, Upload, Star, Trash } from 'lucide-react'
-import { OrganizationsService } from '@/services/organizations.service'
+import { OrganizationsService } from '@/entities/organization/api/organization.service'
 import Image from 'next/image'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { validateImage, resizeImage } from '@/shared/lib/utils/image'

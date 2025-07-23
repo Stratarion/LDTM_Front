@@ -1,14 +1,10 @@
-import { User } from '@/shared/types/user'
+import { ITokenData } from '@/entities/user/model/ITokenData'
+import { User } from '@/entities/user/model/user'
 
-interface TokenData {
-  token: string
-  refreshToken: string
-  expiresIn: number
-  timestamp: number
-}
+
 
 export const storage = {
-  setTokenData(data: TokenData) {
+  setTokenData(data: ITokenData) {
     if (typeof window === 'undefined') return
     
     const tokenData = {
@@ -34,13 +30,13 @@ export const storage = {
     }
   },
 
-  getTokenData(): TokenData | null {
+  getTokenData(): ITokenData | null {
     if (typeof window === 'undefined') return null
     
     try {
       const data = localStorage.getItem('token')
       if (!data) return null
-      return JSON.parse(data) as TokenData
+      return JSON.parse(data) as ITokenData
     } catch (error) {
       this.removeTokenData()
       console.error(error)
@@ -72,7 +68,7 @@ export const storage = {
     this.setUserData(data.user)
   },
 
-  getAuthData(): { token: TokenData | null; user: User | null } {
+  getAuthData(): { token: ITokenData | null; user: User | null } {
     return {
       token: this.getTokenData(),
       user: this.getUserData()

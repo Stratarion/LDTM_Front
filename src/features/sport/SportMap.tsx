@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { YMaps, Map, Placemark, ZoomControl } from '@pbe/react-yandex-maps'
 import { Maximize2, Minimize2, ChevronDown, ChevronUp, X } from 'lucide-react'
 import Link from 'next/link'
-import { IService } from '@/shared/types/service'
+import { IService } from '@/entities/service/model/service'
 import Image from 'next/image'
 
 interface SportMapProps {

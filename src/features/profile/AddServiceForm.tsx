@@ -129,7 +129,7 @@ export default function AddServiceForm({
         email: formData.email,
         phone: formData.phone,
         subcategory: formData.subcategory,
-        organisation_id: user.id,
+        organization_id: user.id,
         status: 'pending' as const
       }
 

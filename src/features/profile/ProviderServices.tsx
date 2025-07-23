@@ -7,7 +7,7 @@ import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { useNotifications, ServiceType } from '@/shared/lib/hooks/useNotifications'
 import AddServiceForm from './AddServiceForm'
 import ServiceDetailsModal from './ServiceDetailsModal'
-import { IService } from '@/shared/types/service'
+import { IService } from '@/entities/service/model/service'
 
 export default function ProviderServices() {
   const { user } = useAuth()

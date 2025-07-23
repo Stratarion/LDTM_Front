@@ -7,9 +7,9 @@ import SportInfo from '@/features/sport/sport-details/ui/legacy/SportInfo'
 import SportReviews from '@/features/sport/sport-details/ui/legacy/SportReviews'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { ServicesAPI } from '@/shared/api/services.api'
-import { Schedule, ScheduleService } from '@/services/schedule.service'
+import { Schedule, ScheduleService } from '@/entities/schedule/schedule.service'
 import SportSchedule from '@/features/sport/sport-details/ui/legacy/SportSchedule'
-import { IService } from '@/shared/types/service'
+import { IService } from '@/entities/service/model/service'
 
 export const SportDetails = ({ id }: { id: string }) => {
   const { isAuthenticated } = useAuth()

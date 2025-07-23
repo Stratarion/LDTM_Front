@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { Loader2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react'
-import { BidsService } from '@/services/bids.service'
+import { BidsService } from '@/entities/bid/api/bids.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import BidDetailsModal from './BidDetailsModal'
-import { Bid } from '@/services/bids.service'
+import { Bid } from '@/entities/bid/api/bids.service'
 
 function formatTimeRange(date: string, startTime: string, duration: number): string {
   try {

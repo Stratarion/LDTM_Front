@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, Clock, Users, Calendar as CalendarIcon } from 'lucide-react'
-import { ScheduleEvent, ScheduleService } from '@/services/schedule.service'
+import { ScheduleEvent, ScheduleService } from '@/entities/schedule/schedule.service'
 import Image from 'next/image'
 
 interface EventDetailsProps {

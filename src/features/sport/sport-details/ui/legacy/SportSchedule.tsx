@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
-import { Schedule } from '@/services/schedule.service'
-import { IService } from '@/shared/types/service'
+import { Schedule } from '@/entities/schedule/schedule.service'
+import { IService } from '@/entities/service/model/service'
 import { addDays, startOfWeek, format, isSameDay } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import ConfirmBidModal from '../../../ConfirmBidModal'

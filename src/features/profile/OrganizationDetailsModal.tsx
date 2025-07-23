@@ -6,7 +6,7 @@ import { X, ChevronLeft, ChevronRight, Trash, Edit, Save, ArrowLeft, Loader2, Up
 import { Organization } from '@/types/organization'
 import { useNotifications } from '@/shared/lib/hooks/useNotifications'
 import { ConfirmModal } from '@/shared/ui/confirmModal'
-import { OrganizationsService } from '@/services/organizations.service'
+import { OrganizationsService } from '@/entities/organization/api/organization.service'
 import { Photo, PhotosService } from '@/services/photos.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { validateImage, resizeImage } from '@/shared/lib/utils/image'
@@ -156,7 +156,7 @@ export default function OrganizationDetailsModal({
       const resizedImage = await resizeImage(selectedFile)
       const newPhoto = await PhotosService.uploadPhoto(
         new File([resizedImage], selectedFile.name, { type: 'image/jpeg' }),
-        'organisation',
+        'organization',
         organization.id,
         user.id
       )

@@ -7,8 +7,8 @@ import { User, Settings, Calendar, Building2, Users, BookOpen, Book } from 'luci
 import PersonalData from '@/features/profile/PersonalData'
 import UserLessons from '@/features/profile/UserLessons'
 import AdminUsers from '@/features/profile/AdminUsers'
-import AdminOrganisations from '@/features/profile/AdminOrganisations'
-import ProviderOrganisations from '@/features/profile/ProviderOrganizations'
+import AdminOrganizations from '@/features/profile/AdminOrganizations'
+import ProviderOrganizations from '@/features/profile/ProviderOrganizations'
 import ProviderServices from '@/features/profile/ProviderServices'
 import ProviderSchedule from '@/features/profile/ProviderSchedule'
 import UserSchedule from '@/features/profile/UserSchedule'
@@ -56,7 +56,7 @@ export default function ProfilePage() {
       case 'users':
         return <AdminUsers />
       case 'organizations':
-        return user?.role === 'admin' ? <AdminOrganisations /> : <ProviderOrganisations />
+        return user?.role === 'admin' ? <AdminOrganizations /> : <ProviderOrganizations />
       case 'services':
         return  user?.role === 'admin' ? <AdminServices /> : <ProviderServices />
       case 'schedule':

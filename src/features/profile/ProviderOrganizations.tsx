@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Building2, Loader2, GraduationCap, Flower } from 'lucide-react'
-import { OrganizationsService } from '@/services/organizations.service'
+import { OrganizationsService } from '@/entities/organization/api/organization.service'
 import { Photo, PhotosService } from '@/services/photos.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import AddOrganizationForm from './AddOrganizationForm'
@@ -51,7 +51,7 @@ export default function ProviderOrganizations() {
       const orgsWithPhotos = await Promise.all(
         orgs.map(async (org) => {
           try {
-            const photos = await PhotosService.getEntityPhotos(org.id, 'organisation')
+            const photos = await PhotosService.getEntityPhotos(org.id, 'organization')
             // Сначала ищем фото с description === 'main'
             let mainPhoto = photos.find(p => p.description === 'main')
             

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Calendar, List, Grid3X3, Plus, Loader2 } from 'lucide-react'
-import { ScheduleEvent, ScheduleService } from '@/services/schedule.service'
+import { ScheduleEvent, ScheduleService } from '@/entities/schedule/schedule.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import AddEventForm from './AddEventForm'
 import EventDetails from './EventDetails'

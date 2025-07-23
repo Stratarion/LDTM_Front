@@ -7,7 +7,7 @@ import { Loader2, AlertCircle } from 'lucide-react'
 import Header from '@/widgets/Header'
 import DevelopmentCard from '@/features/DevelopmentCard'
 import DevelopmentFilters from '@/features/DevelopmentFilters'
-import { IService, DevelopmentType } from '@/shared/types/service'
+import { IService, DevelopmentType } from '@/entities/service/model/service'
 import { ServiceFiltersType } from '@/services/services.service'
 import { DevelopmentService, Development } from '@/services/development.service'
 

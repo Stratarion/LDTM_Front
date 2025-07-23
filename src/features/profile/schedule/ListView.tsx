@@ -1,6 +1,6 @@
 'use client'
 
-import { ScheduleEvent } from '@/services/schedule.service'
+import { ScheduleEvent } from '@/entities/schedule/schedule.service'
 import { Users, ChevronLeft, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { ru } from 'date-fns/locale'

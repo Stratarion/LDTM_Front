@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Loader2, Search, User } from 'lucide-react'
-import { CreateEventDto, ScheduleService } from '@/services/schedule.service'
+import { CreateEventDto, ScheduleService } from '@/entities/schedule/schedule.service'
 import { ServicesAPI } from '@/shared/api/services.api'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
-import { User as UserType } from '@/shared/types/user'
+import { User as UserType } from '@/entities/user/model/user'
 import { debounce } from '@/shared/lib/utils/debounce'
-import { IService } from '@/shared/types/service'
+import { IService } from '@/entities/service/model/service'
 
 interface AddEventFormProps {
   isOpen: boolean

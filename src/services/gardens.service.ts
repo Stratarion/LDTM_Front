@@ -79,14 +79,14 @@ export const GardensService = {
     }
 
     const { data } = await API.post<GardensResponse>(
-      '/organisations/garden',
+      '/organizations/garden',
       requestBody
     )
     return data
   },
 
   async getGardenById(id: string): Promise<Garden> {
-    const { data } = await API.get<Garden>(`/organisations/getOrganisationById?id=${id}`)
+    const { data } = await API.get<Garden>(`/organizations/getOrganizationById?id=${id}`)
     return data
   }
 } 

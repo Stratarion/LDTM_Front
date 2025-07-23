@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { UserLoginData } from '../../shared/types/user';
+import { UserLoginData } from '../../entities/user/model/user';
 import { TextField, Button, Box } from '@mui/material';
 
 interface LoginFormProps {

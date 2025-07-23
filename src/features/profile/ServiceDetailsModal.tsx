@@ -9,7 +9,7 @@ import { ConfirmModal } from '@/shared/ui/confirmModal'
 import { Photo, PhotosService } from '@/services/photos.service'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 import { validateImage, resizeImage } from '@/shared/lib/utils/image'
-import { IService, ServiceAddress } from '@/shared/types/service'
+import { IService, ServiceAddress } from '@/entities/service/model/service'
 
 interface ServiceDetailsModalProps {
   serviceId: string

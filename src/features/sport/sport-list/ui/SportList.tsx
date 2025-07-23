@@ -15,7 +15,7 @@ import { MOSCOW_COORDS } from '@/shared/lib/constants'
 import { Coordinates } from '@/shared/types/map'
 import { MainList } from '@/widgets/MainList'
 import { IContentItem } from '@/widgets/MainList/models/ContentItem'
-import { IService } from '@/shared/types/service'
+import { IService } from '@/entities/service/model/service'
 import { ServicesAPI } from '@/shared/api/services.api'
 
 export const SportList = () => {

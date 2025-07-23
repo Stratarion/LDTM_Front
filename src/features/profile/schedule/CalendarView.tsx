@@ -1,6 +1,6 @@
 'use client'
 
-import { ScheduleEvent } from '@/services/schedule.service'
+import { ScheduleEvent } from '@/entities/schedule/schedule.service'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   startOfMonth,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { UserRegisterData } from '../../shared/types/user';
+import { UserRegisterData } from '../../entities/user/model/user';
 import { TextField, Button, Box } from '@mui/material';
 
 interface RegisterFormProps {

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X, User, LogOut } from 'lucide-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { User as UserType } from '@/shared/types/user'
+import { User as UserType } from '@/entities/user/model/user'
 import { useAuth } from '@/shared/lib/hooks/useAuth'
 
 interface UserProfileModalProps {

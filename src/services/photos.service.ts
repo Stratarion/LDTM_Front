@@ -1,6 +1,6 @@
 import { API } from '../shared/api'
 
-export type PhotoEntityType = 'organisation' | 'service' | 'user' | 'review'
+export type PhotoEntityType = 'organization' | 'service' | 'user' | 'review'
 export type PhotoStatus = 'active' | 'inactive' | 'deleted'
 
 export interface Photo {

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { X, Loader2 } from 'lucide-react'
 import { ServicesAPI } from '@/shared/api/services.api'
 import { useNotifications } from '@/shared/lib/hooks/useNotifications'
-import { IService } from '@/shared/types/service'
+import { IService } from '@/entities/service/model/service'
 
 interface EditServiceModalProps {
   service: IService
