@@ -3,14 +3,8 @@
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import { CategoryCardProps } from './model'
 
-interface CategoryCardProps {
-  title: string
-  description: string
-  color: string
-  icon: string
-  href: string
-}
 
 export default function CategoryCard({ title, description, color, icon, href }: CategoryCardProps) {
   const router = useRouter()
@@ -34,4 +28,4 @@ export default function CategoryCard({ title, description, color, icon, href }: 
       <p className="text-sm opacity-90">{description}</p>
     </motion.div>
   )
-} 
+}

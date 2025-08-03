@@ -28,3 +28,8 @@ export const categories = [
 			href: '/development'
 	}
 ]
+
+export const helloBlock = {
+  title: "С возвращением, Исследователь! 🚀",
+  secondTitle: "Готовы продолжить свое обучение?"
+}
