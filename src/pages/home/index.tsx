@@ -1,5 +1,5 @@
 import Header from '@/widgets/Header'
-import CategoryCard from '@/features/CategoryCard'
+import CategoryCard from '@/features/CategoryCard/CategoryCard'
 import { categories } from './constants'
 import { HelloBlock } from './components/HelloBlock'
 
