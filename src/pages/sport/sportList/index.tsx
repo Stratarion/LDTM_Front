@@ -3,6 +3,8 @@
 import { usePathname } from 'next/navigation'
 import Header from '@/widgets/Header'
 import { SportList } from '@/features/sport/sport-list'
+import { ListHeader } from '@/shared/ui/ListHeader'
+import { sportTitles } from './constants'
 export const SportListPage = () => {
   const pathname = usePathname()
   return (
@@ -10,15 +12,10 @@ export const SportListPage = () => {
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Спортивные секции</h1>
-            <p className="text-gray-600 mt-2">
-              Найдите подходящую спортивную секцию для вашего ребенка
-            </p>
-          </div>
-        </div>
-
+        <ListHeader 
+          header={sportTitles.header}
+          description={sportTitles.description}
+        />
         <SportList key={pathname} />
       </div>
     </main>

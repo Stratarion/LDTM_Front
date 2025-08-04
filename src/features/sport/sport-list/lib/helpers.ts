@@ -1,16 +1,20 @@
-import { Coordinates } from "@/shared/types/map"
+import { MOSCOW_COORDS } from "@/shared/lib/constants"
+import { ICoordinates } from "@/shared/lib/types/ICoordinates"
 
-export const loadUserLocation = (): Promise<Coordinates> => {
+export const loadUserLocation = (): Promise<ICoordinates> => {
   return new Promise((resolve) => {
     if (!('geolocation' in navigator)) {
-      return resolve(null)
+      return resolve(MOSCOW_COORDS)
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => resolve([position.coords.latitude, position.coords.longitude]),
+      (position) => resolve({
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      }),
       (error) => {
         console.error('Error getting location:', error)
-        resolve(null)
+        resolve(MOSCOW_COORDS)
       }
     )
   })

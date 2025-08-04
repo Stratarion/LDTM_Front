@@ -1,7 +1,7 @@
 'use client'
 
 import { ItemComponent } from "./components/ItemComponent";
-import { IMainList } from "./models/MainList";
+import { IMainList } from "./models/IMainList";
 
 export const MainList = ({
   content,

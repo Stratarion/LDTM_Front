@@ -5,6 +5,7 @@ import { TServiceStatus } from '../model/TService'
 import { IService } from '../model/IService'
 import { IServiceCreate } from '../model/IServiceCreate'
 import { IServiceListRequestBody } from '../model/IServiceListRequestBody'
+import { ICoordinates } from '@/shared/lib/types/ICoordinates'
 
 export const ServicesAPI = {
   getAdminList: async (page: number, filters?: IServiceFilters) => {
@@ -58,7 +59,7 @@ export const ServicesAPI = {
     page: number,
     limit: number,
     filters?: IServiceFilters,
-    mapCenter?: [number, number]
+    mapCenter?: ICoordinates,
   ): Promise<IServiceListResponse> => {
     const requestBody: IServiceListRequestBody = {
       page,
@@ -69,9 +70,9 @@ export const ServicesAPI = {
         ...(filters?.category && { category: filters.category }),
         ...(filters?.subcategory && { subcategory: filters.subcategory }),
         ...(filters?.minRating && { minRating: filters.minRating }),
-        ...(filters?.minPrice && { minPrice: filters.minPrice }),
-        ...(filters?.maxPrice && { minPrice: filters.maxPrice }),
-        ...(filters?.minAge && { minAge: filters.minAge }),
+        ...(filters?.priceRange?.min && { minPrice: filters.priceRange.min }),
+        ...(filters?.priceRange?.max && { minPrice: filters.priceRange?.max }),
+        ...(filters?.ageRange?.min && { minAge: filters.ageRange?.min }),
       },
       mapCenter
     }

@@ -1,4 +1,4 @@
-import { IContentItem } from "./ContentItem";
+import { IContentItem } from "./IContentItem";
 
 export interface IMainList {
   content: IContentItem[];

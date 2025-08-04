@@ -4,20 +4,27 @@ import { useEffect, useState, useCallback } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { useRouter, usePathname } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
-import SportMap from '@/features/sport/SportMap'
-import { ErrorMessage } from './ErrorMessage'
-import { EmptyState } from './EmptyState'
-import { loadUserLocation } from '../lib/helpers'
 
-import { MOSCOW_COORDS } from '@/shared/lib/constants'
-import { MainList } from '@/widgets/MainList'
+// models
 import { IContentItem } from '@/widgets/MainList/models/IContentItem'
 import { ICoordinates } from '@/shared/lib/types/ICoordinates'
-import { ServicesAPI } from '@/entities/service/api/services.api'
 import { IServiceFilters } from '@/entities/service/model/IServiceFilters'
 import { IService } from '@/entities/service/model/IService'
+
+// constants
+import { filtersList } from './lib/constanst'
+import { loadUserLocation } from './lib/helpers'
+import { MOSCOW_COORDS } from '@/shared/lib/constants'
+
+// api
+import { ServicesAPI } from '@/entities/service/api/services.api'
+
+// components
+import { ErrorMessage } from './ui/ErrorMessage'
+import { EmptyState } from './ui/EmptyState'
 import { ServiceListFilters } from '@/widgets/ServiceListFilters'
-import { filtersList } from '../lib/constanst'
+import { MainList } from '@/widgets/MainList'
+import SportMap from '@/features/sport/SportMap'
 
 export const SportList = () => {
 	const router = useRouter()

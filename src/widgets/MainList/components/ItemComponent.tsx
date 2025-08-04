@@ -3,9 +3,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Star, Users } from 'lucide-react'
-import { ItemProps } from '../models/ItemProps'
+import { IItem } from '../models/IItem'
 
-export const ItemComponent = ({ item, startLink }: ItemProps) => {
+export const ItemComponent = ({ item, startLink }: IItem) => {
   return (
     <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer">
       <Link href={`/${startLink}/${item.id}`}>
