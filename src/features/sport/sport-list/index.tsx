@@ -24,7 +24,7 @@ import { ErrorMessage } from './ui/ErrorMessage'
 import { EmptyState } from './ui/EmptyState'
 import { ServiceListFilters } from '@/widgets/ServiceListFilters'
 import { MainList } from '@/widgets/MainList'
-import SportMap from '@/features/sport/SportMap'
+import { SportMap } from '@/features/sport/SportMap'
 
 export const SportList = () => {
 	const router = useRouter()
