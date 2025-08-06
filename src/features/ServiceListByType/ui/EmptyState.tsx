@@ -1,13 +1,8 @@
 'use client'
 
-import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+import { IEmptyState } from "../lib/IEmptyState"
 
-interface EmptyStateProps {
-	router: AppRouterInstance;
-	handleFilterChange: ({}) => void
-}
-
-export const EmptyState = ({ router, handleFilterChange }: EmptyStateProps) => (
+export const EmptyState = ({ router, handleFilterChange }: IEmptyState) => (
 	<div className="bg-gray-50 rounded-lg p-8 text-center">
 		<div className="text-gray-500 mb-4">
 			<h3 className="text-lg font-medium">Ничего не найдено</h3>

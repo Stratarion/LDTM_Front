@@ -1,7 +1,7 @@
 import { API } from '@/shared/api'
 import { IServiceFilters } from '../model/IServiceFilters'
 import { IServiceListResponse } from '../model/IServiceListResponse'
-import { TServiceStatus } from '../model/TService'
+import { TServiceCategory, TServiceStatus } from '../model/TService'
 import { IService } from '../model/IService'
 import { IServiceCreate } from '../model/IServiceCreate'
 import { IServiceListRequestBody } from '../model/IServiceListRequestBody'
@@ -58,12 +58,14 @@ export const ServicesAPI = {
   getServicesWithMap: async (
     page: number,
     limit: number,
+    type: TServiceCategory,
     filters?: IServiceFilters,
     mapCenter?: ICoordinates,
   ): Promise<IServiceListResponse> => {
     const requestBody: IServiceListRequestBody = {
       page,
       limit,
+      type,
       filters: {
         ...(filters?.name && { name: filters.name }),
         ...(filters?.address && { address: filters.address }),

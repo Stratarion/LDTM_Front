@@ -65,3 +65,5 @@ export const filtersList: IServiceListFilter<keyof IServiceFilters>[] = [
     options: RATINGOPTIONS
   },
 ]
+
+export const PAGES_LIMIT = 12;

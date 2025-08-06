@@ -10,9 +10,10 @@ import { IContentItem } from '@/widgets/MainList/models/IContentItem'
 import { ICoordinates } from '@/shared/lib/types/ICoordinates'
 import { IServiceFilters } from '@/entities/service/model/IServiceFilters'
 import { IService } from '@/entities/service/model/IService'
+import { TServiceCategory } from '@/entities/service/model/TService'
 
 // constants
-import { filtersList } from './lib/constanst'
+import { filtersList, PAGES_LIMIT } from './lib/constanst'
 import { loadUserLocation } from './lib/helpers'
 import { MOSCOW_COORDS } from '@/shared/lib/constants'
 
@@ -26,10 +27,10 @@ import { ServiceListFilters } from '@/widgets/ServiceListFilters'
 import { MainList } from '@/widgets/MainList'
 import { SportMap } from '@/features/sport/SportMap'
 
-export const SportList = () => {
+export const SerivcesList = ({ serciveType }: {serciveType: TServiceCategory}) => {
 	const router = useRouter()
 	const pathname = usePathname()
-	const [sports, setSports] = useState<IService[]>([])
+	const [servicesList, setServicesList] = useState<IService[]>([])
 	const [page, setPage] = useState(1)
 	const [hasMore, setHasMore] = useState(true)
 	const [isLoading, setIsLoading] = useState(false)
@@ -50,19 +51,26 @@ export const SportList = () => {
 	}, [])
 
 	// Загрузка данных с фильтрами
-	const loadSports = useCallback(async (pageNum: number, filters: IServiceFilters) => {
+	const loadServicesList = useCallback(async () => {
 		try {
 			setIsLoading(true)
 			setError(null)
 			
-			const response = await ServicesAPI.getServicesWithMap(pageNum, 12, filters, userLocation || undefined)
-			if (pageNum === 1) {
-				setSports(response.data)
+			const response = await ServicesAPI.getServicesWithMap(
+        page,
+        PAGES_LIMIT,
+        serciveType,
+        currentFilters,
+        userLocation || undefined
+      );
+
+			if (page === 1) {
+				setServicesList(response.data)
 			} else {
-				setSports(prev => [...prev, ...response.data])
+				setServicesList(prev => [...prev, ...response.data])
 			}
 			
-			setHasMore(pageNum < response.totalPages)
+			setHasMore(page < response.totalPages)
 		} catch (err: any) {
 			setError(err.response?.data?.message || 'Произошла ошибка при загрузке данных')
 			setHasMore(false)
@@ -70,7 +78,7 @@ export const SportList = () => {
 			setIsLoading(false)
 			setIsInitialLoad(false)
 		}
-	}, [userLocation])
+	}, [userLocation, serciveType, currentFilters, page])
 
 	// Обработчик изменения фильтров (с обновлением URL)
 	const handleFilterChange = useCallback((newFilters: IServiceFilters) => {
@@ -89,9 +97,9 @@ export const SportList = () => {
 		router.push(`${pathname}${params.toString() ? '?' + params.toString() : ''}`)
 		setCurrentFilters(newFilters)
 		setPage(1)
-		setSports([])
-		loadSports(1, newFilters)
-	}, [router, pathname, loadSports])
+		setServicesList([])
+		loadServicesList()
+	}, [router, pathname, loadServicesList])
 
 	// Загрузка следующей страницы
 	const { ref, inView } = useInView({
@@ -102,14 +110,14 @@ export const SportList = () => {
 		if (inView && hasMore && !isLoading) {
 			const nextPage = page + 1
 			setPage(nextPage)
-			loadSports(nextPage, currentFilters)
+			loadServicesList()
 		}
-	}, [inView, hasMore, isLoading, page, loadSports, currentFilters])
+	}, [inView, hasMore, isLoading, page, loadServicesList, currentFilters])
 
 	// Начальная загрузка только при изменении фильтров
 	useEffect(() => {
-		loadSports(1, currentFilters)
-	}, [loadSports, currentFilters])
+		loadServicesList()
+	}, [loadServicesList, currentFilters])
 
 	return (
 		<>
@@ -124,21 +132,20 @@ export const SportList = () => {
 			{error && <ErrorMessage
 				error={error}
 				setError={setError}
-				loadSports={loadSports}
-				currentFilters={currentFilters}
+				reload={loadServicesList}
 			/>}
 
-			{!error && sports.length === 0 && !isInitialLoad && !isLoading && (
-				<EmptyState router={router} handleFilterChange={handleFilterChange} />
+			{!error && servicesList.length === 0 && !isInitialLoad && !isLoading && (
+				<EmptyState router={router} handleFilterChange={handleFilterChange} serviceType={serciveType} />
 			)}
 
 			<SportMap 
-				sports={sports} 
+				sports={servicesList} 
 				isFullscreen={isMapFullscreen}
 				onFullscreenChange={setIsMapFullscreen}
 			/>
 
-      <MainList content={sports as IContentItem[]} startLink='sport' />
+      <MainList content={servicesList as IContentItem[]} startLink={serciveType} />
 
 			{isLoading && (
 				<div className="flex justify-center py-8">

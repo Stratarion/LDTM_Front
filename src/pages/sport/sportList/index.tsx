@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import Header from '@/widgets/Header'
-import { SportList } from '@/features/sport/sport-list'
+import { SerivcesList } from '@/features/ServiceListByType'
 import { ListHeader } from '@/shared/ui/ListHeader'
 import { sportTitles } from './constants'
 export const SportListPage = () => {
@@ -16,7 +16,7 @@ export const SportListPage = () => {
           header={sportTitles.header}
           description={sportTitles.description}
         />
-        <SportList key={pathname} />
+        <SerivcesList serciveType="sport" key={pathname} />
       </div>
     </main>
   )
